@@ -29,14 +29,14 @@ p.param {background-color: #eeeeee; border-top: lightskyblue solid 4}
 
 <h1 ALIGN="center">Writing Python Extensions in C++</h1>
 
-<p ALIGN="CENTER">Paul F. Dubois, <a href="mailto:dubois1@llnl.gov">dubois1@llnl.gov</a><br>
-Lawrence Livermore National Laboratory<br>
-Livermore, California, U.S.A.</p>
-
 <p ALIGN="CENTER">Barry Scott<br>
 Reading, Berkshire, England<br>
 <a href="mailto:barry@barrys-emacs.org">barry@barrys-emacs.org</a><br>
 </p>
+
+<p ALIGN="CENTER">Paul F. Dubois, <a href="mailto:dubois1@llnl.gov">dubois1@llnl.gov</a><br>
+Lawrence Livermore National Laboratory<br>
+Livermore, California, U.S.A.</p>
 
 
 <p>PyCXX is designed to make it easier to extend Python with C++</p>
@@ -410,7 +410,7 @@ and its descendents, you probably will not use asObject all that often.</p>
   </tr>
   <tr>
     <td class=code>String</td>
-    <td class=code>epr () const</td>
+    <td class=code>repr () const</td>
     <td>repr () representation</td>
   </tr>
   <tr>
@@ -492,6 +492,11 @@ and its descendents, you probably will not use asObject all that often.</p>
     <td class=code>bool</td>
     <td class=code>isString() const</td>
     <td>is this a Python string?</td>
+  </tr>
+  <tr>
+    <td class=code>bool</td>
+    <td class=code>isUnicode() const</td>
+    <td>is this a Python Unicode string?</td>
   </tr>
   <tr>
     <td class=code>bool</td>
@@ -1092,12 +1097,24 @@ sequence.</p>
     <td class=code>Char (char v)</td>
   </tr>
   <tr>
+    <td class=code></td>
+    <td class=code>Char (Py_UNICODE v)</td>
+  </tr>
+  <tr>
     <td class=code>Char&amp;</td>
     <td class=code>operator= (const std::string&amp; v)</td>
   </tr>
   <tr>
     <td class=code>Char&amp;</td>
     <td class=code>operator= (char v) </td>
+  </tr>
+  <tr>
+    <td class=code>Char&amp;</td>
+    <td class=code>operator= (Py_UNICODE v) </td>
+  </tr>
+  <tr>
+    <td class=code>Char&amp;</td>
+    <td class=code>operator= (std::basic_string<Py_UNICODE> v) </td>
   </tr>
   <tr>
     <td class=code></td>
@@ -1132,6 +1149,18 @@ sequence.</p>
   </tr>
   <tr>
     <td class=code> </td>
+    <td class=code>String (const std::string&amp; v, const char *encoding, const char *error=&quot;strict&quot;)</td>
+  </tr>
+  <tr>
+    <td class=code> </td>
+    <td class=code>String (const char *s, const char *encoding, const char *error=&quot;strict&quot;)</td>
+  </tr>
+  <tr>
+    <td class=code> </td>
+    <td class=code>String (const char *s, int len, const char *encoding, const char *error=&quot;strict&quot;)</td>
+  </tr>
+  <tr>
+    <td class=code> </td>
     <td class=code>String (const std::string&amp; v, std::string::size_type vsize)</td>
   </tr>
   <tr>
@@ -1143,8 +1172,24 @@ sequence.</p>
     <td class=code>operator= (const std::string&amp; v) </td>
   </tr>
   <tr>
-    <td class=code> </td>
+    <td class=code>std::string</td>
     <td class=code>operator std::string () const</td>
+  </tr>
+  <tr>
+    <td class=code>String</td>
+    <td class=code>encode( const char *encoding, const char *error=&quot;strict&quot; )</td>
+  </tr>
+  <tr>
+    <td class=code>String</td>
+    <td class=code>decode( const char *encoding, const char *error=&quot;strict&quot; )</td>
+  </tr>
+  <tr>
+    <td class=code>std::string</td>
+    <td class=code>as_std_string() const</td>
+  </tr>
+  <tr>
+    <td class=code>unicodestring</td>
+    <td class=code>as_unicodestring() const</td>
   </tr>
 </table>
 

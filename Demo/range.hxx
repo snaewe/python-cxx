@@ -2,8 +2,7 @@
 #define __r__h
 #include "CXX/Extensions.hxx"
 
-#include <strstream>
-using std::ostrstream;
+#include STR_STREAM
 
 
 // Making an extension object
@@ -55,10 +54,10 @@ public:
 
 	std::string asString() const
 		{
-		ostrstream s;
+		std::OSTRSTREAM s;
 		s << "range(" << start << ", " << stop << ", " << step << ")" << std::ends;
 		return std::string(s.str());
-		}  
+		}
 
 	// override functions from PythonExtension
 	virtual Py::Object repr();
