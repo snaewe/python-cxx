@@ -1,19 +1,54 @@
 <html>
 
 <head>
-<title></title>
+<title>CXX README</title>
 </head>
 
 <body>
 
 <h1>CXX -- C++ Extensions Support</h1>
+<h2>Installation</h2>
+<p>
+python setup.py install \br
+will install the include files into your Python
+include path in a directory "CXX". You refer to the files in your
+include statements like this:\br
+#include "CXX/CXX_objects.h"
+</p>
+<p>
+The option --install-header= can be used to change the install directory.
+Note that the support files expect the include files to be in a directory
+CXX relative to the include path.
+</p>
+<p>
+The support files are installed into your Python installation directory's 
+etc/CXX subdirectory. The option --install-source= can be used to change this.
+</p>
+<p>
+A CXX package is created, into which the Demo installs a module "example". 
+This package is not necessary for the operation of CXX; it is present to convince Distutils to 
+do the installation -- a bug that is already fixed in Distutils' CVS repository.
+</p>
+<h2>Special considerations with C++</h2>
+<p>
+You may need to make Python link with C++. To do that, before
+running configure, set the environment variables CC to "g++ -fPIC", LINKCC to 'g++' and 
+LDSHARED to 'g++ -shared' or whatever is appropriate for your C++ compiler. 
+</p>
+<h2>Making the Demo</h2>
+<p>
+The Demo directory contains a small example that also serves as a test for 
+CXX. Make and install the Demo with \br
+python setup.py install
+</p>
+<p>
+Run the Demo by importing CXX.example, and running CXX.example.test().
+</p>
+<h2>Revision History</h2>
+<h3>Version 5 (May 18, 2000)</h3>
+This version adds Distutils support for installation and some code cleanup.
 
-<p>You don't&nbsp; make and install CXX in the conventional sense. The makethis.py / Setup
-enclosed is for the demo. You'll need to make Python link with C++. To do that, before
-running configure, set the environment variables LINKCC to 'g++' and LDSHARED to 'g++
--shared' or whatever is appropriate for your C++ compiler. </p>
-
-<h2>Version 4 (October 11, 1999)</h2>
+<h3>Version 4 (October 11, 1999)</h3>
 
 <p>This version contains a massive revision to the part of CXX that supports creating
 extension objects and extension modules. Barry Scott contributed these changes.</p>
@@ -171,7 +206,7 @@ amethod&quot;);<br>
 &nbsp;&nbsp;&nbsp; add_varargs_method(&quot;value&quot;, &amp;r::value);<br>
 }</p>
 
-<h2>Version 3 (June 18, 1999)</h2>
+<h3>Version 3 (June 18, 1999)</h3>
 
 <p>1. CXX compiles with EGCS snapshot 19990616. EGCS requires a standard library class
 random_access_iterator that is not yet available in some other compilers (such as Windows
@@ -186,14 +221,14 @@ and EGCS-19990616. </p>
 <p>2. A new constructor was added to Module to allow construction from a string containing
 the module name. A test was added for this to the demo.</p>
 
-<h2>Version 2 (Dec. 28, 1998)</h2>
+<h3>Version 2 (Dec. 28, 1998)</h3>
 
 <p>Fixed definition of extension type to match 1.5.2. This version will presumably not
 compile with older versions of Python. This can be fixed by using the previous version's
 definition. I did not take the time to find out what these new &quot;flags&quot; are for
 nor put in any methods to deal with them.</p>
 
-<h2>Version 1</h2>
+<h3>Version 1</h3>
 
 <p>This is an experimental set of files for supporting the creation of Python extensions
 in C++. </p>

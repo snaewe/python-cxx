@@ -3,7 +3,7 @@
 // All rights reserved. See Legal.htm for full text and disclaimer.
 //---------------------------------------------------------------------------//
 
-#include "CXX_Objects.h"
+#include "CXX/CXX_Objects.h"
 namespace Py {
 
     Type Object::type () const { 

@@ -1,4 +1,4 @@
-#include "CXX_Extensions.h"
+#include "CXX/CXX_Extensions.h"
 
 namespace Py {
 
@@ -1071,3 +1071,4 @@ int PythonExtensionBase::buffer_getsegcount( int* )
 //--------------------------------------------------------------------------------
 
 }
+
