@@ -357,7 +357,7 @@ private:
 		std::cout << "Called with " << args.length() << " normal arguments." << std::endl;
 		Py::List names( kws.keys() );
 		std::cout << "and with " << names.length() << " keyword arguments:" << std::endl;
-		for( int i=0; i< names.length(); i++ )
+		for( Py::List::size_type i=0; i< names.length(); i++ )
 			{
 			Py::String name( names[i] );
 			std::cout << "    " << name << std::endl;
