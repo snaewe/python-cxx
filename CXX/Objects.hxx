@@ -101,7 +101,7 @@ namespace Py {
     // If you are inheriting from PythonExtension<T> to define an object
     // note that it contains PythonExtension<T>::check
     // which you can use in accepts when writing a wrapper class.
-    // See Demo/r.h and Demo/r.cxx for an example.
+    // See Demo/range.h and Demo/range.cxx for an example.
     
     class Object {
     private:
@@ -696,8 +696,8 @@ inline Object asObject (PyObject *p)
          seqref (SeqBase<T>& seq, sequence_index_type j)
              : s(seq), offset(j), the_item (s.getItem(j)){}
 
-         seqref (const seqref<T>& r)
-             : s(r.s), offset(r.offset), the_item(r.the_item) {}
+         seqref (const seqref<T>& range)
+             : s(range.s), offset(range.offset), the_item(range.the_item) {}
          
          ~seqref() {}
          
@@ -1789,14 +1789,9 @@ inline Object asObject (PyObject *p)
                 return asObject(PyObject_CallObject(ptr(), args.ptr()));
             }
             
-            Object apply(PyObject* pargs) const {
-		return apply (Tuple(pargs));
- 	    } 
-
-            Object apply() const {
-                /* PyObject_CallObject has a special case for no args */
-                return asObject(PyObject_CallObject(ptr(), (PyObject*) 0));
-            }
+            Object apply(PyObject* pargs = 0) const {
+				return apply (Tuple(pargs));
+			}
         }; 
         
         class Module: public Object {

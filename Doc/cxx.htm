@@ -1822,7 +1822,7 @@ addresses of functions can be added in order to give the object the desired beha
 
 <p></a><a id="h_43">Creating extension objects is of course harder since you must specify
 how the object behaves and give it methods. This is shown in some detail in the example
-r.h and r.cxx, with the test routine rtest.cxx, in directory Demo.</a> If you have never
+range.h and range.cxx, with the test routine rangetest.cxx, in directory Demo.</a> If you have never
 created a Python extension before, you should read the Extension manual first and be very
 familiar with Python's &quot;special class methods&quot;. Then what follows will make more
 sense.<a id="h_45"></p>
@@ -1862,7 +1862,7 @@ from PyObject itself. So your class is-a PyObject and instances of it can be pas
 Python C API. Note: this example uses the namespace feature of CXX. The Py:: 's are not
 required if you are &quot;using&quot; the namespace instead.</p>
 
-<p>class r: public Py::PythonExtension&lt;r&gt; {<br>
+<p>class range: public Py::PythonExtension&lt;range&gt; {<br>
 public:<br>
 ... constructors, data, etc.<br>
 ... methods not callable from Python<br>
@@ -1885,27 +1885,27 @@ public:<br>
 
 <p><br>
 To initialize the type we provide a static method that we can call from some module's
-initializer. We set the name, doc string, and indicate which behaviors r objects &nbsp;
+initializer. We set the name, doc string, and indicate which behaviors range objects &nbsp;
 support. Then we adds the methods.</p>
 
-<p>void r::init_type()<br>
+<p>void range::init_type()<br>
 {<br>
-&nbsp;&nbsp;&nbsp; behaviors().name(&quot;r&quot;);<br>
-&nbsp;&nbsp;&nbsp; behaviors().doc(&quot;r objects: start, stop, step&quot;);<br>
+&nbsp;&nbsp;&nbsp; behaviors().name(&quot;range&quot;);<br>
+&nbsp;&nbsp;&nbsp; behaviors().doc(&quot;range objects: start, stop, step&quot;);<br>
 &nbsp;&nbsp;&nbsp; behaviors().supportRepr();<br>
 &nbsp;&nbsp;&nbsp; behaviors().supportGetattr();<br>
 &nbsp;&nbsp;&nbsp; behaviors().supportSequenceType();<br>
 <br>
-&nbsp;&nbsp;&nbsp; add_varargs_method(&quot;amethod&quot;, &amp;r::amethod,<br>
+&nbsp;&nbsp;&nbsp; add_varargs_method(&quot;amethod&quot;, &amp;range::amethod,<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &quot;demonstrate how to document
 amethod&quot;);<br>
-&nbsp;&nbsp;&nbsp; add_varargs_method(&quot;assign&quot;, &amp;r::assign);<br>
-&nbsp;&nbsp;&nbsp; add_varargs_method(&quot;value&quot;, &amp;r::value);<br>
+&nbsp;&nbsp;&nbsp; add_varargs_method(&quot;assign&quot;, &amp;range::assign);<br>
+&nbsp;&nbsp;&nbsp; add_varargs_method(&quot;value&quot;, &amp;range::value);<br>
 }</p>
 </a>
 
-<p>Don't forget to add the call r::init_type() to some module's init function. You'll want
-a method in some module that can create r objects, too.</p>
+<p>Don't forget to add the call range::init_type() to some module's init function. You'll want
+a method in some module that can create range objects, too.</p>
 
 <h3>Interface to PythonExtension &lt;T&gt;</h3>
 
@@ -2062,7 +2062,7 @@ local and heap-based objects. </p>
 
 <p>If an extension object is created using operator new, as in:</p>
 
-<p>r* my_r_ref = new r(1, 20, 3)</p>
+<p>range* my_r_ref = new range(1, 20, 3)</p>
 
 <p>then the entity my_r_ref can be thought of as &quot;owning&quot; the reference created
 in the new object. Thus, the object will never have a reference count of zero. If the
@@ -2076,7 +2076,7 @@ that calls the destructor and deletes the pointer.</p>
 
 <p>If the object is created with automatic scope, as in:</p>
 
-<p>r my_r(1, 20, 3)</p>
+<p>range my_r(1, 20, 3)</p>
 
 <p>then my_r can be thought of as owning the reference, and when my_r goes out of scope
 the object will be destroyed. Of course, care must be taken not to have kept any permanent

@@ -164,8 +164,8 @@ return its dictionary.</p>
 <h4>Creating extension objects</h4>
 
 <p>Creating extension objects is of course harder since you must specify how the object
-behaves and give it methods. This is shown in some detail in the example r.h and r.cxx,
-with the test routine rtest.cxx, in directory Demo.</p>
+behaves and give it methods. This is shown in some detail in the example range.h and range.cxx,
+with the test routine rangetest.cxx, in directory Demo.</p>
 
 <p>Here is a brief overview. You create a class that inherits from PythonExtension
 templated upon itself. You override various methods from PythonExtension to implement
@@ -177,7 +177,7 @@ from PyObject itself. So your class is-a PyObject and instances of it can be pas
 Python C API. Note: this example uses the namespace feature of CXX. The Py:: 's are not
 required if you use the namespace instead.</p>
 
-<p>class r: public Py::PythonExtension&lt;r&gt; {<br>
+<p>class range: public Py::PythonExtension&lt;range&gt; {<br>
 public:<br>
 ... constructors, etc.<br>
 <br>
@@ -204,19 +204,19 @@ To initialize the type you provide a static method that you can call from some m
 initializer. This method sets the name, doc string, and indicates which behaviors it
 supports. It then adds the methods.</p>
 
-<p>void r::init_type()<br>
+<p>void range::init_type()<br>
 {<br>
-&nbsp;&nbsp;&nbsp; behaviors().name(&quot;r&quot;);<br>
-&nbsp;&nbsp;&nbsp; behaviors().doc(&quot;r objects: start, stop, step&quot;);<br>
+&nbsp;&nbsp;&nbsp; behaviors().name(&quot;range&quot;);<br>
+&nbsp;&nbsp;&nbsp; behaviors().doc(&quot;range objects: start, stop, step&quot;);<br>
 &nbsp;&nbsp;&nbsp; behaviors().supportRepr();<br>
 &nbsp;&nbsp;&nbsp; behaviors().supportGetattr();<br>
 &nbsp;&nbsp;&nbsp; behaviors().supportSequenceType();<br>
 <br>
-&nbsp;&nbsp;&nbsp; add_varargs_method(&quot;amethod&quot;, &amp;r::amethod,<br>
+&nbsp;&nbsp;&nbsp; add_varargs_method(&quot;amethod&quot;, &amp;range::amethod,<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &quot;demonstrate how to document
 amethod&quot;);<br>
-&nbsp;&nbsp;&nbsp; add_varargs_method(&quot;assign&quot;, &amp;r::assign);<br>
-&nbsp;&nbsp;&nbsp; add_varargs_method(&quot;value&quot;, &amp;r::value);<br>
+&nbsp;&nbsp;&nbsp; add_varargs_method(&quot;assign&quot;, &amp;range::assign);<br>
+&nbsp;&nbsp;&nbsp; add_varargs_method(&quot;value&quot;, &amp;range::value);<br>
 }</p>
 
 <h3>Version 3 (June 18, 1999)</h3>
@@ -259,9 +259,9 @@ then execute:</p>
 
 <p>example.test()</p>
 
-<p>You can also play with the extension object whose constructor is named &quot;r&quot;:</p>
+<p>You can also play with the extension object whose constructor is named &quot;range&quot;:</p>
 
-<p>s = r(1, 100, 2)<br>
+<p>s = range(1, 100, 2)<br>
 print s[2]&nbsp; # should print 5</p>
 
 <p>Compilation with Microsoft Visual C++ 5.0 will succeed but only if you have Service
