@@ -1789,9 +1789,14 @@ inline Object asObject (PyObject *p)
                 return asObject(PyObject_CallObject(ptr(), args.ptr()));
             }
             
-            Object apply(PyObject* pargs = 0) const {
-				return apply (Tuple(pargs));
-			}
+            Object apply(PyObject* pargs) const {
+		return apply (Tuple(pargs));
+ 	    } 
+
+            Object apply() const {
+                /* PyObject_CallObject has a special case for no args */
+                return asObject(PyObject_CallObject(ptr(), (PyObject*) 0));
+            }
         }; 
         
         class Module: public Object {
