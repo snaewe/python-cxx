@@ -70,7 +70,7 @@ LINK32=link.exe
 # PROP Ignore_Export_Lib 0
 # PROP Target_Dir ""
 # ADD BASE CPP /nologo /W3 /GX /O2 /D "WIN32" /D "NDEBUG" /D "_WINDOWS" /YX /FD /c
-# ADD CPP /nologo /MD /W3 /GR /GX /Zi /Od /Ob2 /I "c:\python20\include" /I "." /I "Demo" /D "WIN32" /D "_WINDOWS" /D "NDEBUG" /FR /YX /FD /c /Tp
+# ADD CPP /nologo /MD /W3 /GR /GX /Zi /Od /Ob2 /I "c:\python20\include" /I "." /I "Demo" /D "WIN32" /D "_WINDOWS" /D "NDEBUG" /D "noPY_WIN32_DELAYLOAD_PYTHON_DLL" /FR /YX /FD /c /Tp
 # ADD BASE MTL /nologo /mktyplib203 /o "NUL" /win32
 # ADD MTL /nologo /mktyplib203 /o "NUL" /win32
 # ADD BASE RSC /l 0x409
@@ -103,6 +103,10 @@ SOURCE=Src\cxxsupport.cxx
 # Begin Source File
 
 SOURCE=Demo\example.cxx
+# End Source File
+# Begin Source File
+
+SOURCE=.\Src\IndirectPythonInterface.cxx
 # End Source File
 # Begin Source File
 
