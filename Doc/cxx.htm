@@ -1,0 +1,2393 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.7 [en] (X11; I; Linux 2.2.12-20smp i686) [Netscape]">
+   <title>Writing Python Extensions in C++</title>
+</head>
+<body bgcolor="#FFFFFF">
+
+<center><b><font face="Times"><font size=+2>Writing Python Extensions in
+C++</font></font></b>
+<p><b><font face="Times"><font size=+1>Paul F. Dubois, dubois1@llnl.gov</font></font></b>
+<br><b><font face="Times"><font size=+1>Lawrence Livermore National Laboratory</font></font></b><b><font face="Times"><font size=+1></font></font></b>
+<p><b><font face="Times"><font size=+1>The <a href="http://sourceforge.net/project/?group_id=3180">CXX
+Project Page</a> at&nbsp;<a href="http://sourceforge.net"><img SRC="http://sourceforge.net/sflogo.php?group_id=3180&type=1" ALT="SourceForge Home" NOSAVE height=31 width=88 align=ABSCENTER></a>
+gives you access to the releases, the CVS repository, and more.</font></font></b></center>
+<b><font face="Times"><font size=+1></font></font></b>
+<p>
+<hr>
+<hr>
+<h1>
+<b><font face="Times"><font size=+1>CXX is designed to make it easier to
+extend Python with C++</font></font></b></h1>
+<font face="Times">CXX_Objects is a set of C++ facilities to make it easier
+to write Python extensions. The chief way in which CXX makes it easier
+to write Python extensions is that it greatly increases the probability
+that your program will not make a reference-counting error and will not
+have to continually check error returns from the Python C API. CXX_Objects
+integrates Python with C++ in these ways:</font>
+<ul>
+<li>
+<font face="Times">C++ exception handling is relied on to detect errors
+and clean up. In a complicated function this is often a tremendous problem
+when writing in C. With CXX, we let the compiler keep track of what objects
+need to be dereferenced when an error occurs.</font></li>
+
+<li>
+<font face="Times">The Standard Template Library (STL) and its many algorithms
+plug and play with Python containers such as lists and tuples.</font></li>
+
+<li>
+<font face="Times">The optional CXX_Extensions facility (still in a quite
+experimental state) allows you to replace the clumsy C tables with objects
+and method calls that define your modules and extension objects. Release
+4 contains a substantial revision of this facility.</font></li>
+</ul>
+
+<hr>
+<h2>
+Using CXX_Objects</h2>
+The distribution is in the LLNL distribution under directory CXX. The subdirectory
+cxx contains the header file CXX_Objects.h and the implementation file
+cxxobjects.cxx. If your compiler does not support namespaces you will need
+to edit CXX_config.h to so indicate.
+<p>All declarations in CXX_Objects.h are in a namespace "Py", and so you
+may wish to use it in the form:
+<pre>#include "CXX_Objects.h"
+using namespace Py;</pre>
+The second part of CXX is a facility to make it easier to create extension
+modules and extension objects. Also provided is a file CXX_Extensions.h
+and its support file cxxextensions.c. While the latter is a C file, it
+is written so as to compile properly with either a C or a C++ compiler.
+It is not necessary to use this part of CXX in order to use CXX_Objects.h.
+<p>A directory "example" is provided in the distribution.&nbsp; The example
+demonstrates both parts of CXX..
+<p>First we consider the CXX_Objects.h facilities.
+<br>
+<hr>
+<h2>
+<b><font face="Times"><font size=+1>We avoid programming with Python object
+pointers</font></font></b></h2>
+<font size=+1><font face="Times">The essential idea is that we avoid, as
+much as possible, programming with pointers to Python objects, that is,
+variables of type </font><font face="Courier">PyObject*</font><font face="Times">.
+Instead, we use instances of a family of C++ classes that represent the
+usual Python objects. This family is easily extendible to include new kinds
+of Python objects.</font></font>
+<p><font size=+1><font face="Times">For example, consider the case in which
+we wish to write a method, taking a single integer argument, that will
+create a Python </font><font face="Courier">dict</font><font face="Times">
+and insert into it that Python </font><font face="Courier">int</font><font face="Times">
+plus one under the key </font><font face="Courier">value</font><font face="Times">.
+In C we might do that as follows:</font></font>
+<pre><font face="Times"><font size=+1>static PyObject*
+mymodule_addvalue (PyObject* self, PyObject* args) {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; PyObject *d;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; PyObject* f;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; int k;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; PyArgs_ParseTuple(args, "i", &amp;k);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; d = PyDict_New();
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if (!d) {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return NULL;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; f = PyInt_NEW(k+1);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if(!f) {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Py_DECREF(d); /* have to get rid of d first */
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return NULL;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; if(PyDict_SetItemString(d, "value", f) == -1) {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Py_DECREF(f);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Py_DECREF(d);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return NULL;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return d;
+}</font></font></pre>
+<font face="Times"><font size=+1>If you have written a significant Python
+extension, this tedium looks all too familiar. The vast bulk of the coding
+is error checking and cleanup. Now compare the same thing written in C++
+using CXX_Objects. The things with Python-like names (Int, Dict, Tuple)
+are from CXX_Objects.</font></font>
+<pre><font face="Times"><font size=+1>static PyObject*&nbsp;
+mymodule_addvalue (PyObject* self, PyObject* pargs) {&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; try {&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Tuple args(pargs);&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; args.verify_length(1);&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Dict d;&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Int k = args[0];&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; d["value"] = k + 1;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return new_reference_to(d);&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; catch (const PyException&amp;) {&nbsp;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return NULL;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }
+}</font></font></pre>
+<font face="Times"><font size=+1>If there aren't the right number of arguments
+or the argument isn't an integer, an exception is thrown. In this case
+we choose to catch it and convert it into a Python exception. C++'s exception
+handling mechanism takes care all the cleanup.</font></font>
+<p><font face="Times"><font size=+1>Note that the creation of the Int k
+got the first argument <i>and</i> verified that it is an Int.</font></font>
+<br>
+<hr>
+<h1>
+<b><font face="Times"><font size=+1>The basic concept is to wrap Python
+pointers</font></font></b></h1>
+<font size=+1><font face="Times">The basic concept of CXX_Objects is to
+create a wrapper around </font><font face="Courier">PyObject*</font><font face="Times">s
+so that the reference counting can be done automatically, thus eliminating
+the most frequent source of errors. In addition, we can then add methods
+and operators so that Python manipulations in C++ can look more like Python.</font></font>
+<p><font size=+1><font face="Times">Each </font><font face="Courier">Object</font><font face="Times">
+contains a </font><font face="Courier">PyObject*</font><font face="Times">
+to which it owns a reference. (If you don't know what this phrase means,
+it is explained in the Python extension manual. You don't actually need
+to understand it very well if you are going to use CXX_Objects. When an
+</font><font face="Courier">Object</font><font face="Times"> is destroyed,
+it releases its ownership on the pointer. Since C++ calls the destructors
+on objects that are about to go out of scope, we are guaranteed that we
+will keep the reference counts right even if we unexpectedly leave a routine
+with an exception.</font></font>
+<p><font face="Times"><font size=+1>As a matter of philosophy, CXX_Objects
+prevents the creation of instances of its classes unless the instance will
+be a valid instance of its class. When an attempt is made to create an
+object that will not be valid, an exception is thrown.</font></font>
+<p><font face="Times"><font size=+1>Class Object represents the most general
+kind of Python object. The rest of the classes that represent Python objects
+inherit from it.</font></font>
+<p><font face="Times"><font size=+1>Object</font></font>
+<br><font face="Times"><font size=+1>&nbsp;&nbsp;&nbsp; Type</font></font>
+<br><font face="Times"><font size=+1>&nbsp;&nbsp;&nbsp; Int</font></font>
+<br><font face="Times"><font size=+1>&nbsp;&nbsp;&nbsp; Float</font></font>
+<br><font face="Times"><font size=+1>&nbsp;&nbsp;&nbsp; Long</font></font>
+<br><font face="Times"><font size=+1>&nbsp;&nbsp;&nbsp; Sequence</font></font>
+<br><font face="Times"><font size=+1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+String</font></font>
+<br><font face="Times"><font size=+1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Tuple</font></font>
+<br><font face="Times"><font size=+1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+List</font></font>
+<br><font face="Times"><font size=+1>&nbsp;&nbsp;&nbsp; Mapping</font></font>
+<br><font face="Times"><font size=+1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Dict</font></font>
+<br><font face="Times"><font size=+1>&nbsp;&nbsp;&nbsp; Callable</font></font>
+<p><font face="Times"><font size=+1>There are several constructors for
+each of these classes. For example, you can create an Int from an integer
+as in</font></font>
+<pre><font face="Times"><font size=+1>Int s(3)</font></font></pre>
+<font face="Times"><font size=+1>However, you can also create an instance
+of one of these classes using any PyObject* or another Object. If the corresponding
+Python object does not actually have the type desired, an exception is
+thrown. This is accomplished as follows. Class Object defines a virtual
+function accepts:</font></font>
+<pre><font face="Times"><font size=+1>virtual bool accepts(PyObject* p)</font></font></pre>
+<font size=+1><font face="Times">The base class version of accepts returns
+true for any pointer p except 0. This means we can create an Object using
+any </font><font face="Courier">PyObject*, </font><font face="Times">or
+from any other Object. However, if we attempt to create an Int from a PyObject*,
+the overridding version of accepts in class Int will only accept pointers
+that correspond to Python ints. Therefore if we have a Tuple t and we wish
+to get the first element and be sure it is an Int, we do</font></font>
+<p><font face="Times"><font size=+1>Int first_element = t[0]</font></font>
+<p><font face="Times"><font size=+1>This will not only accomplish the goal
+of extracting the first element of the Tuple t, but it will ensure that
+the result is an Int. If not, an exception is thrown. (The exception mechanism
+is discussed later.)</font></font>
+<p><font size=+1><font face="Times">Often, </font><font face="Courier">PyObject*</font><font face="Times">
+pointers are acquired from some function, particularly functions in the
+Python API. If you wish to make an object from the pointer returned by
+such a function, you need to know if the function returns you an <i>owned</i>
+or <i>unowned</i> reference. If it is an owned reference, you indicate
+this by enclosing it in the constructor for a helper class named </font><font face="Courier">FromAPI</font><font face="Times">.
+For example, the routine PyString_FromString returns an owned reference
+to a Python string object. You could write:</font></font>
+<p><font face="Times"><font size=+1>Object w = FromAPI(PyString_FromString("my
+string"));</font></font>
+<p><font face="Times"><font size=+1>FromAPI is a simple helper class that
+does not increment the reference count in the constructor but decrements
+it in the destructor. In fact, you probably would never do this, since
+CXX has a class String and you can just say:</font></font>
+<p><font face="Times"><font size=+1>String w("my string")</font></font>
+<p><font size=+1><font face="Times">Indeed, since most of the Python C
+API is similarly embodied in </font><font face="Courier">Object</font><font face="Times">
+and its descendents, you probably will not use FromAPI all that often.</font></font>
+<br>
+<hr>
+<h2>
+<font face="Times"><font size=+1>Class Object</font></font></h2>
+<font face="Times"><font size=+1>Class Object serves as the base class
+for the other classes. Its default constructor constructs a Py_None, the
+unique object of Python type None. The interface to Object consists of
+a large number of methods corresponding to the operations that are defined
+for every Python object. In each case, the methods thow an exception if
+anything goes wrong.There is no method corresponding to PyObject_SetItem
+with an arbitrary Python object as a key. Instead, create an instance of
+a more specific child of Object and use the appropriate facilities.</font></font>
+<p><font face="Times"><font size=+1>The comparison operators use the Python
+comparison function to compare values. The method "is" is available to
+test for absolute identity.</font></font>
+<p><font face="Times"><font size=+1>A conversion to standard library string
+type std::string is supplied using method "as_string". Stream output of
+Objects uses this conversion, which in turn uses the Python object's str()
+representation.</font></font>
+<p><font face="Times"><font size=+1>All the numeric operators are defined
+on all possible combinations of Object, long, and double. These use the
+corresponding Python operators, and should the operation fail for some
+reason, an exception is thrown.</font></font>
+<h3>
+<font face="Times"><font size=+1>Table 1: Class Object</font></font></h3>
+&nbsp;
+<center><table BORDER >
+<tr>
+<td VALIGN=TOP WIDTH="16%">
+<center><b><font face="Times">Returns</font></b></center>
+</td>
+
+<td VALIGN=TOP WIDTH="47%">
+<center><b><font face="Times">Name(signature)</font></b></center>
+</td>
+
+<td VALIGN=TOP WIDTH="38%">
+<center><b><font face="Times">Comment</font></b></center>
+</td>
+</tr>
+
+<tr>
+<td VALIGN=TOP COLSPAN="3" WIDTH="100%">
+<center><b><font face="Times">Basic Methods</font></b></center>
+</td>
+</tr>
+
+<tr>
+<td VALIGN=TOP WIDTH="16%"><font face="Times">explicit&nbsp;</font></td>
+
+<td VALIGN=TOP WIDTH="47%"><font face="Times"><font color="#008000">Object</font>
+(PyObject* pyob=Py_None)&nbsp;</font></td>
+
+<td VALIGN=TOP WIDTH="38%"><font face="Times">Construct from pointer. Acquires
+an owned reference.</font></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP WIDTH="16%"><font face="Times">explicit</font></td>
+
+<td VALIGN=TOP WIDTH="47%"><font face="Times"><font color="#008000">Object</font>
+(const Object&amp; ob)</font></td>
+
+<td VALIGN=TOP WIDTH="38%"><font face="Times">Copycons; acquires an owned
+reference.</font></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP WIDTH="16%"><font face="Times">Object&amp;</font></td>
+
+<td VALIGN=TOP WIDTH="47%"><font face="Times">operator= (const Object&amp;
+rhs)&nbsp;</font></td>
+
+<td VALIGN=TOP WIDTH="38%"><font face="Times">Acquires an owned reference.</font></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP WIDTH="16%"><font face="Times">Object&amp;</font></td>
+
+<td VALIGN=TOP WIDTH="47%"><font face="Times">operator= (PyObject* rhsp)&nbsp;</font></td>
+
+<td VALIGN=TOP WIDTH="38%"><font face="Times">Acquires an owned reference.</font></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP WIDTH="16%"><font face="Times"><font color="#FF0000">virtual</font></font></td>
+
+<td VALIGN=TOP WIDTH="47%"><font face="Times"><font color="#FF0000">~Object</font>
+()&nbsp;</font></td>
+
+<td VALIGN=TOP WIDTH="38%"><font face="Times">Releases the reference.</font></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP WIDTH="16%"><font face="Times">void</font></td>
+
+<td VALIGN=TOP WIDTH="47%"><font face="Times">increment_reference_count()&nbsp;</font></td>
+
+<td VALIGN=TOP WIDTH="38%"><font face="Times">Explicitly increment the
+count</font></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP WIDTH="16%"><font face="Times">void</font></td>
+
+<td VALIGN=TOP WIDTH="47%"><font face="Times">decrement_reference_count()</font></td>
+
+<td VALIGN=TOP WIDTH="38%"><font face="Times">Explicitly decrement count
+but not to zero</font></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP WIDTH="16%"><font face="Times">PyObject*</font></td>
+
+<td VALIGN=TOP WIDTH="47%"><font face="Times">operator* () const</font></td>
+
+<td VALIGN=TOP WIDTH="38%"><font face="Times">Lends the pointer</font></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP WIDTH="16%"><font face="Times">PyObject*</font></td>
+
+<td VALIGN=TOP WIDTH="47%"><font face="Times">ptr () const</font></td>
+
+<td VALIGN=TOP WIDTH="38%"><font face="Times">Lends the pointer</font></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP WIDTH="16%"><font face="Times"><font color="#FF0000">virtual</font>
+bool</font></td>
+
+<td VALIGN=TOP WIDTH="47%"><font face="Times"><font color="#FF0000">accepts</font>
+(PyObject *pyob) const</font></td>
+
+<td VALIGN=TOP WIDTH="38%"><font face="Times">Would assignment of pyob
+to this object succeed?</font></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP WIDTH="16%"><font face="Times">std::string</font></td>
+
+<td VALIGN=TOP WIDTH="47%"><font face="Times">as_string() const</font></td>
+
+<td VALIGN=TOP WIDTH="38%"><font face="Times">str() representation</font></td>
+</tr>
+
+<tr>
+<td ALIGN=CENTER VALIGN=TOP COLSPAN="3" WIDTH="100%"><b>Python API Interface</b></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP WIDTH="16%"><font face="Times">int</font></td>
+
+<td VALIGN=TOP WIDTH="47%"><font face="Times">reference_count () const&nbsp;</font></td>
+
+<td VALIGN=TOP WIDTH="38%"><font face="Times">reference count</font></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP WIDTH="16%"><font face="Times">Type</font></td>
+
+<td VALIGN=TOP WIDTH="47%"><font face="Times">type () const</font></td>
+
+<td VALIGN=TOP WIDTH="38%"><font face="Times">associated type object</font></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP WIDTH="16%"><font face="Times">String</font></td>
+
+<td VALIGN=TOP WIDTH="47%"><font face="Times">str () const</font></td>
+
+<td VALIGN=TOP WIDTH="38%"><font face="Times">str() representation</font></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP WIDTH="16%"><font face="Times">String</font></td>
+
+<td VALIGN=TOP WIDTH="47%"><font face="Times">epr () const</font></td>
+
+<td VALIGN=TOP WIDTH="38%"><font face="Times">repr () representation</font></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP WIDTH="16%"><font face="Times">bool</font></td>
+
+<td VALIGN=TOP WIDTH="47%"><font face="Times">hasAttr (const std::string&amp;
+s) const</font></td>
+
+<td VALIGN=TOP WIDTH="38%"><font face="Times">hasattr(this, s)</font></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP WIDTH="16%"><font face="Times">Object</font></td>
+
+<td VALIGN=TOP WIDTH="47%"><font face="Times">getAttr (const std::string&amp;
+s) const</font></td>
+
+<td VALIGN=TOP WIDTH="38%"><font face="Times">getattr(this, s)</font></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP WIDTH="16%"><font face="Times">Object</font></td>
+
+<td VALIGN=TOP WIDTH="47%"><font face="Times">getItem (const Object&amp;
+key) const</font></td>
+
+<td VALIGN=TOP WIDTH="38%"><font face="Times">getitem(this, key)</font></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP WIDTH="16%"><font face="Times">long</font></td>
+
+<td VALIGN=TOP WIDTH="47%"><font face="Times">hashValue () const</font></td>
+
+<td VALIGN=TOP WIDTH="38%"><font face="Times">hash(this)</font></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP WIDTH="16%"><font face="Times">void</font></td>
+
+<td VALIGN=TOP WIDTH="47%"><font face="Times">setAttr (const std::string&amp;
+s,&nbsp;</font>
+<br><font face="Times">const Object&amp; value)</font></td>
+
+<td VALIGN=TOP WIDTH="38%"><font face="Times">this.s = value</font></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP WIDTH="16%"><font face="Times">void</font></td>
+
+<td VALIGN=TOP WIDTH="47%"><font face="Times">delAttr (const std::string&amp;
+s)&nbsp;</font></td>
+
+<td VALIGN=TOP WIDTH="38%"><font face="Times">del this.s</font></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP WIDTH="16%"><font face="Times">void</font></td>
+
+<td VALIGN=TOP WIDTH="47%"><font face="Times">delItem (const Object&amp;
+key)&nbsp;</font></td>
+
+<td VALIGN=TOP WIDTH="38%"><font face="Times">del this[key]</font></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP WIDTH="16%"><font face="Times">bool</font></td>
+
+<td VALIGN=TOP WIDTH="47%"><font face="Times">isCallable () const</font></td>
+
+<td VALIGN=TOP WIDTH="38%"><font face="Times">does this have callable behavior?</font></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP WIDTH="16%"><font face="Times">bool</font></td>
+
+<td VALIGN=TOP WIDTH="47%"><font face="Times">isList () const</font></td>
+
+<td VALIGN=TOP WIDTH="38%"><font face="Times">is this a Python list?</font></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP WIDTH="16%"><font face="Times">bool</font></td>
+
+<td VALIGN=TOP WIDTH="47%"><font face="Times">isMapping () const</font></td>
+
+<td VALIGN=TOP WIDTH="38%"><font face="Times">does this have mapping behaviors?</font></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP WIDTH="16%"><font face="Times">bool</font></td>
+
+<td VALIGN=TOP WIDTH="47%"><font face="Times">isNumeric () const</font></td>
+
+<td VALIGN=TOP WIDTH="38%"><font face="Times">does this have numeric behaviors?</font></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP WIDTH="16%"><font face="Times">bool</font></td>
+
+<td VALIGN=TOP WIDTH="47%"><font face="Times">isSequence () const&nbsp;</font></td>
+
+<td VALIGN=TOP WIDTH="38%"><font face="Times">does this have sequence behaviors?</font></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP WIDTH="16%"><font face="Times">bool</font></td>
+
+<td VALIGN=TOP WIDTH="47%"><font face="Times">isTrue () const</font></td>
+
+<td VALIGN=TOP WIDTH="38%"><font face="Times">is this true in the Python
+sense?</font></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP WIDTH="16%"><font face="Times">bool</font></td>
+
+<td VALIGN=TOP WIDTH="47%"><font face="Times">isType (const Type&amp; t)
+const</font></td>
+
+<td VALIGN=TOP WIDTH="38%"><font face="Times">is type(this) == t?</font></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP WIDTH="16%"><font face="Times">bool</font></td>
+
+<td VALIGN=TOP WIDTH="47%"><font face="Times">isTuple() const</font></td>
+
+<td VALIGN=TOP WIDTH="38%"><font face="Times">is this a Python tuple?</font></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP WIDTH="16%"><font face="Times">bool</font></td>
+
+<td VALIGN=TOP WIDTH="47%"><font face="Times">isString() const</font></td>
+
+<td VALIGN=TOP WIDTH="38%"><font face="Times">is this a Python string?</font></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP WIDTH="16%"><font face="Times">bool</font></td>
+
+<td VALIGN=TOP WIDTH="47%"><font face="Times">isDict() const</font></td>
+
+<td VALIGN=TOP WIDTH="38%"><font face="Times">is this a Python dictionary?</font></td>
+</tr>
+
+<tr>
+<td ALIGN=CENTER VALIGN=TOP COLSPAN="3" WIDTH="100%"><b><font face="Times">Comparison
+Operators</font></b></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP WIDTH="16%"><font face="Times">bool</font></td>
+
+<td VALIGN=TOP WIDTH="47%"><font face="Times">is(PyObject* pother) const</font></td>
+
+<td VALIGN=TOP WIDTH="38%"><font face="Times">test for identity</font></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP WIDTH="16%"><font face="Times">bool</font></td>
+
+<td VALIGN=TOP WIDTH="47%"><font face="Times">is(const Object&amp; other)
+const</font></td>
+
+<td VALIGN=TOP WIDTH="38%"><font face="Times">test for identity</font></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP WIDTH="16%"><font face="Times">bool&nbsp;</font></td>
+
+<td VALIGN=TOP WIDTH="47%"><font face="Times">operator==(const Object&amp;
+o2) const</font></td>
+
+<td VALIGN=TOP WIDTH="38%"><font face="Times">Comparisons use Python cmp</font></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP WIDTH="16%"><font face="Times">bool</font></td>
+
+<td VALIGN=TOP WIDTH="47%"><font face="Times">operator!=(const Object&amp;
+o2) const</font></td>
+
+<td VALIGN=TOP WIDTH="38%"><font face="Times">Comparisons use Python cmp</font></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP WIDTH="16%"><font face="Times">bool</font></td>
+
+<td VALIGN=TOP WIDTH="47%"><font face="Times">operator>=(const Object&amp;
+o2) const</font></td>
+
+<td VALIGN=TOP WIDTH="38%"><font face="Times">Comparisons use Python cmp</font></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP WIDTH="16%"><font face="Times">bool</font></td>
+
+<td VALIGN=TOP WIDTH="47%"><font face="Times">operator&lt;=(const Object&amp;
+o2) const&nbsp;</font></td>
+
+<td VALIGN=TOP WIDTH="38%"><font face="Times">Comparisons use Python cmp</font></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP WIDTH="16%"><font face="Times">bool</font></td>
+
+<td VALIGN=TOP WIDTH="47%"><font face="Times">operator&lt;(const Object&amp;
+o2) const</font></td>
+
+<td VALIGN=TOP WIDTH="38%"><font face="Times">Comparisons use Python cmp</font></td>
+</tr>
+
+<tr>
+<td VALIGN=TOP WIDTH="16%"><font face="Times">bool</font></td>
+
+<td VALIGN=TOP WIDTH="47%"><font face="Times">operator>(const Object&amp;
+o2) const</font></td>
+
+<td VALIGN=TOP WIDTH="38%"><font face="Times">Comparisons use Python cmp</font></td>
+</tr>
+</table></center>
+
+<h1>
+<font face="Times"><font size=+1>The Basic Types</font></font></h1>
+<font face="Times"><font size=+1>Corresponding to each of the basic Python
+types is a class that inherits from Object. Here are the interfaces for
+those types. Each of them inherits from Object and therefore has all of
+the inherited methods listed for Object. Where a virtual function is overridden
+in a class, the name is underlined.</font></font>
+<br>
+<hr>
+<h2>
+<font face="Times"><font size=+1>Class Type</font></font></h2>
+<font face="Times"><font size=+1>Class Type corresponds to Python type
+objects. There is no default constructor.</font></font>
+<h3>
+<font face="Times"><font size=+1>Table 2: class Type</font></font></h3>
+&nbsp;
+<table BORDER WIDTH="448" >
+<tr>
+<td WIDTH="99">
+<center><b>Returns</b></center>
+</td>
+
+<td WIDTH="359">
+<center><b>Name and Signature</b></center>
+</td>
+
+<td WIDTH="201">
+<center><b>Comments</b></center>
+</td>
+</tr>
+
+<tr>
+<td WIDTH="99">explicit&nbsp;</td>
+
+<td WIDTH="359"><font color="#008000">Type</font> (PyObject* pyob)</td>
+
+<td WIDTH="201">Constructor</td>
+</tr>
+
+<tr>
+<td WIDTH="99">explicit&nbsp;</td>
+
+<td WIDTH="359"><font color="#008000">Type</font> (const Object&amp; ob)</td>
+
+<td WIDTH="201">Constructor</td>
+</tr>
+
+<tr>
+<td WIDTH="99">explicit</td>
+
+<td WIDTH="359"><font color="#008000">Type</font>(const Type&amp; t)</td>
+
+<td WIDTH="201">Copycons</td>
+</tr>
+
+<tr>
+<td WIDTH="99">Type&amp;&nbsp;</td>
+
+<td WIDTH="359">operator= (const Object&amp; rhs)&nbsp;</td>
+
+<td WIDTH="201">Assignment</td>
+</tr>
+
+<tr>
+<td WIDTH="99">Type&amp;&nbsp;</td>
+
+<td WIDTH="359">operator= (PyObject* rhsp)&nbsp;</td>
+
+<td WIDTH="201">Assignment</td>
+</tr>
+
+<tr>
+<td WIDTH="99"><font color="#FF0000">virtual</font> bool</td>
+
+<td WIDTH="359"><u><font color="#FF0000">accepts</font></u> (PyObject *pyob)
+const</td>
+
+<td WIDTH="201">Uses PyType_Check</td>
+</tr>
+</table>
+
+<hr>
+<h2>
+<font face="Times"><font size=+1>Class Int</font></font></h2>
+<font face="Times"><font size=+1>Class Int, derived publically from Object,
+corresponds to Python ints. Note that the latter correspond to C long ints.
+Class Int has an implicit user-defined conversion to long int. All constructors,
+on the other hand, are explicit. The default constructor creates a Python
+int zero.</font></font>
+<h3>
+<font face="Times"><font size=+1>Table 3: class Int</font></font></h3>
+&nbsp;
+<table BORDER >
+<tr>
+<td>
+<center><b>Returns</b></center>
+</td>
+
+<td>
+<center><b>Name and Signature</b></center>
+</td>
+
+<td>
+<center><b>Comments</b></center>
+</td>
+</tr>
+
+<tr>
+<td>explicit</td>
+
+<td><font color="#008000">Int</font> (PyObject *pyob)</td>
+
+<td>Constructor</td>
+</tr>
+
+<tr>
+<td>explicit</td>
+
+<td><font color="#008000">Int</font> (const Int&amp; ob)</td>
+
+<td>Constructor</td>
+</tr>
+
+<tr>
+<td>explicit</td>
+
+<td><font color="#008000">Int</font> (long v = 0L)</td>
+
+<td>Construct from long</td>
+</tr>
+
+<tr>
+<td>explicit</td>
+
+<td><font color="#008000">Int</font> (int v)</td>
+
+<td>Contruct from int</td>
+</tr>
+
+<tr>
+<td>explicit</td>
+
+<td><font color="#008000">Int</font> (const Object&amp; ob)</td>
+
+<td>Copycons</td>
+</tr>
+
+<tr>
+<td>Int&amp;&nbsp;</td>
+
+<td>operator= (const Object&amp; rhs)</td>
+
+<td>Assignment</td>
+</tr>
+
+<tr>
+<td>Int&amp;&nbsp;</td>
+
+<td>operator= (PyObject* rhsp)</td>
+
+<td>Assignment</td>
+</tr>
+
+<tr>
+<td><font color="#FF0000">virtual</font> bool&nbsp;</td>
+
+<td><u><font color="#FF0000">accepts</font></u> (PyObject *pyob) const&nbsp;</td>
+
+<td>Based on PyInt_Check</td>
+</tr>
+
+<tr>
+<td>long</td>
+
+<td>operator long() const&nbsp;</td>
+
+<td><i>Implicit</i> conversion to long int</td>
+</tr>
+
+<tr>
+<td>Int&amp;&nbsp;</td>
+
+<td>operator= (int v)</td>
+
+<td>Assign from int</td>
+</tr>
+
+<tr>
+<td>Int&amp;&nbsp;</td>
+
+<td>operator= (long v)&nbsp;</td>
+
+<td>Assign from long</td>
+</tr>
+</table>
+
+<hr>
+<h2>
+<font face="Times"><font size=+1>Class Long</font></font></h2>
+<font face="Times"><font size=+1>Class Long, derived publically from Object,
+corresponds to Python type long. In Python, a long is an integer type of
+unlimited size, and is usually used for applications such as cryptography,
+not as a normal integer. Implicit conversions to both double and long are
+provided, although the latter may of course fail if the number is actually
+too big. All constructors are explicit. The default constructor produces
+a Python long zero.</font></font>
+<h3>
+<font face="Times"><font size=+1>Table 4: Class Long</font></font></h3>
+&nbsp;
+<table BORDER >
+<tr>
+<td>
+<center><b>Returns</b></center>
+</td>
+
+<td>
+<center><b>Name and Signature</b></center>
+</td>
+
+<td>
+<center><b>Comments</b></center>
+</td>
+</tr>
+
+<tr>
+<td>explicit</td>
+
+<td><font color="#008000">Long</font> (PyObject *pyob)</td>
+
+<td>Constructor</td>
+</tr>
+
+<tr>
+<td>explicit</td>
+
+<td><font color="#008000">Long</font> (const Int&amp; ob)</td>
+
+<td>Constructor</td>
+</tr>
+
+<tr>
+<td>explicit</td>
+
+<td><font color="#008000">Long</font> (long v = 0L)</td>
+
+<td>Construct from long</td>
+</tr>
+
+<tr>
+<td>explicit</td>
+
+<td><font color="#008000">Long</font> (int v)</td>
+
+<td>Contruct from int</td>
+</tr>
+
+<tr>
+<td>explicit</td>
+
+<td><font color="#008000">Long</font> (const Object&amp; ob)</td>
+
+<td>Copycons</td>
+</tr>
+
+<tr>
+<td>Long&amp;&nbsp;</td>
+
+<td>operator= (const Object&amp; rhs)</td>
+
+<td>Assignment</td>
+</tr>
+
+<tr>
+<td>Long&amp;&nbsp;</td>
+
+<td>operator= (PyObject* rhsp)</td>
+
+<td>Assignment</td>
+</tr>
+
+<tr>
+<td><font color="#FF0000">virtual</font> bool&nbsp;</td>
+
+<td><u><font color="#FF0000">accepts</font></u> (PyObject *pyob) const&nbsp;</td>
+
+<td>Based on PyLong_Check</td>
+</tr>
+
+<tr>
+<td>double</td>
+
+<td>operator double() const&nbsp;</td>
+
+<td><i>Implicit</i> conversion to double</td>
+</tr>
+
+<tr>
+<td>long</td>
+
+<td>operator long() const</td>
+
+<td><i>Implicit</i> conversion to long</td>
+</tr>
+
+<tr>
+<td>Long&amp;&nbsp;</td>
+
+<td>operator= (int v)</td>
+
+<td>Assign from int</td>
+</tr>
+
+<tr>
+<td>Long&amp;&nbsp;</td>
+
+<td>operator= (long v)&nbsp;</td>
+
+<td>Assign from long</td>
+</tr>
+</table>
+
+<hr>
+<h2>
+<font face="Times"><font size=+1>Class Float</font></font></h2>
+<font face="Times"><font size=+1>Class Float corresponds to Python floats,
+which in turn correspond to C double. The default constructor produces
+the Python float 0.0.</font></font>
+<h3>
+<font face="Times"><font size=+1>Table 5: Class Float</font></font></h3>
+&nbsp;
+<table BORDER WIDTH="524" >
+<tr>
+<td WIDTH="79">
+<center><b>Returns</b></center>
+</td>
+
+<td WIDTH="144">
+<center><b>Name and Signature</b></center>
+</td>
+
+<td WIDTH="209">
+<center><b>Comments</b></center>
+</td>
+</tr>
+
+<tr>
+<td WIDTH="79">explicit&nbsp;</td>
+
+<td WIDTH="144">Float (PyObject *pyob)&nbsp;</td>
+
+<td WIDTH="209">Constructor</td>
+</tr>
+
+<tr>
+<td WIDTH="79">&nbsp;</td>
+
+<td WIDTH="144">Float (const Float&amp; f)&nbsp;</td>
+
+<td WIDTH="209">Construct from float</td>
+</tr>
+
+<tr>
+<td WIDTH="79">explicit&nbsp;</td>
+
+<td WIDTH="197">Float (double v=0.0)</td>
+
+<td WIDTH="150">Construct from double</td>
+</tr>
+
+<tr>
+<td WIDTH="79">explicit&nbsp;</td>
+
+<td WIDTH="197">Float (const Object&amp; ob)</td>
+
+<td WIDTH="150">Copycons</td>
+</tr>
+
+<tr>
+<td WIDTH="79">Float&amp;&nbsp;</td>
+
+<td WIDTH="197">operator= (const Object&amp; rhs)</td>
+
+<td WIDTH="150">Assignment</td>
+</tr>
+
+<tr>
+<td WIDTH="79">Float&amp;&nbsp;</td>
+
+<td WIDTH="197">operator= (PyObject* rhsp)</td>
+
+<td WIDTH="150">Assignment</td>
+</tr>
+
+<tr>
+<td WIDTH="79">virtual bool&nbsp;</td>
+
+<td WIDTH="197">accepts (PyObject *pyob) const</td>
+
+<td WIDTH="150">Based on PyFloat_Check</td>
+</tr>
+
+<tr>
+<td WIDTH="79">double&nbsp;</td>
+
+<td WIDTH="197">operator double () const</td>
+
+<td WIDTH="150"><i>Implicit</i> conversion to double</td>
+</tr>
+
+<tr>
+<td WIDTH="79">Float&amp;&nbsp;</td>
+
+<td WIDTH="197">operator= (double v)</td>
+
+<td WIDTH="150">Assign from double</td>
+</tr>
+
+<tr>
+<td WIDTH="79">Float&amp;&nbsp;</td>
+
+<td WIDTH="197">operator= (int v)</td>
+
+<td WIDTH="150">Assign from int</td>
+</tr>
+
+<tr>
+<td WIDTH="79">Float&amp;&nbsp;</td>
+
+<td WIDTH="197">operator= (long v)</td>
+
+<td WIDTH="150">Assign from long</td>
+</tr>
+
+<tr>
+<td WIDTH="79">Float&amp;&nbsp;</td>
+
+<td WIDTH="197">operator= (const Int&amp; iob)</td>
+
+<td WIDTH="150">Assign from Int</td>
+</tr>
+</table>
+
+<hr>
+<h1>
+<font face="Times"><font size=+1>Sequences</font></font></h1>
+<font face="Times"><font size=+1>CXX implements a quite sophisticated wrapper
+class for Python sequences. While every effort has been made to disguise
+the sophistication, it may pop up in the form of obscure compiler error
+messages, so in this documentation we will first detail normal usage and
+then discuss what is under the hood.</font></font>
+<p><font face="Times"><font size=+1>The basic idea is that we would like
+the subscript operator [] to work properly, and to be able to use STL-style
+iterators and STL algorithms across the elements of the sequence.</font></font>
+<p><font face="Times"><font size=+1>Sequences are implemented in terms
+of a templated base class, SeqBase&lt;T>. The parameter T is the answer
+to the question, sequence of what? For Lists, for example, T is Object,
+because the most specific thing we know about an element of a List is simply
+that it is an Object. (Class List is defined below; it is a descendent
+of Object that holds a pointer to a Python list). For strings, T is Char,
+which is a wrapper in turn of Python strings whose length is one.</font></font>
+<p><font face="Times"><font size=+1>For convenience, the word <b>Sequence</b>
+is typedef'd to SeqBase&lt;Object>.</font></font>
+<br>
+<hr>
+<h2>
+<font face="Times"><font size=+1>General sequences</font></font></h2>
+<font face="Times"><font size=+1>Suppose you are writing an extension module
+method that expects the first argument to be any kind of Python sequence,
+and you wish to return the length of that sequence. You might write:</font></font>
+<p><font face="Times"><font size=+1>static PyObject*</font></font>
+<br><font face="Times"><font size=+1>my_module_seqlen (PyObject *self,
+PyObject* args) {</font></font>
+<br><font face="Times"><font size=+1>&nbsp;&nbsp;&nbsp; try {</font></font>
+<br><font face="Times"><font size=+1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Tuple t(args); // set up a Tuple pointing to the arguments.</font></font>
+<br><font face="Times"><font size=+1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+if(t.length() != 1) throw PyException("Incorrect number of arguments to
+seqlen.");</font></font>
+<br><font face="Times"><font size=+1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Sequence s = t[0]; // get argument and be sure it is a sequence</font></font>
+<br><font face="Times"><font size=+1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+return new_reference_to(Int(s.length()));</font></font>
+<br><font face="Times"><font size=+1>&nbsp;&nbsp;&nbsp; }</font></font>
+<br><font face="Times"><font size=+1>&nbsp;&nbsp;&nbsp; catch(const PyException&amp;)
+{</font></font>
+<br><font face="Times"><font size=+1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+return Py_Null;</font></font>
+<br><font face="Times"><font size=+1>&nbsp;&nbsp;&nbsp; }</font></font>
+<br><font face="Times"><font size=+1>}</font></font>
+<p><font face="Times"><font size=+1>As we will explain later, the try/catch
+structure converts any errors, such as the first argument not being a sequence,
+into a Python exception.</font></font>
+<h3>
+<font face="Times"><font size=+1>Subscripting</font></font></h3>
+<font face="Times"><font size=+1>When a sequence is subscripted, the value
+returned is a special kind of object which serves as a proxy object. The
+general idea of proxy objects is discussed in Scott Meyers' book, "More
+Effective C++". Proxy objects are necessary because when one subscripts
+a sequence it is not clear whether the value is to be used or the location
+assigned to. Our proxy object is even more complicated than normal because
+a sequence reference such as s[i] is not a direct reference to the i'th
+object of s.</font></font>
+<p><font face="Times"><font size=+1>In normal use, you are not supposed
+to notice this magic going on behind your back. You write:</font></font>
+<p><font face="Times"><font size=+1>Object t;</font></font>
+<br><font face="Times"><font size=+1>Sequence s;</font></font>
+<br><font face="Times"><font size=+1>s[2] = t + s[1]</font></font>
+<p><font face="Times"><font size=+1>and here is what happens: s[1] returns
+a proxy object. Since there is no addition operator in Object that takes
+a proxy as an argument, the compiler decides to invoke an automatic conversion
+of the proxy to an Object, which returns the desired component of s. The
+addition takes place, and then there is an assignment operator in the proxy
+class created by the s[2], and that assignment operator stuffs the result
+into the 2 component of s.</font></font>
+<p><font face="Times"><font size=+1>It is possible to fool this mechanism
+and end up with a compiler failing to admit that a s[i] is an Object. If
+that happens, you can work around it by writing Object(s[i]), which makes
+the desired implicit conversion, explicit.</font></font>
+<h3>
+<font face="Times"><font size=+1>Iterators</font></font></h3>
+<font face="Times"><font size=+1>Each sequence class provides the following
+interface. The class seqref&lt;T> is the proxy class. We omit the details
+of the iterator, const_iterator, and seqref&lt;T> here. See CXX_Objects.h
+if necessary. The purpose of most of this interface is to satisfy requirements
+of the STL.</font></font>
+<h3>
+<font face="Times"><font size=+1>The SeqBase&lt;T> Interface</font></font></h3>
+<font face="Times"><font size=+1><i>SeqBase&lt;T> inherits from Object</i>.</font></font>&nbsp;
+<table BORDER >
+<tr>
+<th ALIGN=CENTER VALIGN=CENTER COLSPAN="3"><b>Type</b></th>
+
+<th ALIGN=CENTER VALIGN=CENTER><b>Name</b></th>
+</tr>
+
+<tr>
+<td COLSPAN="3">typedef int&nbsp;</td>
+
+<td>size_type</td>
+</tr>
+
+<tr>
+<td COLSPAN="3">typedef seqref&lt;T></td>
+
+<td>reference</td>
+</tr>
+
+<tr>
+<td COLSPAN="3">typedef T&nbsp;</td>
+
+<td>const_reference</td>
+</tr>
+
+<tr>
+<td COLSPAN="3">typedef seqref&lt;T>*</td>
+
+<td>pointer</td>
+</tr>
+
+<tr>
+<td COLSPAN="3">typedef int&nbsp;</td>
+
+<td>difference_type</td>
+</tr>
+
+<tr>
+<td COLSPAN="3">virtual size_type</td>
+
+<td>max_size() const</td>
+</tr>
+
+<tr>
+<td COLSPAN="3">virtual size_type&nbsp;</td>
+
+<td>capacity() const;</td>
+</tr>
+
+<tr>
+<td COLSPAN="3">virtual void&nbsp;</td>
+
+<td>swap(SeqBase&lt;T>&amp; c);</td>
+</tr>
+
+<tr>
+<td COLSPAN="3">virtual size_type&nbsp;</td>
+
+<td>size () const;</td>
+</tr>
+
+<tr>
+<td COLSPAN="3">explicit&nbsp;</td>
+
+<td>SeqBase&lt;T> ();</td>
+</tr>
+
+<tr>
+<td COLSPAN="3">explicit&nbsp;</td>
+
+<td>SeqBase&lt;T> (PyObject* pyob);</td>
+</tr>
+
+<tr>
+<td COLSPAN="3">explicit&nbsp;</td>
+
+<td>SeqBase&lt;T> (const Object&amp; ob);</td>
+</tr>
+
+<tr>
+<td COLSPAN="3">SeqBase&lt;T>&amp;&nbsp;</td>
+
+<td>operator= (const Object&amp; rhs);</td>
+</tr>
+
+<tr>
+<td COLSPAN="3">SeqBase&lt;T>&amp;&nbsp;</td>
+
+<td>operator= (PyObject* rhsp);</td>
+</tr>
+
+<tr>
+<td COLSPAN="3">virtual bool&nbsp;</td>
+
+<td>accepts (PyObject *pyob) const;</td>
+</tr>
+
+<tr>
+<td COLSPAN="3">size_type&nbsp;</td>
+
+<td>length () const ;</td>
+</tr>
+
+<tr>
+<td COLSPAN="3">const T&nbsp;</td>
+
+<td>operator[](size_type index) const;&nbsp;</td>
+</tr>
+
+<tr>
+<td COLSPAN="3">seqref&lt;T>&nbsp;</td>
+
+<td>operator[](size_type index);&nbsp;</td>
+</tr>
+
+<tr>
+<td COLSPAN="3">virtual T&nbsp;</td>
+
+<td>getItem (size_type i) const;</td>
+</tr>
+
+<tr>
+<td COLSPAN="3">virtual void&nbsp;</td>
+
+<td>setItem (size_type i, const T&amp; ob);</td>
+</tr>
+
+<tr>
+<td COLSPAN="3">SeqBase&lt;T>&nbsp;</td>
+
+<td>repeat (int count) const;</td>
+</tr>
+
+<tr>
+<td COLSPAN="3">SeqBase&lt;T>&nbsp;</td>
+
+<td>concat (const SeqBase&lt;T>&amp; other) const ;</td>
+</tr>
+
+<tr>
+<td COLSPAN="3">const T&nbsp;</td>
+
+<td>front () const;</td>
+</tr>
+
+<tr>
+<td COLSPAN="3">seqref&lt;T>&nbsp;</td>
+
+<td>front();</td>
+</tr>
+
+<tr>
+<td COLSPAN="3">const T&nbsp;</td>
+
+<td>back () const;</td>
+</tr>
+
+<tr>
+<td COLSPAN="3">seqref&lt;T>&nbsp;</td>
+
+<td>back();&nbsp;</td>
+</tr>
+
+<tr>
+<td COLSPAN="3">void&nbsp;</td>
+
+<td>verify_length(size_type required_size);</td>
+</tr>
+
+<tr>
+<td COLSPAN="3">void&nbsp;</td>
+
+<td>verify_length(size_type min_size, size_type max_size);</td>
+</tr>
+
+<tr>
+<td COLSPAN="3">class</td>
+
+<td>iterator;</td>
+</tr>
+
+<tr>
+<td COLSPAN="3">iterator&nbsp;</td>
+
+<td>begin ();&nbsp;</td>
+</tr>
+
+<tr>
+<td COLSPAN="3">iterator&nbsp;</td>
+
+<td>end ();</td>
+</tr>
+
+<tr>
+<td COLSPAN="3">class&nbsp;</td>
+
+<td>const_iterator;</td>
+</tr>
+
+<tr>
+<td COLSPAN="3">const_iterator&nbsp;</td>
+
+<td>begin () const;</td>
+</tr>
+
+<tr>
+<td COLSPAN="3">const_iterator&nbsp;</td>
+
+<td>end () const;</td>
+</tr>
+</table>
+<font face="Times"><font size=+1>Any heir of class Object that has a sequence
+behavior should inherit from class SeqBase&lt;T>, where T is specified
+as the type of object that represents the individual elements of the sequence.
+The requirements on T are that it has a constructor that takes a PyObject*
+as an argument, that it has a default constructor, a copy constructor,
+and an assignment operator. In short, any properly defined heir of Object
+will work.</font></font>
+<br>
+<hr>
+<h2>
+<font face="Times"><font size=+1>Classes Char and String</font></font></h2>
+<font face="Times"><font size=+1>Python strings are unusual in that they
+are immutable sequences of characters. However, there is no character type
+per se; rather, when subscripted strings return a string of length one.
+To simulate this, we define two classes Char and String. The Char class
+represents a Python string object of length one. The String class represents
+a Python string, and its elements make up a sequence of Char's.</font></font>
+<p><font face="Times"><font size=+1>The user interface for Char is limited.
+Unlike String, for example, it is not a sequence.</font></font>
+<h3>
+<font face="Times"><font size=+1>The Char interface</font></font></h3>
+<i><font face="Times"><font size=+1>Char inherits from Object.</font></font></i>&nbsp;
+<table BORDER >
+<tr>
+<td>
+<center><b>Type</b></center>
+</td>
+
+<td>
+<center><b>Name</b></center>
+</td>
+</tr>
+
+<tr>
+<td>explicit</td>
+
+<td>Char (PyObject *pyob)</td>
+</tr>
+
+<tr>
+<td>&nbsp;</td>
+
+<td>Char (const Object&amp; ob)&nbsp;</td>
+</tr>
+
+<tr>
+<td>&nbsp;</td>
+
+<td>Char (const std::string&amp; v = "")&nbsp;</td>
+</tr>
+
+<tr>
+<td>&nbsp;</td>
+
+<td>Char (char v)</td>
+</tr>
+
+<tr>
+<td>Char&amp;</td>
+
+<td>operator= (const std::string&amp; v)</td>
+</tr>
+
+<tr>
+<td>Char&amp;</td>
+
+<td>operator= (char v)&nbsp;</td>
+</tr>
+
+<tr>
+<td>&nbsp;</td>
+
+<td>operator String() const</td>
+</tr>
+
+<tr>
+<td>&nbsp;</td>
+
+<td>operator std::string () const&nbsp;</td>
+</tr>
+</table>
+
+<h3>
+<font face="Times"><font size=+1>The String Interface</font></font></h3>
+<i><font face="Times"><font size=+1>String inherits from SeqBase&lt;Char>.</font></font></i>&nbsp;
+<table BORDER >
+<tr>
+<td>
+<center><b>Type</b></center>
+</td>
+
+<td>
+<center><b>Name</b></center>
+</td>
+</tr>
+
+<tr>
+<td>explicit&nbsp;</td>
+
+<td>String (PyObject *pyob)</td>
+</tr>
+
+<tr>
+<td>&nbsp;</td>
+
+<td>String (const Object&amp; ob)</td>
+</tr>
+
+<tr>
+<td>&nbsp;</td>
+
+<td>String (const std::string&amp; v = "")</td>
+</tr>
+
+<tr>
+<td>&nbsp;</td>
+
+<td>String (const std::string&amp; v, std::string::size_type vsize)</td>
+</tr>
+
+<tr>
+<td>&nbsp;</td>
+
+<td>String (const char* v)</td>
+</tr>
+
+<tr>
+<td>String&amp;</td>
+
+<td>operator= (const std::string&amp; v)&nbsp;</td>
+</tr>
+
+<tr>
+<td>&nbsp;</td>
+
+<td>operator std::string () const</td>
+</tr>
+</table>
+
+<hr>
+<h2>
+<font face="Times"><font size=+1>Class Tuple</font></font></h2>
+<font face="Times"><font size=+1>Class Tuple represents Python tuples.
+A Tuple is a Sequence. There are two kinds of constructors: one takes a
+PyObject* as usual, the other takes an integer number as an argument and
+returns a Tuple of that length, each component initialized to Py_None.
+The default constructor produces an empty Tuple.</font></font>
+<p><font face="Times"><font size=+1>Tuples are not immutable, but attempts
+to assign to their components will fail if the reference count is not 1.
+That is, it is safe to set the elements of a Tuple you have just made,
+but not thereafter.</font></font>
+<p><font face="Times"><font size=+1>Example: create a Tuple containing
+(1, 2, 4)</font></font>
+<pre><font face="Times"><font size=+1>Tuple t(3)
+t[0] = Int(1)
+t[1] = Int(2)
+t[2] = Int(4)</font></font></pre>
+<font face="Times"><font size=+1>Example: create a Tuple from a list:</font></font>
+<p><font face="Times"><font size=+1>Dict d</font></font>
+<br><font face="Times"><font size=+1>...</font></font>
+<br><font face="Times"><font size=+1>Tuple t(d.keys())</font></font>
+<h3>
+<font face="Times"><font size=+1>The Tuple Interface</font></font></h3>
+<i><font face="Times"><font size=+1>Tuple inherits from Sequence.. Special
+run-time checks prevent modification if the reference count is greater
+than one.</font></font></i>&nbsp;
+<table BORDER >
+<tr>
+<td>
+<center><b>Type</b></center>
+</td>
+
+<td>
+<center><b>Name</b></center>
+</td>
+
+<td>
+<center><b>Comment</b></center>
+</td>
+</tr>
+
+<tr>
+<td>virtual void</td>
+
+<td>setItem (int offset, const Object&amp;ob)&nbsp;</td>
+
+<td>setItem is overriden to handle tuples properly.&nbsp;</td>
+</tr>
+
+<tr>
+<td>explicit</td>
+
+<td>Tuple (PyObject *pyob)</td>
+
+<td>&nbsp;</td>
+</tr>
+
+<tr>
+<td>&nbsp;</td>
+
+<td>Tuple (const Object&amp; ob)</td>
+
+<td>&nbsp;</td>
+</tr>
+
+<tr>
+<td>explicit</td>
+
+<td>Tuple (int size = 0)</td>
+
+<td>Create a tuple of the given size. Items initialize to Py_None. Default
+is an empty tuple.</td>
+</tr>
+
+<tr>
+<td>explicit</td>
+
+<td>Tuple (const Sequence&amp; s)</td>
+
+<td>Create a tuple from any sequence.</td>
+</tr>
+
+<tr>
+<td>Tuple&amp;</td>
+
+<td>operator= (const Object&amp; rhs)</td>
+
+<td>&nbsp;</td>
+</tr>
+
+<tr>
+<td>Tuple&amp;</td>
+
+<td>operator= (PyObject* rhsp)</td>
+
+<td>&nbsp;</td>
+</tr>
+
+<tr>
+<td>Tuple</td>
+
+<td>getSlice (int i, int j) const&nbsp;</td>
+
+<td>Equivalent to python's t[i:j]</td>
+</tr>
+</table>
+
+<hr>
+<h2>
+<font face="Times"><font size=+1>Class List</font></font></h2>
+<font face="Times"><font size=+1>Class List represents a Python list, and
+the methods available faithfully reproduce the Python API for lists. A
+List is a Sequence.</font></font>
+<h3>
+<font face="Times"><font size=+1>The List Interface</font></font></h3>
+<i><font face="Times"><font size=+1>List inherits from Sequence.</font></font></i>
+<br>&nbsp;
+<table BORDER >
+<tr>
+<td>
+<center><b>Type&nbsp;</b></center>
+</td>
+
+<td>
+<center><b>Name</b></center>
+</td>
+
+<td>
+<center><b>Comment</b></center>
+</td>
+</tr>
+
+<tr>
+<td>explicit</td>
+
+<td>List (PyObject *pyob)</td>
+
+<td>&nbsp;</td>
+</tr>
+
+<tr>
+<td>&nbsp;</td>
+
+<td>List (const Object&amp; ob)</td>
+
+<td>&nbsp;</td>
+</tr>
+
+<tr>
+<td>&nbsp;</td>
+
+<td>List (int size = 0)</td>
+
+<td>Create a list of the given size. Items initialized to Py_None. Default
+is an empty list.</td>
+</tr>
+
+<tr>
+<td>&nbsp;</td>
+
+<td>List (const Sequence&amp; s)</td>
+
+<td>Create a list from any sequence.</td>
+</tr>
+
+<tr>
+<td>List&amp;</td>
+
+<td>operator= (const Object&amp; rhs)</td>
+
+<td>&nbsp;</td>
+</tr>
+
+<tr>
+<td>List&amp;</td>
+
+<td>operator= (PyObject* rhsp)</td>
+
+<td>&nbsp;</td>
+</tr>
+
+<tr>
+<td>List</td>
+
+<td>getSlice (int i, int j) const</td>
+
+<td>&nbsp;</td>
+</tr>
+
+<tr>
+<td>void</td>
+
+<td>setSlice (int i, int j, const Object&amp; v)&nbsp;</td>
+
+<td>&nbsp;</td>
+</tr>
+
+<tr>
+<td>void</td>
+
+<td>append (const Object&amp; ob)</td>
+
+<td>&nbsp;</td>
+</tr>
+
+<tr>
+<td>void</td>
+
+<td>insert (int i, const Object&amp; ob)</td>
+
+<td>&nbsp;</td>
+</tr>
+
+<tr>
+<td>void</td>
+
+<td>sort ()</td>
+
+<td>Sorts the list in place, using Python's member function. You can also
+use the STL sort function on any List instance.</td>
+</tr>
+
+<tr>
+<td>void</td>
+
+<td>reverse ()</td>
+
+<td>Reverses the list in place, using Python's member function.</td>
+</tr>
+</table>
+
+<hr>
+<h1>
+<font face="Times"><font size=+1>Mappings</font></font></h1>
+<font face="Times"><font size=+1>A class MapBase&lt;T> is used as the base
+class for Python objects with a mapping behavior. The key behavior of this
+class is the ability to set and use items by subscripting with strings.
+A proxy class mapref&lt;T> is defined to produce the correct behavior for
+both use and assignment.</font></font>
+<p><font face="Times"><font size=+1>For convenience, <b>Mapping </b>is
+typedefed as MapBase&lt;Object>.</font></font>
+<h3>
+<font face="Times"><font size=+1>The MapBase&lt;T> interface</font></font></h3>
+<i><font face="Times"><font size=+1>MapBase&lt;T> inherits from Object.
+T should be chosen to reflect the kind of element returned by the mapping.</font></font></i>
+<br>&nbsp;
+<table BORDER >
+<tr>
+<td>
+<center><b>Type</b></center>
+</td>
+
+<td>
+<center><b>Name</b></center>
+</td>
+
+<td>
+<center><b>Comment</b></center>
+</td>
+</tr>
+
+<tr>
+<td>T</td>
+
+<td>operator[](const std::string&amp; key) const</td>
+
+<td>&nbsp;</td>
+</tr>
+
+<tr>
+<td>mapref&lt;T>&nbsp;</td>
+
+<td>operator[](const std::string&amp; key)</td>
+
+<td>&nbsp;</td>
+</tr>
+
+<tr>
+<td>int</td>
+
+<td>length () const</td>
+
+<td>Number of entries.</td>
+</tr>
+
+<tr>
+<td>int</td>
+
+<td>hasKey (const std::string&amp; s) const&nbsp;</td>
+
+<td>Is m[s] defined?</td>
+</tr>
+
+<tr>
+<td>T</td>
+
+<td>getItem (const std::string&amp; s) const</td>
+
+<td>m[s]</td>
+</tr>
+
+<tr>
+<td>virtual void</td>
+
+<td>setItem (const std::string&amp; s, const Object&amp; ob)</td>
+
+<td>m[s] = ob</td>
+</tr>
+
+<tr>
+<td>void</td>
+
+<td>delItem (const std::string&amp; s)</td>
+
+<td>del m[s]</td>
+</tr>
+
+<tr>
+<td>void</td>
+
+<td>delItem (const Object&amp; s)</td>
+
+<td>&nbsp;</td>
+</tr>
+
+<tr>
+<td>List</td>
+
+<td>keys () const</td>
+
+<td>A list of the keys.</td>
+</tr>
+
+<tr>
+<td>List</td>
+
+<td>values () const</td>
+
+<td>A list of the values.</td>
+</tr>
+
+<tr>
+<td>List</td>
+
+<td>items () const</td>
+
+<td>Each item is a key-value pair.</td>
+</tr>
+</table>
+
+<hr>
+<h2>
+<font face="Times"><font size=+1>Class Dict</font></font></h2>
+<font face="Times"><font size=+1>Class Dict represents Python dictionarys.&nbsp;
+A Dict is a Mapping. Assignment to subscripts can be used to set the components.</font></font>
+<p><font face="Times"><font size=+1>Dict d</font></font>
+<br><font face="Times"><font size=+1>d["Paul Dubois"] = "(925)-422-5426"</font></font>
+<h3>
+<font face="Times"><font size=+1>Interface for Class Dict</font></font></h3>
+<i><font face="Times"><font size=+1>Dict inherits from MapBase&lt;Object>.</font></font></i>
+<br>&nbsp;
+<table BORDER >
+<tr>
+<td><b>Type&nbsp;</b></td>
+
+<td><b>Name</b></td>
+
+<td>
+<center><b>Comment</b></center>
+</td>
+</tr>
+
+<tr>
+<td>explicit</td>
+
+<td>Dict (PyObject *pyob)</td>
+
+<td>&nbsp;</td>
+</tr>
+
+<tr>
+<td>&nbsp;</td>
+
+<td>Dict (const Dict&amp; ob)</td>
+
+<td>&nbsp;</td>
+</tr>
+
+<tr>
+<td>&nbsp;</td>
+
+<td>Dict ()&nbsp;</td>
+
+<td>Creates an empty dictionary</td>
+</tr>
+
+<tr>
+<td>Dict&amp;</td>
+
+<td>operator= (const Object&amp; rhs)</td>
+
+<td>&nbsp;</td>
+</tr>
+
+<tr>
+<td>Dict&amp;</td>
+
+<td>operator= (PyObject* rhsp)</td>
+
+<td>&nbsp;</td>
+</tr>
+</table>
+
+<hr>
+<h1>
+<font face="Times"><font size=+1>Other classes and facilities.</font></font></h1>
+<font face="Times"><font size=+1>Class Callable provides an interface to
+those Python objects that support a call method. Class Module holds a pointer
+to a module. (If you want to create an extension module, however, see the
+extension facility). There is a large set of numeric operators.</font></font>
+<h3>
+<font face="Times"><font size=+1>Interface to class Callable</font></font></h3>
+
+<table BORDER >
+<tr>
+<td>
+<center><b>Type</b></center>
+</td>
+
+<td>
+<center><b>Name</b></center>
+</td>
+
+<td>
+<center>Comment</center>
+</td>
+</tr>
+
+<tr>
+<td>explicit</td>
+
+<td>Callable (PyObject *pyob)</td>
+
+<td>&nbsp;</td>
+</tr>
+
+<tr>
+<td>Callable&amp;&nbsp;</td>
+
+<td>operator= (const Object&amp; rhs)</td>
+
+<td>&nbsp;</td>
+</tr>
+
+<tr>
+<td>Callable&amp;&nbsp;</td>
+
+<td>operator= (PyObject* rhsp)</td>
+
+<td>&nbsp;</td>
+</tr>
+
+<tr>
+<td>Object</td>
+
+<td>apply(const Tuple&amp; args) const</td>
+
+<td>Call the object with the given arguments</td>
+</tr>
+
+<tr>
+<td>Object</td>
+
+<td>apply(PyObject* args = 0) const&nbsp;</td>
+
+<td>Call the object with args as the arguments</td>
+</tr>
+</table>
+
+<h3>
+<font face="Times"><font size=+1>Interface to class Module</font></font></h3>
+
+<table BORDER >
+<tr>
+<td>
+<center><b>Type</b></center>
+</td>
+
+<td>
+<center><b>Name</b></center>
+</td>
+
+<td>
+<center><b>Comment</b></center>
+</td>
+</tr>
+
+<tr>
+<td>&nbsp;</td>
+
+<td>Module (const Module&amp; ob)&nbsp;</td>
+
+<td>Copy constructor</td>
+</tr>
+
+<tr>
+<td>Module&amp;</td>
+
+<td>operator= (const Object&amp; rhs)&nbsp;</td>
+
+<td>Assignment</td>
+</tr>
+
+<tr>
+<td>Module&amp;</td>
+
+<td>operator= (PyObject* rhsp)&nbsp;</td>
+
+<td>Assignment</td>
+</tr>
+</table>
+
+<h3>
+<font face="Times"><font size=+1>Numeric interface</font></font></h3>
+<font face="Times"><font size=+1>Unary operators for plus and minus, and
+binary operators +, -, *, /, and % are defined for pairs of objects and
+for objects with&nbsp; scalar integers or doubles (in either order).&nbsp;
+Functions abs(ob) and coerce(o1, o2) are also defined.</font></font>
+<p><font face="Times"><font size=+1>The signature for coerce is:</font></font>
+<p><font face="Times"><font size=+1>inline std::pair&lt;Object,Object>
+coerce(const Object&amp; a, const Object&amp; b)</font></font>
+<p><font face="Times"><font size=+1>Unlike the C API function, this simply
+returns the pair after coercion.</font></font>
+<h3>
+<font face="Times"><font size=+1>Stream I/O</font></font></h3>
+<font face="Times"><font size=+1>Any object can be printed using stream
+I/O, using std::ostream&amp; operator&lt;&lt; (std::ostream&amp; os, const
+Object&amp; ob).&nbsp; The object's str() representation is converted to
+a standard string which is passed to std::ostream&amp; operator&lt;&lt;
+(std::ostream&amp; os, const std::string&amp;).</font></font>
+<h1>
+<font face="Times"><font size=+1>Exceptions</font></font></h1>
+<font face="Times"><font size=+1>The Python exception facility and the
+C++ exception facility can be merged via the use of try/catch blocks in
+the bodies of extension objects and module functions.</font></font>
+<h2>
+<font face="Times"><font size=+1>Class Exception and its children</font></font></h2>
+<font face="Times"><font size=+1>A set of classes is provided. Each is
+derived from class Exception, and represents a particular sort of Python
+exception, such as IndexError, RuntimeError, ValueError. Each of them (other
+than Exception) has a constructor which takes an explanatory string as
+an argument, and is used in a throw statement such as:</font></font>
+<pre><font face="Times"><font size=+1>throw IndexError("Index too large in MyObject access.");</font></font></pre>
+<font face="Times"><font size=+1>If in using a routine from the Python
+API, you discover that it has returned a NULL indicating an error, then
+Python has already set the error message. In that case you merely throw
+Exception.</font></font>
+<h3>
+<font face="Times"><font size=+1>List of Exceptions</font></font></h3>
+
+<table BORDER >
+<tr>
+<td>Type</td>
+
+<td>
+<center><b>Interface for class Exception</b></center>
+</td>
+</tr>
+
+<tr>
+<td>explicit&nbsp;</td>
+
+<td>Exception ()</td>
+</tr>
+
+<tr>
+<td>&nbsp;</td>
+
+<td>Exception (const std::string&amp; reason)&nbsp;</td>
+</tr>
+
+<tr>
+<td>&nbsp;</td>
+
+<td>Exception (PyObject* exception, const std::string&amp; reason)&nbsp;</td>
+</tr>
+
+<tr>
+<td>void&nbsp;</td>
+
+<td>clear()&nbsp;</td>
+</tr>
+
+<tr>
+<td>&nbsp;</td>
+
+<td>
+<center><b>Constructors for other children of class Exception</b></center>
+</td>
+</tr>
+
+<tr>
+<td>&nbsp;</td>
+
+<td>TypeError (const std::string&amp; reason)</td>
+</tr>
+
+<tr>
+<td>&nbsp;</td>
+
+<td>IndexError (const std::string&amp; reason)</td>
+</tr>
+
+<tr>
+<td>&nbsp;</td>
+
+<td>AttributeError (const std::string&amp; reason)</td>
+</tr>
+
+<tr>
+<td>&nbsp;</td>
+
+<td>NameError (const std::string&amp; reason)</td>
+</tr>
+
+<tr>
+<td>&nbsp;</td>
+
+<td>RuntimeError (const std::string&amp; reason)</td>
+</tr>
+
+<tr>
+<td>&nbsp;</td>
+
+<td>SystemError (const std::string&amp; reason)</td>
+</tr>
+
+<tr>
+<td>&nbsp;</td>
+
+<td>KeyError (const std::string&amp; reason)</td>
+</tr>
+
+<tr>
+<td>&nbsp;</td>
+
+<td>ValueError (const std::string&amp; reason)</td>
+</tr>
+
+<tr>
+<td>&nbsp;</td>
+
+<td>OverflowError (const std::string&amp; reason)</td>
+</tr>
+
+<tr>
+<td>&nbsp;</td>
+
+<td>ZeroDivisionError (const std::string&amp; reason)</td>
+</tr>
+
+<tr>
+<td>&nbsp;</td>
+
+<td>MemoryError (const std::string&amp; reason)</td>
+</tr>
+
+<tr>
+<td>&nbsp;</td>
+
+<td>SystemExit (const std::string&amp; reason)</td>
+</tr>
+</table>
+
+<h2>
+<font face="Times"><font size=+1>Using Exceptions in extension methods</font></font></h2>
+<font face="Times"><font size=+1>The exception facility allows you to integrate
+the C++ and Python exception mechanisms. To do this, you must use the style
+described below when writing module methods.</font></font>
+<h3>
+<font face="Times"><font size=+1>Catching Exceptions from the Python API
+or CXX.</font></font></h3>
+<font face="Times"><font size=+1>When writing an extension module method,
+you can use the following boilerplate. Any exceptions caused by the Python
+API or CXX itself will be converted into a Python exception. Note that
+Exception is the most general of the exceptions listed above, and therefore
+this one catch clause will serve to catch all of them. You may wish to
+catch other exceptions, not in the Exception family, in the same way. If
+so, you need to make sure you set the error in Python before returning.</font></font>
+<p><font face="Times"><font size=+1>static PyObject *</font></font>
+<br><font face="Times"><font size=+1>some_module_method(PyObject* self,
+PyObject* args)</font></font>
+<br><font face="Times"><font size=+1>{</font></font>
+<br><font face="Times"><font size=+1>&nbsp;&nbsp;&nbsp; Tuple a(args);
+// we know args is a Tuple</font></font>
+<br><font face="Times"><font size=+1>&nbsp;&nbsp;&nbsp; try {</font></font>
+<br><font face="Times"><font size=+1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+...calculate something from a...</font></font>
+<br><font face="Times"><font size=+1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+return ...something, usually of the form new_reference_to(some Object);</font></font>
+<br><font face="Times"><font size=+1>&nbsp;&nbsp;&nbsp; }</font></font>
+<br><font face="Times"><font size=+1>&nbsp;&nbsp;&nbsp; catch(const Exception&amp;)
+{</font></font>
+<br><font face="Times"><font size=+1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+//Exception caught, passing it on to Python</font></font>
+<br><font face="Times"><font size=+1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+return Null ();</font></font>
+<br><font face="Times"><font size=+1>&nbsp;&nbsp;&nbsp; }</font></font>
+<br><font face="Times"><font size=+1>}</font></font>
+<h3>
+<font face="Times"><font size=+1>How to clear an Exception</font></font></h3>
+<font face="Times"><font size=+1>If you anticipate that an Exception may
+be thrown and wish to recover from it, change the catch phrase to set a
+reference to an Exception, and use the method clear() from class Exception
+to clear it.:</font></font>
+<blockquote><font face="Times"><font size=+1>catch(Exception&amp; e) {</font></font>
+<br><font face="Times"><font size=+1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+e.clear();</font></font>
+<br><font face="Times"><font size=+1>...now decide what to do about it...</font></font>
+<br><font face="Times"><font size=+1>}</font></font></blockquote>
+
+<hr>
+<hr>
+<br>&nbsp;
+<h1>
+<b><font face="Times"><font size=+1>Starting with version 4, there is a
+completely new CXX_Extensions.h written by Barry Scott. Previous documentation
+is obsolete.</font></font></b></h1>
+
+<h1>
+<font face="Times"><font size=+1>Extension Facilities</font></font></h1>
+<font face="Times"><font size=+1>CXX_Extensions.h provides facilities for:</font></font>
+<ul>
+<li>
+<font face="Times"><font size=+1>Creating a Python extension module</font></font></li>
+
+<li>
+<font face="Times"><font size=+1>Creating new Python extension types</font></font></li>
+</ul>
+<font face="Times"><font size=+1>These facilities use CXX_Objects.h and
+its support file cxxmodule.cxx, but not vice-versa. Therefore, the decision
+about whether or not to use this part of CXX is up to you.</font></font><b><font face="Times"><font size=+1></font></font></b>
+<p>
+<hr>
+<h2>
+<font face="Times"><font size=+1>Creating an Python extension module</font></font></h2>
+<font face="Times"><font size=+1>The usual method of creating a Python
+extension module is to declare and initialize its method table in C. This
+requires knowledge of the correct form for the table and the order in which
+entries are to be made into it, and requires casts to get everything to
+compile without warning. CXX's header file PyExtensions.h offers a simpler
+method. Here is a sample usage, in which a module named "example" is created.
+Note that two details are necessary:</font></font>
+<ul>
+<li>
+<font face="Times"><font size=+1>The initialization function must be declared
+to have external C linkage.</font></font></li>
+
+<li>
+<font face="Times"><font size=+1>An instance of the ExtensionModule object
+must have a storage class that survives the call to the initialization
+function. This is most easily accomplished by using a static local inside
+the initialization function.</font></font></li>
+</ul>
+
+<h3>
+<font face="Times"><font size=+1>How to create an Extension Module</font></font></h3>
+<font face="Times"><font size=+1>Create a class that inherits from ExtensionModule&lt;itself>
+where itself is the name of the class you are creating..&nbsp; In it we
+define methods that will be methods of the extension. In the constructor
+we add the methods using add_varargs_method which we have inherited from
+ExtensionModule.</font></font><font face="Times"><font size=+1></font></font>
+<p><font face="Times"><font size=+1>This example is a simplified version
+of Demo/example.cxx.</font></font>
+<br><font face="Times"><font size=+1>class example_module : public ExtensionModule&lt;example_module><br>
+{<br>
+public:<br>
+&nbsp;&nbsp;&nbsp; example_module()<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; : ExtensionModule&lt;example_module>(
+"example" )<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; add_varargs_method("sum",
+&amp;example_module::ex_sum,&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+"sum(arglist) = sum of arguments");<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; add_varargs_method("test",
+&amp;example_module::ex_test,&nbsp;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;"test(arglist)
+runs a test suite");<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; initialize( "documentation
+for the example module" );<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>
+<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; virtual ~example_module() {}</font></font><font face="Times New Roman,Times"></font>
+<p><font face="Times New Roman,Times"><font size=+1>The extension methods
+are then implemented as methods of this class. The actual example also
+shows how to check for numbers of arguments and handle exceptions.</font></font>
+<pre><font face="Times"><font size=+1>private:
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Object ex_sum (const Tuple &amp;a)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Float f(0.0);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for (int i = 0; i &lt; a.length(); ++i)
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; {
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Float g (a[i]);
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; f = f + g;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return f;
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }</font></font></pre>
+<font face="Times"><font size=+1>Finally, we need to supply initexample:</font></font>
+<pre><font face="Times"><font size=+1>void initexample()
+{
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; static example_module *example = new example_module;
+&nbsp;}</font></font></pre>
+<font face="Times"><font size=+1></font></font>
+<p><br>
+<hr>
+<h2>
+<font face="Times"><font size=+1>Creating a Python extension type</font></font></h2>
+<font face="Times"><font size=+1>One of the great things about Python is
+the way you can create your own object types and have Python welcome them
+as first-class citizens. Unfortunately, part of the way you have to do
+this is not great. Key to the process is the creation of a Python "type
+object". All instances of this type must share a reference to this one
+unique type object.&nbsp; The type object itself has a multitude of "slots"
+into which the addresses of functions can be added in order to give the
+object the desired behavior.</font></font>
+<p><font face="Times"><font size=+1>CXX mitigates this difficulty with
+class PythonExtension. PythonExtension is a templated class, and the way
+you use it is very odd indeed: you make your new object type inherit from
+it, giving itself as the template parameter:</font></font>
+<p><font face="Times"><font size=+1>class MyObject: public PythonExtension&lt;MyObject>
+{...}</font></font>
+<h3>
+<font face="Times"><font size=+1>Sample usage of PythonExtension</font></font></h3>
+<font face="Times"><font size=+1>File Demo/r.h declares a new "r" object
+type. The file r.cxx implements it. Note that a call to initialize the
+new type must be added to some module's initialization routine, so in Demo/example.cxx
+in the module object constructor example_module() there is a call to r::init_type().</font></font><font face="Times"><font size=+1></font></font>
+<p><font face="Times"><font size=+1>The class "r" contains two kinds of
+methods:</font></font>
+<br><font face="Times"><font size=+1></font></font>&nbsp;
+<li>
+<font face="Times"><font size=+1>methods that set the "behaviors" of the
+object (such as sequence_length() and sequence_item (int i), which connect
+these routines to the Python actions len(s) and s[i] respectively); and,</font></font></li>
+
+<li>
+<font face="Times"><font size=+1>object methods peculiar to this object,
+such as amethod.</font></font></li>
+
+<br><font face="Times"><font size=+1>More detailed documentation needs
+to be written. For now, this example is all we have.</font></font>
+<h3>
+<font face="Times"><font size=+1>Notes on memory management and extension
+objects</font></font></h3>
+<font face="Times"><font size=+1>Normal Python objects exist only on the
+heap. That is unfortunate, as object creation and destruction can be relatively
+expensive. Class PythonExtension allows creation of both local and heap-based
+objects.</font></font>
+<p><font face="Times"><font size=+1>If an extension object is created using
+operator new, as in:</font></font>
+<p><font face="Times"><font size=+1>r* my_r_ref = new r(1, 20, 3)</font></font>
+<p><font face="Times"><font size=+1>then the entity my_r_ref can be thought
+of as "owning" the reference created in the new object. Thus, the object
+will never have a reference count of zero. If the creator wishes to delete
+this object, they should either make sure the reference count is 1 and
+then do delete my_r_ref, or decrement the reference with Py_DECREF(my_r_ref).</font></font>
+<p><font face="Times"><font size=+1>Should my_r_ref give up ownership by
+being used in an Object constructor, all will still be well. When the Object
+goes out of scope its destructor will be called, and that will decrement
+the reference count, which in turn will trigger the special dealloc routine
+that calls the destructor and deletes the pointer.</font></font>
+<p><font face="Times"><font size=+1>If the object is created with automatic
+scope, as in:</font></font>
+<p><font face="Times"><font size=+1>r my_r(1, 20, 3)</font></font>
+<p><font face="Times"><font size=+1>then my_r can be thought of as owning
+the reference, and when my_r goes out of scope the object will be destroyed.
+Of course, care must be taken not to have kept any permanent reference
+to this object. Fortunately, in the case of an exception, the C++ exception
+facility will call the destructor of my_r. Naturally, care must be taken
+not to end up with a dangling reference, but such objects can be created
+and destroyed more efficiently than heap-based PyObjects.</font></font>
+<h2>
+<font face="Times"><font size=+1>Putting it all together</font></font></h2>
+<font face="Times"><font size=+1>The Demo directory of the distribution
+contains an extensive example of how to use many of the facilities in CXX.
+It also serves as a test routine. This test is not completely exhaustive
+but does excercise much of the facility.</font></font>
+<h2>
+<font face="Times"><font size=+1>Acknowledgment</font></font></h2>
+<font face="Times"><font size=+1>Thank you to Geoffrey Furnish for patiently
+teaching me the finer points of C++ and its template facility, and his
+critique of CXX in particular.</font></font>
+</body>
+</html>

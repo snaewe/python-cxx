@@ -1,0 +1,63 @@
+<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
+<html>
+<head>
+   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+   <meta name="GENERATOR" content="Mozilla/4.7 [en] (X11; I; Linux 2.2.12-20smp i686) [Netscape]">
+</head>
+<body>
+
+<h1>
+CXX -- C++ Extensions Support</h1>
+You don't&nbsp; make and install CXX in the conventional sense. You'll
+need to make Python link with C++. To do that, before running configure,
+set the environment variables LINKCC to 'g++' and LDSHARED to 'g++ -shared'
+or whatever is appropriate for your C++ compiler.
+<h2>
+Version 4 (February, 2000)</h2>
+CXX compiles with gcc - 2.95. Includes new version of extension portion
+by Barry Scott.&nbsp; I have personally only tested this on RH Linux 6.&nbsp;
+Version 4.1 will be released at SourceForge, CXX.sourceforge.net.
+<h2>
+Version 3 (June 18, 1999)</h2>
+1. CXX compiles with EGCS snapshot 19990616. EGCS requires a standard library
+class random_access_iterator that is not yet available in some other compilers
+(such as Windows VC6). Therefore a new switch:
+<p>STANDARD_LIBRARY_HAS_ITERATOR_TRAITS
+<p>has been added to CXX_Config.h that you may need to toggle if you get
+an error on the two lines that mention random_access_iterator. The current
+definition is correct for VC6 and EGCS-19990616.
+<p>2. A new constructor was added to Module to allow construction from
+a string containing the module name. A test was added for this to the demo.
+<h2>
+Version 2 (Dec. 28, 1998)</h2>
+Fixed definition of extension type to match 1.5.2. This version will presumably
+not compile with older versions of Python. This can be fixed by using the
+previous version's definition. I did not take the time to find out what
+these new "flags" are for nor put in any methods to deal with them.
+<h2>
+Version 1</h2>
+This is an experimental set of files for supporting the creation of Python
+extensions in C++.
+<p>Documentation is in progress at <a href="http://xfiles.llnl.gov">http://xfiles.llnl.gov</a>.
+<p>To use CXX you use the header files in Include, such as CXX_Objects.h
+or CXX_Extensions.h. You must include the sources in Src in your sources
+to supply parts of the CXX classes required.
+<p>A demo is included. The Setup file in this directory compiles this demo
+named "example". To try the demo, which is also a test routine, you import
+example and then execute:
+<p>example.test()
+<p>You can also play with the extension object whose constructor is named
+"r":
+<p>s = r(1, 100, 2)
+<br>print s[2]&nbsp; # should print 5
+<p>Compilation with Microsoft Visual C++ 5.0 will succeed but only if you
+have Service Pack 3 installed. Compilation has been known to succeed on
+a Unix system using KCC by using:
+<p>setenv CCC "KCC -x"
+<p>before running makethis.py.
+<p>There is also a python.cxx file for making a stand-alone Python containing
+this example, as well as a similar file arraytest.cxx for testing Array.
+<p>Comments to dubois1@llnl.gov, please.
+<p>Paul Dubois
+</body>
+</html>
