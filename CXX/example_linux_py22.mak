@@ -1,5 +1,5 @@
 #
-#	BUild the example on Linux for version 2.2a1
+#	BUild the example on Linux for version 2.2
 #
 CCC=g++ -c
 CCCFLAGS=-fPIC -I/usr/include/python2.2 -I.
