@@ -14,15 +14,19 @@
 #include "CXX/Objects.hxx"
 #include "CXX/Extensions.hxx"
 
-#include "r.hxx"  // Extension object
+#include <assert.h>
+
+#include "range.hxx"  // Extension object
 extern std::string test_extension_object();
 
 #include <algorithm>
 using namespace Py;
 using namespace std;
 
-static string
-test_String() {
+
+
+static string test_String()
+{
     String s("hello");
     Char blank = ' ';
     String r1("world in brief", 5);
@@ -248,7 +252,32 @@ test_STL() {
     return "ok";
 }
 
-extern "C" void initexample();
+void debug_check_ref_queue()
+	{
+#ifdef Py_TRACE_REFS
+
+	// create an element to find the queue
+	Int list_element;
+
+	PyObject *p_slow = list_element.ptr();
+	PyObject *p_fast = p_slow;
+
+	do
+		{
+		assert( p_slow->_ob_next->_ob_prev == p_slow );
+		assert( p_slow->_ob_prev->_ob_next == p_slow );
+
+
+		p_slow = p_slow->_ob_next;
+		p_fast = p_slow->_ob_next->_ob_next;
+
+		assert( p_slow != p_fast );	
+		}
+	while( p_slow != list_element.ptr() );
+
+#endif
+	}
+
 
 class example_module : public ExtensionModule<example_module>
 {
@@ -256,18 +285,18 @@ public:
 	example_module()
 		: ExtensionModule<example_module>( "example" )
 	{
-		r::init_type();
+		range::init_type();
 
 		add_varargs_method("sum", &example_module::ex_sum, "sum(arglist) = sum of arguments");
 		add_varargs_method("test", &example_module::ex_test, "test(arglist) runs a test suite");
-		add_varargs_method("r", &example_module::new_r, "r(start,stop,stride)");
+		add_varargs_method("range", &example_module::new_r, "range(start,stop,stride)");
 		add_keyword_method("kw", &example_module::ex_keyword, "kw()");
 
 		initialize( "documentation for the example module" );
 
 		Dict d( moduleDictionary() );
 
-		Object b(asObject(new r(1,10,2)));
+		Object b(asObject(new range(1,10,2)));
 
 		d["a_constant"] = b.getAttr("c");
 	}
@@ -293,7 +322,7 @@ private:
 	{
 		if (rargs.length() < 2 || rargs.length() > 3)
 		{
-			throw RuntimeError("Incorrect # of args to r(start,stop [,step]).");
+			throw RuntimeError("Incorrect # of args to range(start,stop [,step]).");
 		}
 
 		Int start(rargs[0]);
@@ -305,9 +334,9 @@ private:
 		}
 		if (long(start) > long(stop) + 1 || long(step) == 0)
 		{
-			throw RuntimeError("Bad arguments to r(start,stop [,step]).");
+			throw RuntimeError("Bad arguments to range(start,stop [,step]).");
 		}
-		return asObject(new r(start, stop, step));
+		return asObject(new range(start, stop, step));
 	}
 
 	Object ex_sum (const Tuple &a)
@@ -337,9 +366,13 @@ private:
 
 	Object ex_test( const Tuple &a) 
 	{
+		debug_check_ref_queue();
+
+		std::cout << "Example Test starting" << std::endl;
 		try
 		{
 			String s("this should fail");
+			std::cout << "Trying to convert a String to an Int" << std::endl;
 			Int k(s.ptr());
 		}
 		catch (TypeError& e)
@@ -349,13 +382,22 @@ private:
 			std::cout << "  Exception traceback: " << trace(e) << endl;
 			e.clear();
 		}
+		debug_check_ref_queue();
+
 		std::cout << "Numbers: " << test_numbers() << endl;
+		debug_check_ref_queue();
 		std::cout << "String: " << test_String() << endl;
+		debug_check_ref_queue();
 		std::cout << "List: " << test_List() << endl;
+		debug_check_ref_queue();
 		std::cout << "Dict: " << test_Dict() << endl;
+		debug_check_ref_queue();
 		std::cout << "Tuple: " << test_Tuple() << endl;
+		debug_check_ref_queue();
 		std::cout << "STL test: " << test_STL() << endl;
+		debug_check_ref_queue();
 		std::cout << "Extension object test: " << test_extension_object() << endl;
+		debug_check_ref_queue();
 
 		List b(a);
 		Tuple c(b);
@@ -372,12 +414,11 @@ private:
 	}
 };
 
-// symbol required for the debug version
-void initexample_d()
-	{ initexample(); }
-
-
-void initexample()
+extern "C" void initexample()
 {
 	static example_module* example = new example_module;
 }
+
+// symbol required for the debug version
+extern "C" void initexample_d()
+	{ initexample(); }
