@@ -4,22 +4,22 @@
 //---------------------------------------------------------------------------//
 
 #include "CXX_Objects.h"
-NAMESPACE_BEGIN(Py)
+namespace Py {
 
     Type Object::type () const { 
-        return Type (FromAPI(PyObject_Type (p)));
+        return Type (PyObject_Type (p), true);
     }
     
     String Object::str () const {
-        return String (FromAPI(PyObject_Str (p)));
+        return String (PyObject_Str (p), true);
     }
     
     String Object::repr () const { 
-        return String (FromAPI(PyObject_Repr (p)));
+        return String (PyObject_Repr (p), true);
     }
     
-    STD::string Object::as_string() const {
-        return static_cast<STD::string>(str());
+    std::string Object::as_string() const {
+        return static_cast<std::string>(str());
     }
         
     bool Object::isType (const Type& t) const { 
@@ -32,8 +32,8 @@ NAMESPACE_BEGIN(Py)
 
     
     // output
-    STD::ostream& operator<< (STD::ostream& os, const Object& ob) {
-        return (os << static_cast<STD::string>(ob.str()));
+    std::ostream& operator<< (std::ostream& os, const Object& ob) {
+        return (os << static_cast<std::string>(ob.str()));
     }  
 
-NAMESPACE_END
+} // Py
