@@ -4,7 +4,7 @@ from distutils.command.install import install
 from distutils.core import setup
 from distutils.sysconfig import get_python_inc
 
-headers = glob (os.path.join ("Include","*.h"))
+headers = glob (os.path.join ("CXX","*.hxx"))
 sources = glob (os.path.join ("Src", "*.cxx")) + \
           glob (os.path.join ("Src", "*.c"))
 
