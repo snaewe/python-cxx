@@ -1,5 +1,7 @@
 #include "CXX/Extensions.hxx"
 
+#include <assert.h>
+
 namespace Py 
 {
 
@@ -289,8 +291,10 @@ PythonType::PythonType( size_t basic_size, int itemsize )
 	table->tp_as_buffer = 0;
 	table->tp_flags = 0L;
 	table->tp_doc = 0;
+#if PY_MAJOR_VERSION == 1 && PY_MINOR_VERSION == 5
 	table->tp_xxx5 = 0L;
 	table->tp_xxx6 = 0L;
+#endif
 	table->tp_xxx7 = 0L;
 	table->tp_xxx8 = 0L;
 
@@ -982,6 +986,14 @@ extern "C" int buffer_getsegcount_handler( PyObject *self, int *count )
 #define missing_method( method ) \
 	throw RuntimeError( "Extension object does not support method " #method );
 
+PythonExtensionBase::PythonExtensionBase()
+	{
+	}
+
+PythonExtensionBase::~PythonExtensionBase()
+	{
+	assert( ob_refcnt == 0 );
+	}
 
 int PythonExtensionBase::print( FILE *, int )
 	{ missing_method( print ); return -1; }

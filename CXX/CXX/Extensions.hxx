@@ -348,10 +348,8 @@ private:
 class PythonExtensionBase : public PyObject
 {
 public:
-	PythonExtensionBase()
-		{}
-	virtual ~PythonExtensionBase()
-		{}
+	PythonExtensionBase();
+	virtual ~PythonExtensionBase();
 
 public:
 	virtual int print( FILE *, int );
@@ -422,13 +420,13 @@ public:
 		return behaviors().type_object();
 		}
 
-	static int check ( PyObject *p )
+	static int check( PyObject *p )
 		{
 		// is p like me?
 		return p->ob_type == type_object();
 		}
 
-	static int check ( const Object& ob )
+	static int check( const Object& ob )
 		{
 		return check( ob.ptr());
 		}
@@ -447,8 +445,12 @@ protected:
 	explicit PythonExtension()
 		: PythonExtensionBase()
 		{
+#ifdef PyObject_INIT
+		PyObject_INIT( this, type_object() );
+#else
 		ob_refcnt = 1;
 		ob_type = type_object();
+#endif
 
 		// every object must suport getattr
 		behaviors().supportGetattr();
