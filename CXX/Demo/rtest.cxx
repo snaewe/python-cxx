@@ -4,7 +4,7 @@
 #pragma warning(disable: 4786)
 #endif
 
-#include "CXX_Extensions.h"
+#include "CXX/CXX_Extensions.h"
 #include "r.h"
 // This test also illustrates using the Py namespace explicitly
 

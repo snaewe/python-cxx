@@ -1,27 +1,57 @@
-#!/usr/bin/env python
-
-import os
+import os, sys
 from glob import glob
+from distutils.command.install import install
 from distutils.core import setup
+from distutils.sysconfig import get_python_inc
 
-setup (name = "CXX_example",
-       version = "4.0",
+headers = glob (os.path.join ("Include","*.h"))
+sources = glob (os.path.join ("Src", "*.cxx")) + \
+          glob (os.path.join ("Src", "*.c"))
+
+class my_install (install):
+
+    user_options = install.user_options + \
+              [('install-header=', None,
+                "CXX header file installation directory"),
+               ('install-source=', None,
+                "CXX support source directory"),
+              ]
+
+    def initialize_options (self):
+        install.initialize_options (self)
+        self.install_header = None
+        self.install_source = None
+
+    def finalize_options (self):
+        install.finalize_options (self)
+        if self.install_header is None:
+            inc_base = get_python_inc (prefix=self.install_base)
+            self.install_header = os.path.join (inc_base, "CXX")
+        if self.install_source is None:
+            self.install_source = os.path.normpath ( \
+                                 os.path.join(sys.prefix,'etc','CXX')\
+                              )
+    def run (self):
+        global headers
+
+        install.run (self)
+        self.mkpath (self.install_header)
+        print "Installation directory for headers is", self.install_header
+        print "Installation directory for support files is", self.install_source
+        for header in headers:
+            self.copy_file (header, self.install_header)
+        self.mkpath (self.install_source)
+        for s in sources:
+            self.copy_file (s, self.install_source)
+
+setup (name = "CXX",
+       version = "5.0",
        maintainer = "Paul Dubois",
        maintainer_email = "dubois@users.sourceforge.net",
        description = "Facility for extending Python with C++",
        url = "http://cxx.sourceforge.net",
-
-       packages = ['CXX'],
-       package_dir = {'CXX': ''},
-       include_dirs = ['Include'],
-       ext_modules = [('example',
-                       { 'sources' : ['Demo/example.cxx',
-                                      'Demo/r.cxx',
-                                      'Demo/rtest.cxx',
-				      'Src/cxxsupport.cxx',
-                                      'Src/cxx_extensions.cxx',
-                                      'Src/cxxextensions.c'],
-                       }
-                      ),
-                     ]
+       
+       cmdclass = {'install': my_install},
+       packages=['CXX'],
+       package_dir={'CXX':'Lib'},
        )
