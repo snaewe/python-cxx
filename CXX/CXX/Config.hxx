@@ -1,16 +1,23 @@
 #ifndef __PyCXX_config_hh__
 #define __PyCXX_config_hh__
 
-// Macros to deal with deficiencies in compilers
-#define STANDARD_LIBRARY_HAS_ITERATOR_TRAITS 1
 
 //
-// Microsoft VC++ defines _WIN32
-// older versions of this header used MS_WIN32
+// Microsoft VC++ has no traits
 //
-#if defined( _WIN32 ) || defined( MS_WIN32 )
-#undef STANDARD_LIBRARY_HAS_ITERATOR_TRAITS
+#if defined( _MSC_VER )
+
 #define STANDARD_LIBRARY_HAS_ITERATOR_TRAITS 0
+
+
+
+//
+//	Assume all other compilers do
+//
+#else
+
+// Macros to deal with deficiencies in compilers
+#define STANDARD_LIBRARY_HAS_ITERATOR_TRAITS 1
 #endif
 
 #if STANDARD_LIBRARY_HAS_ITERATOR_TRAITS
