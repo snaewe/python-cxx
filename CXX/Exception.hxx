@@ -18,10 +18,13 @@ namespace Py
 	{
 	class ExtensionExceptionType;
 
+	class Object;
+
 	class Exception
 		{
 	public:
 		Exception( ExtensionExceptionType &exception, const std::string& reason );
+		Exception( ExtensionExceptionType &exception, Object &reason );
 
 		explicit Exception ()
 			{}
@@ -36,6 +39,7 @@ namespace Py
 			PyErr_SetString (exception, reason.c_str());
 			}
 		
+		Exception (PyObject* exception, Object &reason);		
 
 		void clear() // clear the error
 		// technically but not philosophically const
