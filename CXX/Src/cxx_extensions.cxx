@@ -1277,5 +1277,14 @@ Exception::Exception( ExtensionExceptionType &exception, const std::string& reas
 	PyErr_SetString (exception.ptr(), reason.c_str());
 	}
 
+Exception::Exception( ExtensionExceptionType &exception, Object &reason )
+	{
+	PyErr_SetObject (exception.ptr(), reason.ptr());
+	}
+
+Exception::Exception( PyObject* exception, Object &reason )
+	{
+	PyErr_SetObject (exception, reason.ptr());
+	}		
 
 }	// end of namespace Py
