@@ -2448,7 +2448,9 @@ namespace Py
 		// Construct from module name
 		explicit Module (const std::string&s): Object()
 			{
-			set (PyImport_ImportModule(const_cast<char *>(s.c_str())), true);
+			PyObject *m = PyImport_AddModule( const_cast<char *>(s.c_str()) );
+			set( m, false );
+			//set (PyImport_ImportModule(const_cast<char *>(s.c_str())), true);
 			validate ();
 			}
 
