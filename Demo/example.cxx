@@ -1,5 +1,5 @@
 //----------------------------------*-C++-*----------------------------------//
-// Copyright 1998 The Regents of the University of California. 
+// Copyright 1998-1999 The Regents of the University of California. 
 // All rights reserved. See LEGAL.LLNL for full text and disclaimer.
 //---------------------------------------------------------------------------//
 
@@ -15,11 +15,11 @@
 #include "CXX_Extensions.h"
 
 #include "r.h"  // Extension object
-extern STD::string test_extension_object();
+extern std::string test_extension_object();
 
 #include <algorithm>
-USING(namespace Py)
-USING(namespace std)
+using namespace Py;
+using namespace std;
 
 static string
 test_String() {
@@ -40,7 +40,7 @@ test_String() {
     String r2("12345 789");
     Char c6 = r2[5];
     if(c6 != blank) {
-        STD::cout << "|" << c6 << "|" << STD::endl;
+        std::cout << "|" << c6 << "|" << std::endl;
         return "failed (3)";
     }
     return "ok";
@@ -261,12 +261,13 @@ public:
 		add_varargs_method("sum", &example_module::ex_sum, "sum(arglist) = sum of arguments");
 		add_varargs_method("test", &example_module::ex_test, "test(arglist) runs a test suite");
 		add_varargs_method("r", &example_module::new_r, "r(start,stop,stride)");
+		add_keyword_method("kw", &example_module::ex_keyword, "kw()");
 
 		initialize( "documentation for the example module" );
 
 		Dict d( moduleDictionary() );
 
-		Object b(FromAPI(new r(1,10,2)));
+		Object b(asObject(new r(1,10,2)));
 
 		d["a_constant"] = b.getAttr("c");
 	}
@@ -274,6 +275,20 @@ public:
 	virtual ~example_module() {}
 
 private:
+	Object ex_keyword( const Tuple &args, const Dict &kws )
+	{
+		std::cout << "Called with " << args.length() << " normal arguments." << std::endl;
+		List names( kws.keys() );
+		std::cout << "and with " << names.length() << " keyword arguments:" << std::endl;
+		for( int i=0; i< names.length(); i++ )
+			{
+			String name( names[i] );
+			std::cout << "    " << name << std::endl;
+			}
+		
+		return Int(0);
+	}
+
 	Object new_r (const Tuple &rargs)
 	{
 		if (rargs.length() < 2 || rargs.length() > 3)
@@ -301,12 +316,12 @@ private:
 		try
 			{
 			a.verify_length(0);
-			cout << "I see that you refuse to give me any work to do." << endl;
+			std::cout << "I see that you refuse to give me any work to do." << endl;
 			}
 		catch (Exception& e)
 			{
 			e.clear();
-			cout << "I will now add up your elements, oh great one." << endl;
+			std::cout << "I will now add up your elements, oh great one." << endl;
 			}
 
 
@@ -329,24 +344,24 @@ private:
 		}
 		catch (TypeError& e)
 		{
-			cout << "Correctly caught " << type(e) << endl;
-			cout << "  Exception value: " << value(e) << endl;
-			cout << "  Exception traceback: " << trace(e) << endl;
+			std::cout << "Correctly caught " << type(e) << endl;
+			std::cout << "  Exception value: " << value(e) << endl;
+			std::cout << "  Exception traceback: " << trace(e) << endl;
 			e.clear();
 		}
-		cout << "Numbers: " << test_numbers() << endl;
-		cout << "String: " << test_String() << endl;
-		cout << "List: " << test_List() << endl;
-		cout << "Dict: " << test_Dict() << endl;
-		cout << "Tuple: " << test_Tuple() << endl;
-		cout << "STL test: " << test_STL() << endl;
-		cout << "Extension object test: " << test_extension_object() << endl;
+		std::cout << "Numbers: " << test_numbers() << endl;
+		std::cout << "String: " << test_String() << endl;
+		std::cout << "List: " << test_List() << endl;
+		std::cout << "Dict: " << test_Dict() << endl;
+		std::cout << "Tuple: " << test_Tuple() << endl;
+		std::cout << "STL test: " << test_STL() << endl;
+		std::cout << "Extension object test: " << test_extension_object() << endl;
 
 		List b(a);
 		Tuple c(b);
 		if( c != a)
 		{
-			cout << "Tuple/list conversion failed.\n";
+			std::cout << "Tuple/list conversion failed.\n";
 		}
 
 		Module m("sys");
@@ -357,7 +372,12 @@ private:
 	}
 };
 
+// symbol required for the debug version
+void initexample_d()
+	{ initexample(); }
+
+
 void initexample()
 {
-	static example_module *example = new example_module;
+	static example_module* example = new example_module;
 }

@@ -51,8 +51,7 @@ main(int argc, char** argv)
     catch(Exception&) {
         std::cout << "Test failed via Exception" << std::endl;
         PyErr_Fetch (&ptype, &pvalue, &ptrace);
-        FromAPI p(pvalue);
-        Object v(p);
+        Object v(pvalue, true);
         std::cout << v << std::endl;
     }
 

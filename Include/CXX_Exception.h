@@ -9,20 +9,20 @@
 #include "Python.h"
 #include "CXX_Config.h"
 
-#include STANDARD_HEADER(string)
-#include STANDARD_HEADER(iostream)
+#include <string>
+#include <iostream>
 // This mimics the Python structure, in order to minimize confusion
-NAMESPACE_BEGIN(Py)
-    
+namespace Py {
+
     class Exception {
     public:
         explicit Exception () {}
         
-        Exception (const STD::string& reason) {
+        Exception (const std::string& reason) {
             PyErr_SetString (PyExc_RuntimeError, reason.c_str());
         }
         
-        Exception (PyObject* exception, const STD::string& reason) {
+        Exception (PyObject* exception, const std::string& reason) {
             PyErr_SetString (exception, reason.c_str());
         }
         
@@ -58,7 +58,7 @@ NAMESPACE_BEGIN(Py)
 
     class TypeError: public StandardError  {
     public:
-        TypeError (const STD::string& reason)
+        TypeError (const std::string& reason)
             : StandardError()
         {
             PyErr_SetString (PyExc_TypeError,reason.c_str());
@@ -67,7 +67,7 @@ NAMESPACE_BEGIN(Py)
     
     class IndexError: public LookupError  {
     public:
-        IndexError (const STD::string& reason)
+        IndexError (const std::string& reason)
             : LookupError()
         {
             PyErr_SetString (PyExc_IndexError, reason.c_str());
@@ -76,7 +76,7 @@ NAMESPACE_BEGIN(Py)
     
     class AttributeError: public StandardError {
     public:
-        AttributeError (const STD::string& reason)
+        AttributeError (const std::string& reason)
             : StandardError()
         {
             PyErr_SetString (PyExc_AttributeError, reason.c_str());
@@ -85,7 +85,7 @@ NAMESPACE_BEGIN(Py)
     
     class NameError: public StandardError  {
     public:
-        NameError (const STD::string& reason)
+        NameError (const std::string& reason)
             : StandardError()
         {
             PyErr_SetString (PyExc_NameError, reason.c_str());
@@ -94,7 +94,7 @@ NAMESPACE_BEGIN(Py)
     
     class RuntimeError: public StandardError {
     public:
-        RuntimeError (const STD::string& reason)
+        RuntimeError (const std::string& reason)
             : StandardError()
         {
             PyErr_SetString (PyExc_RuntimeError, reason.c_str());
@@ -103,7 +103,7 @@ NAMESPACE_BEGIN(Py)
     
     class SystemError: public StandardError  {
     public:
-        SystemError (const STD::string& reason)
+        SystemError (const std::string& reason)
             : StandardError()
         {
             PyErr_SetString (PyExc_SystemError,reason.c_str());
@@ -112,7 +112,7 @@ NAMESPACE_BEGIN(Py)
     
     class KeyError: public LookupError	{
     public:
-        KeyError (const STD::string& reason)
+        KeyError (const std::string& reason)
             : LookupError()
         {
             PyErr_SetString (PyExc_KeyError,reason.c_str());
@@ -122,7 +122,7 @@ NAMESPACE_BEGIN(Py)
     
     class ValueError: public StandardError {
     public:
-        ValueError (const STD::string& reason)
+        ValueError (const std::string& reason)
             : StandardError()
         {
             PyErr_SetString (PyExc_ValueError, reason.c_str());
@@ -131,7 +131,7 @@ NAMESPACE_BEGIN(Py)
     
     class OverflowError: public ArithmeticError  {
     public:
-        OverflowError (const STD::string& reason)
+        OverflowError (const std::string& reason)
             : ArithmeticError()
         {
             PyErr_SetString (PyExc_OverflowError, reason.c_str());
@@ -140,7 +140,7 @@ NAMESPACE_BEGIN(Py)
     
     class ZeroDivisionError: public ArithmeticError  {
     public:
-        ZeroDivisionError (const STD::string& reason)
+        ZeroDivisionError (const std::string& reason)
             : ArithmeticError() 
         {
             PyErr_SetString (PyExc_ZeroDivisionError, reason.c_str());
@@ -149,7 +149,7 @@ NAMESPACE_BEGIN(Py)
     
     class FloatingPointError: public ArithmeticError  {
     public:
-        FloatingPointError (const STD::string& reason)
+        FloatingPointError (const std::string& reason)
             : ArithmeticError() 
         {
             PyErr_SetString (PyExc_FloatingPointError, reason.c_str());
@@ -158,7 +158,7 @@ NAMESPACE_BEGIN(Py)
     
     class MemoryError: public StandardError  {
     public:
-        MemoryError (const STD::string& reason)
+        MemoryError (const std::string& reason)
             : StandardError()
         {
             PyErr_SetString (PyExc_MemoryError, reason.c_str());
@@ -167,13 +167,13 @@ NAMESPACE_BEGIN(Py)
     
     class SystemExit: public StandardError  {
     public:
-        SystemExit (const STD::string& reason)
+        SystemExit (const std::string& reason)
             : StandardError() 
         {
             PyErr_SetString (PyExc_SystemExit,reason.c_str());
         }
     };
     
-NAMESPACE_END // Py
+}// Py
 
 #endif

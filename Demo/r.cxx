@@ -10,7 +10,7 @@
 
 Py::Object r::repr()
 {
-	return String(asString());
+	return Py::String(asString());
 }
 
 int r::sequence_length()
@@ -20,12 +20,12 @@ int r::sequence_length()
 
 Py::Object r::sequence_item(int i) 
 {
-    return Int(item(i));
+    return Py::Int(item(i));
 }
 
 Py::Object r::sequence_concat( const Py::Object &j)
 {
-    Int k(j);
+	Py::Int k(j);
     return Py::asObject(extend(int(k)));
 }
 
@@ -37,11 +37,11 @@ Py::Object r::sequence_slice(int i, int j)
 
 Py::Object r::getattr( const char *name )
 {
-    if(STD::string(name) == "c")
-	return Float(300.0);
+    if(std::string(name) == "c")
+		return Py::Float(300.0);
 
-    if(STD::string(name) == "start")
-	return Int(start);
+    if(std::string(name) == "start")
+		return Py::Int(start);
 
     return getattr_methods( name );
 }
@@ -49,13 +49,8 @@ Py::Object r::getattr( const char *name )
 // "regular" methods...
 Py::Object r::amethod( const Py::Tuple &t ) 
 {
-	STD::cout << "r_amethod size() = " << t.size() << STD::endl << STD::flush;
-
 	t.verify_length(1);
-
-	STD::cout << "r_amethod verify_length" << STD::endl << STD::flush;
-
-	List result;
+	Py::List result;
 	result.append(Py::Object(this));
 	result.append(t[0]);
 
@@ -77,7 +72,7 @@ Py::Object r::assign( const Py::Tuple &t )
 	Py::Object o2(t[1]); // rhs;
 	c_assign (t1, o2);
 
-	return Nothing();
+	return Py::Nothing();
 }
 
 void r::init_type()

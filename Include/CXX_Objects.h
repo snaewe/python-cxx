@@ -8,13 +8,17 @@
 
 #include "Python.h"
 #include "CXX_Exception.h"
-#include STANDARD_HEADER(iostream)
-#include STANDARD_HEADER(strstream)
-#include STANDARD_HEADER(string)
-#include STANDARD_HEADER(iterator)
-#include STANDARD_HEADER(utility)
 
-NAMESPACE_BEGIN(Py)
+
+#include <iostream>
+#include <strstream>
+#include <string>
+#include <iterator>
+#include <utility>
+
+namespace Py {
+
+    typedef int sequence_index_type;	// type of an index into a sequence
 
     // Forward declarations
     class Object;
@@ -35,29 +39,7 @@ NAMESPACE_BEGIN(Py)
     {
         return (static_cast<PyObject*>(0));
     }
-    
-    class FromAPI {
-        // Python API routines return to you owned pointers.
-        // FromAPI is a helper class to let you construct an object from one of these.
-        
-        // Usage: Object(FromAPI(p)) or Object x = FromAPI(p) 
-        // where p is an already-owned pointer such as returned by an API routine.
-    private:
-        PyObject *p;
-        FromAPI& operator=(const FromAPI& other); // no assignment
-        FromAPI(const FromAPI& other); // no copy constructor
-    public:
-        explicit FromAPI(PyObject *powned) { // construct from a pointer you own, only!
-            p = powned;
-        }
-        virtual ~FromAPI() {
-            Py_XDECREF(p); // we own it, so kill it
-        }
-        operator PyObject*() const {return p;}
-    };
 
-#define asObject(p) Object(FromAPI(p))
-    
     //===========================================================================//
     // class Object
     // The purpose of this class is to serve as the most general kind of
@@ -83,10 +65,19 @@ NAMESPACE_BEGIN(Py)
     explicit MyType (PyObject *pyob): Object(pyob) {
        validate();
     }
-    MyType(const Object& other): Object(*other) {
+
+    MyType(const Object& other): Object(other.ptr()) {
        validate();
     }
     */
+
+	// Alernate version for the constructor to allow for construction from owned pointers:
+	/*
+	explicit MyType (PyObject *pyob): Object(pyob) {
+       validate();
+    }
+	*/
+
     // You may wish to add other constructors; see the classes below for examples.
     // Each constructor must use "set" to set the pointer
     // and end by validating the pointer you have created.
@@ -123,10 +114,12 @@ NAMESPACE_BEGIN(Py)
         
     protected:
         
-        void set (PyObject* pyob) {
+        void set (PyObject* pyob, bool owned = false) {
             release();
             p = pyob;
-            Py_XINCREF (p);
+            if (!owned){
+				Py_XINCREF (p);
+			}
             validate();
         }
         
@@ -143,7 +136,7 @@ NAMESPACE_BEGIN(Py)
                     throw Exception();
                 }
                 // Better error message if RTTI available
-                // STD::string s("Error creating object of type ");
+                // std::string s("Error creating object of type ");
                 // s += (typeid (*this)).name();
                 
                 throw TypeError ("CXX: type error.");
@@ -151,9 +144,11 @@ NAMESPACE_BEGIN(Py)
         }
         
     public:
-        // Constructors acquire new ownership of pointer
-        explicit Object (PyObject* pyob=Py_None): p (pyob) {
-            Py_XINCREF (p);
+        // Constructor acquires new ownership of pointer unless explicitly told not to.
+        explicit Object (PyObject* pyob=Py_None, bool owned = false): p (pyob) {
+            if(!owned) {
+				Py_XINCREF (p);
+			}
             validate();
         }
         
@@ -218,22 +213,20 @@ NAMESPACE_BEGIN(Py)
         
         String str () const; // the str() representation
         
-        STD::string as_string() const;
+        std::string as_string() const;
         
         String repr () const; // the repr () representation
         
-        bool hasAttr (const STD::string& s) const {
+        bool hasAttr (const std::string& s) const {
             return PyObject_HasAttrString (p, const_cast<char*>(s.c_str())) ? true: false;
         }
         
-        Object getAttr (const STD::string& s) const {
-            return asObject(
-                PyObject_GetAttrString (p, const_cast<char*>(s.c_str()))
-                );
+        Object getAttr (const std::string& s) const {
+            return Object (PyObject_GetAttrString (p, const_cast<char*>(s.c_str())), true);
         }
         
         Object getItem (const Object& key) const {
-            return asObject(PyObject_GetItem(p, *key));
+            return Object (PyObject_GetItem(p, *key), true);
         }
         
         long hashValue () const {
@@ -290,12 +283,12 @@ NAMESPACE_BEGIN(Py)
         }
         
         // Commands
-        void setAttr (const STD::string& s, const Object& value) {
+        void setAttr (const std::string& s, const Object& value) {
             if(PyObject_SetAttrString (p, const_cast<char*>(s.c_str()), *value) == -1) 
                 throw AttributeError ("getAttr failed.");
         }
         
-        void delAttr (const STD::string& s) {
+        void delAttr (const std::string& s) {
             if(PyObject_DelAttrString (p, const_cast<char*>(s.c_str())) == -1)
                 throw AttributeError ("delAttr failed.");
         }
@@ -354,19 +347,19 @@ NAMESPACE_BEGIN(Py)
          return p;
      }
      
-    // Nothing() is what an extension method returns is 
+    // Nothing() is what an extension method returns if
     // there is no other return value.
     inline Object Nothing()
     {
        return Object(Py_None);
     }
     
-    STD::ostream& operator<< (STD::ostream& os, const Object& ob);
+    std::ostream& operator<< (std::ostream& os, const Object& ob);
      
      // Class Type
      class Type: public Object {
      public:
-         explicit Type (PyObject* pyob): Object(pyob) {
+         explicit Type (PyObject* pyob, bool owned = false): Object(pyob, owned) {
              validate();
          }
          
@@ -392,12 +385,24 @@ NAMESPACE_BEGIN(Py)
          }
      };
      
+
+//
+//	Convert an owned Python pointer into a CXX Object
+//
+inline Object asObject (PyObject *p)
+	{
+	return Object(p, true);
+	}
+    
+
+
+
      // ===============================================
      // class Int
      class Int: public Object {
      public:
          // Constructor
-         explicit Int (PyObject *pyob): Object (pyob) {
+         explicit Int (PyObject *pyob, bool owned = false): Object (pyob, owned) {
              validate();
          }
          
@@ -406,19 +411,19 @@ NAMESPACE_BEGIN(Py)
          }
          
          // create from long
-         explicit Int (long v = 0L): asObject(PyInt_FromLong(v)) {
+         explicit Int (long v = 0L): Object(PyInt_FromLong(v), true) {
              validate();
          }
          
          // create from int
          explicit Int (int v) {
              long w = v;
-             set(FromAPI(PyInt_FromLong(w)));
+             set(PyInt_FromLong(w), true);
              validate();
          }
          
          explicit Int (const Object& ob) {
-             set(FromAPI(PyNumber_Int(*ob)));
+             set(PyNumber_Int(*ob), true);
              validate();
          }
          
@@ -430,7 +435,7 @@ NAMESPACE_BEGIN(Py)
          
          Int& operator= (PyObject* rhsp) {
              if(ptr() == rhsp) return *this;
-             set (FromAPI(PyNumber_Int(rhsp)));
+             set (PyNumber_Int(rhsp), true);
              return *this;
          }
          // Membership
@@ -443,12 +448,12 @@ NAMESPACE_BEGIN(Py)
          }
          // assign from an int
          Int& operator= (int v) {
-             *this = FromAPI(PyInt_FromLong (long(v)));
+             set (PyInt_FromLong (long(v)), true);
              return *this;
          }
          // assign from long
          Int& operator= (long v) {
-             *this = FromAPI(PyInt_FromLong (v));
+             set (PyInt_FromLong (v), true);
              return *this;
          }	
      };
@@ -458,30 +463,30 @@ NAMESPACE_BEGIN(Py)
      class Long: public Object {
      public:
          // Constructor
-         explicit Long (PyObject *pyob): Object (pyob) {
+         explicit Long (PyObject *pyob, bool owned = false): Object (pyob, owned) {
              validate();
          }
          
-         Long (const Long& ob): Object(*ob) {
+         Long (const Long& ob): Object(ob.ptr()) {
              validate();
          }
          
          // create from long
          explicit Long (long v = 0L)
-             : asObject(PyLong_FromLong(v))
+             : Object(PyLong_FromLong(v), true)
          {
              validate();
          }
          // create from int
          explicit Long (int v) 
-             : asObject(PyLong_FromLong(static_cast<long>(v))) 
+             : Object(PyLong_FromLong(static_cast<long>(v)), true)
          {
              validate();
          }
          
          // try to create from any object
          explicit Long (const Object& ob) 
-             : asObject(PyNumber_Long(*ob))
+             : Object(PyNumber_Long(*ob), true)
          {
              validate();
          }
@@ -494,7 +499,7 @@ NAMESPACE_BEGIN(Py)
          
          Long& operator= (PyObject* rhsp) {
              if(ptr() == rhsp) return *this;
-             set (FromAPI(PyNumber_Long(rhsp)));
+             set (PyNumber_Long(rhsp), true);
              return *this;
          }
          // Membership
@@ -510,12 +515,12 @@ NAMESPACE_BEGIN(Py)
          }
          // assign from an int
          Long& operator= (int v) {
-             *this = FromAPI(PyLong_FromLong (long(v)));
+             set(PyLong_FromLong (long(v)), true);
              return *this;
          }
          // assign from long
          Long& operator= (long v) {
-             *this = FromAPI(PyLong_FromLong (v));
+             set(PyLong_FromLong (v), true);
              return *this;
          }	
      };
@@ -526,7 +531,7 @@ NAMESPACE_BEGIN(Py)
      class Float: public Object {
      public:
          // Constructor
-         explicit Float (PyObject *pyob): Object(pyob) {
+         explicit Float (PyObject *pyob, bool owned = false): Object(pyob, owned) {
              validate();
          }
          
@@ -536,14 +541,14 @@ NAMESPACE_BEGIN(Py)
          
          // make from double
          explicit Float (double v=0.0)
-             :asObject(PyFloat_FromDouble (v))
+             : Object(PyFloat_FromDouble (v), true)
          {
              validate();
          }
          
          // try to make from any object
          explicit Float (const Object& ob)
-             :asObject(PyNumber_Float(*ob))
+             : Object(PyNumber_Float(*ob), true)
          {
              validate();
          }
@@ -554,7 +559,7 @@ NAMESPACE_BEGIN(Py)
          
          Float& operator= (PyObject* rhsp) {
              if(ptr() == rhsp) return *this;
-             set (FromAPI(PyNumber_Float(rhsp)));
+             set (PyNumber_Float(rhsp), true);
              return *this;
          }
          // Membership
@@ -567,22 +572,22 @@ NAMESPACE_BEGIN(Py)
          }
          // assign from a double
          Float& operator= (double v) {
-             *this = FromAPI(PyFloat_FromDouble (v));
+             set(PyFloat_FromDouble (v), true);
              return *this;
          }
          // assign from an int
          Float& operator= (int v) {
-             *this = FromAPI(PyFloat_FromDouble (double(v)));
+             set(PyFloat_FromDouble (double(v)), true);
              return *this;
          }
          // assign from long
          Float& operator= (long v) {
-             *this = FromAPI(PyFloat_FromDouble (double(v)));
+             set(PyFloat_FromDouble (double(v)), true);
              return *this;
          }	
          // assign from an Int
          Float& operator= (const Int& iob) {
-             *this = FromAPI(PyFloat_FromDouble (double(long(iob))));
+             set(PyFloat_FromDouble (double(long(iob))), true);
              return *this;
          }
      };
@@ -592,7 +597,7 @@ NAMESPACE_BEGIN(Py)
      class Complex: public Object {
      public:
          // Constructor
-         explicit Complex (PyObject *pyob): Object(pyob) {
+         explicit Complex (PyObject *pyob, bool owned = false): Object(pyob, owned) {
              validate();
          }
          
@@ -602,7 +607,7 @@ NAMESPACE_BEGIN(Py)
          
          // make from double
          explicit Complex (double v=0.0, double w=0.0)
-             :asObject(PyComplex_FromDoubles (v, w))
+             :Object(PyComplex_FromDoubles (v, w), true)
          {
              validate();
          }
@@ -613,7 +618,7 @@ NAMESPACE_BEGIN(Py)
          
          Complex& operator= (PyObject* rhsp) {
              if(ptr() == rhsp) return *this;
-             set (FromAPI(rhsp));
+             set (rhsp);
              return *this;
          }
          // Membership
@@ -626,27 +631,27 @@ NAMESPACE_BEGIN(Py)
          }
          // assign from a Py_complex
          Complex& operator= (const Py_complex& v) {
-             *this = FromAPI(PyComplex_FromCComplex (v));
+             set(PyComplex_FromCComplex (v), true);
              return *this;
          }
          // assign from a double
          Complex& operator= (double v) {
-             *this = FromAPI(PyComplex_FromDoubles (v, 0.0));
+             set(PyComplex_FromDoubles (v, 0.0), true);
              return *this;
          }
          // assign from an int
          Complex& operator= (int v) {
-             *this = FromAPI(PyComplex_FromDoubles (double(v), 0.0));
+             set(PyComplex_FromDoubles (double(v), 0.0), true);
              return *this;
          }
          // assign from long
          Complex& operator= (long v) {
-             *this = FromAPI(PyComplex_FromDoubles (double(v), 0.0));
+             set(PyComplex_FromDoubles (double(v), 0.0), true);
              return *this;
          }	
          // assign from an Int
          Complex& operator= (const Int& iob) {
-             *this = FromAPI(PyComplex_FromDoubles (double(long(iob)), 0.0));
+             set(PyComplex_FromDoubles (double(long(iob)), 0.0), true);
              return *this;
          }
 
@@ -676,6 +681,10 @@ NAMESPACE_BEGIN(Py)
      // properly we have to compromise by storing the rvalue inside. The 
      // entire Object API is repeated so that things like s[i].isList() will 
      // work properly.
+
+	 // Still, once in a while a weird compiler message may occur using expressions like x[i]
+	 // Changing them to Object(x[i]) helps the compiler to understand that the
+	 // conversion of a seqref to an Object is wanted.
      
      template<class T>
          class seqref { 
@@ -684,7 +693,7 @@ NAMESPACE_BEGIN(Py)
          int offset; // item number
          T the_item; // lvalue
      public:
-         seqref (SeqBase<T>& seq, int j)
+         seqref (SeqBase<T>& seq, sequence_index_type j)
              : s(seq), offset(j), the_item (s.getItem(j)){}
 
          seqref (const seqref<T>& r)
@@ -729,11 +738,11 @@ NAMESPACE_BEGIN(Py)
              return the_item.repr();
          }
          
-         bool hasAttr (const STD::string& attr_name) const {
+         bool hasAttr (const std::string& attr_name) const {
              return the_item.hasAttr(attr_name);
          }
          
-         Object getAttr (const STD::string& attr_name) const {
+         Object getAttr (const std::string& attr_name) const {
              return the_item.getAttr(attr_name);
          }
          
@@ -785,11 +794,11 @@ NAMESPACE_BEGIN(Py)
              return the_item.isString();
          }
          // Commands
-         void setAttr (const STD::string& attr_name, const Object& value) {
+         void setAttr (const std::string& attr_name, const Object& value) {
              the_item.setAttr(attr_name, value);
          }
          
-         void delAttr (const STD::string& attr_name) {
+         void delAttr (const std::string& attr_name) {
              the_item.delAttr(attr_name);
          }
          
@@ -830,14 +839,14 @@ NAMESPACE_BEGIN(Py)
          class SeqBase: public Object {
      public:
          // STL definitions
-         typedef int size_type; 
+         typedef unsigned int size_type; 
          typedef seqref<T> reference;
          typedef T const_reference;
          typedef seqref<T>* pointer;
          typedef int difference_type;
          
          virtual size_type max_size() const {
-             return STD::string::npos; // ?
+             return std::string::npos; // ?
          }
          
          virtual size_type capacity() const {
@@ -855,12 +864,14 @@ NAMESPACE_BEGIN(Py)
          }
          
          explicit SeqBase<T> ()
-             :asObject(PyTuple_New(0))
+             :Object(PyTuple_New(0), true)
          {
              validate();
          }
          
-         explicit SeqBase<T> (PyObject* pyob): Object(pyob) {
+         explicit SeqBase<T> (PyObject* pyob, bool owned=false)
+			 : Object(pyob, owned) 
+		 {
              validate();
          }
          
@@ -889,30 +900,30 @@ NAMESPACE_BEGIN(Py)
          }
          
          // Element access 
-         const T operator[](size_type index) const {
+         const T operator[](sequence_index_type index) const {
              return getItem(index);
          }
          
-         seqref<T> operator[](size_type index) {
+         seqref<T> operator[](sequence_index_type index) {
              return seqref<T>(*this, index);
          }
          
-         virtual T getItem (size_type i) const {
-             return T(FromAPI(PySequence_GetItem (ptr(), i)));
+         virtual T getItem (sequence_index_type i) const {
+             return T(asObject(PySequence_GetItem (ptr(), i)));
          }
          
-         virtual void setItem (size_type i, const T& ob) {
+         virtual void setItem (sequence_index_type i, const T& ob) {
              if (PySequence_SetItem (ptr(), i, *ob) == -1) {
                  throw Exception();
              }
          }
          
          SeqBase<T> repeat (int count) const {
-             return SeqBase<T> (FromAPI (PySequence_Repeat (ptr(), count)));
+             return SeqBase<T> (PySequence_Repeat (ptr(), count), true);
          }
          
          SeqBase<T> concat (const SeqBase<T>& other) const {
-             return SeqBase<T> (FromAPI (PySequence_Concat(ptr(), *other)));
+             return SeqBase<T> (PySequence_Concat(ptr(), *other), true);
          }
          
          // more STL compatability
@@ -996,7 +1007,7 @@ NAMESPACE_BEGIN(Py)
                  return seqref<T>(*seq, count);
              }
              
-             seqref<T> operator[] (int i) {
+             seqref<T> operator[] (sequence_index_type i) {
                  return seqref<T>(*seq, count + i);
              }
              
@@ -1040,10 +1051,10 @@ NAMESPACE_BEGIN(Py)
              // postfix --
              iterator operator-- (int) { return iterator(seq, count--);}
              
-             STD::string diagnose() const {
-                 STD::ostrstream oss;
-                 oss << "iterator diagnosis " << seq << ", " << count << STD::ends;
-                 return STD::string(oss.str());
+             std::string diagnose() const {
+                 std::ostrstream oss;
+                 oss << "iterator diagnosis " << seq << ", " << count << std::ends;
+                 return std::string(oss.str());
              }
          };    // end of class SeqBase<T>::iterator
              
@@ -1060,7 +1071,7 @@ NAMESPACE_BEGIN(Py)
          protected:
              friend class SeqBase<T>;
              const SeqBase<T>* seq;
-             int count;
+             sequence_index_type count;
              
          public:
              ~const_iterator () {}
@@ -1106,7 +1117,7 @@ NAMESPACE_BEGIN(Py)
                  return seq->getItem(count);
              }
              
-             const T operator[] (int i) const {
+             const T operator[] (sequence_index_type i) const {
                  return seq->getItem(count + i);
              }
              
@@ -1169,7 +1180,7 @@ NAMESPACE_BEGIN(Py)
     //
     class Char: public Object {
     public:
-        explicit Char (PyObject *pyob): Object(pyob) {
+        explicit Char (PyObject *pyob, bool owned = false): Object(pyob, owned) {
             validate();
         }
         
@@ -1177,14 +1188,14 @@ NAMESPACE_BEGIN(Py)
             validate();
         }
         
-        Char (const STD::string& v = "")
-            :asObject(PyString_FromStringAndSize (const_cast<char*>(v.c_str()),1))
+        Char (const std::string& v = "")
+            :Object(PyString_FromStringAndSize (const_cast<char*>(v.c_str()),1), true)
         {
             validate();
         }
         
         Char (char v)
-            :asObject(PyString_FromStringAndSize (&v, 1))
+            : Object(PyString_FromStringAndSize (&v, 1), true)
         {
             validate();
         }
@@ -1206,21 +1217,21 @@ NAMESPACE_BEGIN(Py)
         }
         
         // Assignment from C string
-        Char& operator= (const STD::string& v) {
-            *this = FromAPI(PyString_FromStringAndSize (const_cast<char*>(v.c_str()),1));
+        Char& operator= (const std::string& v) {
+            set(PyString_FromStringAndSize (const_cast<char*>(v.c_str()),1), true);
             return *this;
         }
         
         Char& operator= (char v) {
-            *this = FromAPI(PyString_FromStringAndSize (&v, 1));
+            set(PyString_FromStringAndSize (&v, 1), true);
             return *this;
         }
         
         // Conversion
         operator String() const;
         
-        operator STD::string () const {
-            return STD::string(PyString_AsString (ptr()));
+        operator std::string () const {
+            return std::string(PyString_AsString (ptr()));
         }           
     };
     
@@ -1230,7 +1241,7 @@ NAMESPACE_BEGIN(Py)
             return max_size();
         }
         
-        explicit String (PyObject *pyob): SeqBase<Char>(pyob) {
+        explicit String (PyObject *pyob, bool owned = false): SeqBase<Char>(pyob, owned) {
             validate();
         }
         
@@ -1238,20 +1249,27 @@ NAMESPACE_BEGIN(Py)
             validate();
         }
         
-        String (const STD::string& v = "")
-            :SeqBase<Char>(FromAPI(PyString_FromString (const_cast<char*>(v.c_str()))))
+        String (const std::string& v = "")
+            :SeqBase<Char>(PyString_FromString (const_cast<char*>(v.c_str())), true)
         {
             validate();
         }
         
-        String (const STD::string& v, STD::string::size_type vsize)
-            :SeqBase<Char>(FromAPI(PyString_FromStringAndSize (const_cast<char*>(v.c_str()), vsize)))
+
+        String (const std::string& v, std::string::size_type vsize)
+            :SeqBase<Char>(PyString_FromStringAndSize (const_cast<char*>(v.c_str()), vsize), true)
+        {
+            validate();
+        }
+        
+        String (const char *v, int vsize)
+            :SeqBase<Char>(PyString_FromStringAndSize (const_cast<char*>(v), vsize), true)
         {
             validate();
         }
         
         String (const char* v)
-            :SeqBase<Char>(FromAPI(PyString_FromString (v))) 
+            :SeqBase<Char>(PyString_FromString (v), true) 
         {
             validate();
         }
@@ -1272,8 +1290,8 @@ NAMESPACE_BEGIN(Py)
         }
         
         // Assignment from C string
-        String& operator= (const STD::string& v) {
-            *this = FromAPI(PyString_FromString (const_cast<char*>(v.c_str())));
+        String& operator= (const std::string& v) {
+            set(PyString_FromString (const_cast<char*>(v.c_str())), true);
             return *this;
         }
         // Queries
@@ -1281,8 +1299,8 @@ NAMESPACE_BEGIN(Py)
             return PyString_Size (ptr());
         }
         
-        operator STD::string () const {
-            return STD::string(PyString_AsString (ptr()));
+        operator std::string () const {
+            return std::string(PyString_AsString (ptr()));
         }           
     };
     
@@ -1290,7 +1308,7 @@ NAMESPACE_BEGIN(Py)
     // class Tuple
     class Tuple: public Sequence {
     public:
-        virtual void setItem (int offset, const Object&ob) {
+        virtual void setItem (sequence_index_type offset, const Object&ob) {
             // note PyTuple_SetItem is a thief...
             if(PyTuple_SetItem (ptr(), offset, new_reference_to(ob)) == -1) {
                 throw Exception();
@@ -1298,7 +1316,7 @@ NAMESPACE_BEGIN(Py)
         }
         
         // Constructor
-        explicit Tuple (PyObject *pyob): Sequence (pyob) {
+        explicit Tuple (PyObject *pyob, bool owned = false): Sequence (pyob, owned) {
             validate();
         }
         
@@ -1308,9 +1326,9 @@ NAMESPACE_BEGIN(Py)
         
         // New tuple of a given size	
         explicit Tuple (int size = 0) {
-            set(FromAPI(PyTuple_New (size)));
+            set(PyTuple_New (size), true);
             validate ();
-            for (int i=0; i < size; i++) {
+            for (sequence_index_type i=0; i < size; i++) {
                 if(PyTuple_SetItem (ptr(), i, new_reference_to(Py_None)) == -1) {
                     throw Exception();
                 }
@@ -1318,9 +1336,9 @@ NAMESPACE_BEGIN(Py)
         }
         // Tuple from any sequence
         explicit Tuple (const Sequence& s) { 
-            set(FromAPI(PyTuple_New (s.length())));
+            set(PyTuple_New (s.length()), true);
             validate();
-            for(int i=0; i < s.length(); i++) {
+            for(sequence_index_type i=0; i < s.length(); i++) {
                 if(PyTuple_SetItem (ptr(), i, new_reference_to(s[i])) == -1) {
                     throw Exception();
                 }
@@ -1343,7 +1361,7 @@ NAMESPACE_BEGIN(Py)
         }
         
         Tuple getSlice (int i, int j) const {
-            return Tuple (FromAPI(PySequence_GetSlice (ptr(), i, j)));
+            return Tuple (PySequence_GetSlice (ptr(), i, j), true);
         }
         
     };
@@ -1354,7 +1372,7 @@ NAMESPACE_BEGIN(Py)
     class List: public Sequence { 
     public:
         // Constructor
-        explicit List (PyObject *pyob): Sequence(pyob) {
+        explicit List (PyObject *pyob, bool owned = false): Sequence(pyob, owned) {
             validate();
         }
         List (const Object& ob): Sequence(ob) {
@@ -1362,9 +1380,9 @@ NAMESPACE_BEGIN(Py)
         }
         // Creation at a fixed size	
         List (int size = 0) {
-            set(FromAPI(PyList_New (size)));
+            set(PyList_New (size), true);
             validate();
-            for (int i=0; i < size; i++) {
+            for (sequence_index_type i=0; i < size; i++) {
                 if(PyList_SetItem (ptr(), i, new_reference_to(Py_None)) == -1) {
                     throw Exception();
                 }
@@ -1374,9 +1392,9 @@ NAMESPACE_BEGIN(Py)
         // List from a sequence
         List (const Sequence& s): Sequence() {
             int n = s.length();
-            set(FromAPI(PyList_New (n)));
+            set(PyList_New (n), true);
             validate();
-            for (int i=0; i < n; i++) {
+            for (sequence_index_type i=0; i < n; i++) {
                 if(PyList_SetItem (ptr(), i, new_reference_to(s[i])) == -1) {
                     throw Exception();
                 }
@@ -1403,7 +1421,7 @@ NAMESPACE_BEGIN(Py)
         }
         
         List getSlice (int i, int j) const {
-            return List (FromAPI(PyList_GetSlice (ptr(), i, j)));
+            return List (PyList_GetSlice (ptr(), i, j), true);
         }
         
         void setSlice (int i, int j, const Object& v) {
@@ -1446,7 +1464,7 @@ NAMESPACE_BEGIN(Py)
         T the_item;
         
     public:
-        mapref<T> (MapBase<T>& map, const STD::string& k)
+        mapref<T> (MapBase<T>& map, const std::string& k)
             : s(map), the_item() 
         {
             key = String(k);
@@ -1502,11 +1520,11 @@ NAMESPACE_BEGIN(Py)
             return the_item.repr();
         }
         
-        bool hasAttr (const STD::string& attr_name) const {
+        bool hasAttr (const std::string& attr_name) const {
             return the_item.hasAttr(attr_name);
         }
         
-        Object getAttr (const STD::string& attr_name) const {
+        Object getAttr (const std::string& attr_name) const {
             return the_item.getAttr(attr_name);
         }
         
@@ -1555,11 +1573,11 @@ NAMESPACE_BEGIN(Py)
         }
         
         // Commands
-        void setAttr (const STD::string& attr_name, const Object& value) {
+        void setAttr (const std::string& attr_name, const Object& value) {
             the_item.setAttr(attr_name, value);
         }
         
-        void delAttr (const STD::string& attr_name) {
+        void delAttr (const std::string& attr_name) {
             the_item.delAttr(attr_name);
         }
         
@@ -1576,7 +1594,7 @@ NAMESPACE_BEGIN(Py)
         // reference: proxy class for implementing []
         
         // Constructor
-        explicit MapBase<T> (PyObject *pyob): Object(pyob) {
+        explicit MapBase<T> (PyObject *pyob, bool owned = false): Object(pyob, owned) {
             validate();
         }
         
@@ -1610,7 +1628,7 @@ NAMESPACE_BEGIN(Py)
         }      
         
         // Element Access
-        T operator[](const STD::string& key) const {
+        T operator[](const std::string& key) const {
             return getItem(key);
         }
         
@@ -1618,7 +1636,7 @@ NAMESPACE_BEGIN(Py)
             return getItem(key);
         }
         
-        mapref<T> operator[](const STD::string& key) {
+        mapref<T> operator[](const std::string& key) {
             return mapref<T>(*this, key);
         }
         
@@ -1630,7 +1648,7 @@ NAMESPACE_BEGIN(Py)
             return PyMapping_Length (ptr());
         }
         
-        int hasKey (const STD::string& s) const {
+        int hasKey (const std::string& s) const {
             return PyMapping_HasKeyString (ptr(),const_cast<char*>(s.c_str()));
         }
         
@@ -1638,19 +1656,19 @@ NAMESPACE_BEGIN(Py)
             return PyMapping_HasKey (ptr(), s.ptr());
         }
         
-        T getItem (const STD::string& s) const {
+        T getItem (const std::string& s) const {
             return T(
-                FromAPI(PyMapping_GetItemString (ptr(),const_cast<char*>(s.c_str())))
+                asObject(PyMapping_GetItemString (ptr(),const_cast<char*>(s.c_str())))
                 );
         }
         
         T getItem (const Object& s) const {
             return T(
-                FromAPI(PyObject_GetItem (ptr(), s.ptr()))
+                asObject(PyObject_GetItem (ptr(), s.ptr()))
                 );
         }
         
-        virtual void setItem (const STD::string& s, const Object& ob) {
+        virtual void setItem (const std::string& s, const Object& ob) {
             if (PyMapping_SetItemString (ptr(), const_cast<char*>(s.c_str()), *ob)
                 == -1)
             {
@@ -1666,7 +1684,7 @@ NAMESPACE_BEGIN(Py)
             }
         }
 
-        void delItem (const STD::string& s) {
+        void delItem (const std::string& s) {
             if (PyMapping_DelItemString (ptr(), const_cast<char*>(s.c_str())) == -1){
                 throw Exception();
             }
@@ -1679,15 +1697,15 @@ NAMESPACE_BEGIN(Py)
         }
         // Queries
         List keys () const {
-            return List(FromAPI(PyMapping_Keys(ptr())));
+            return List(PyMapping_Keys(ptr()), true);
         }
         
         List values () const { // each returned item is a (key, value) pair
-            return List(FromAPI(PyMapping_Values(ptr())));
+            return List(PyMapping_Values(ptr()), true);
         }
         
         List items () const {
-            return List(FromAPI(PyMapping_Items(ptr())));
+            return List(PyMapping_Items(ptr()), true);
         }	   
         };
         
@@ -1697,7 +1715,7 @@ NAMESPACE_BEGIN(Py)
         class Dict: public Mapping {
         public:
             // Constructor
-            explicit Dict (PyObject *pyob): Mapping (pyob) {
+            explicit Dict (PyObject *pyob, bool owned=false): Mapping (pyob, owned) {
                 validate();
             }
             Dict (const Dict& ob): Mapping(ob) {
@@ -1705,7 +1723,7 @@ NAMESPACE_BEGIN(Py)
             }
             // Creation
             Dict () {
-                set(FromAPI(PyDict_New ()));
+                set(PyDict_New (), true);
                 validate();
             }
             // Assignment acquires new ownership of pointer
@@ -1730,7 +1748,7 @@ NAMESPACE_BEGIN(Py)
             explicit Callable (): Object() {}
         public:
             // Constructor
-            explicit Callable (PyObject *pyob): Object (pyob) {
+            explicit Callable (PyObject *pyob, bool owned = false): Object (pyob, owned) {
                 validate();
             }
             
@@ -1757,24 +1775,23 @@ NAMESPACE_BEGIN(Py)
             
             // Call
             Object apply(const Tuple& args) const {
-                return asObject(PyObject_CallObject(ptr(), *args));
+                return asObject(PyObject_CallObject(ptr(), args.ptr()));
             }
             
-            Object apply(PyObject* args = 0) const {
-                return asObject(PyObject_CallObject(ptr(), args));
-            }
+            Object apply(PyObject* pargs = 0) const {
+				return apply (Tuple(pargs));
+			}
         }; 
         
         class Module: public Object {
         public:
-            // Constructors acquire new ownership of pointer
-            explicit Module (PyObject* pyob): Object (pyob) {
+            explicit Module (PyObject* pyob, bool owned = false): Object (pyob, owned) {
                 validate();
             }
 
 			// Construct from module name
-			explicit Module (const STD::string&s): Object() {
-				set (PyImport_ImportModule(const_cast<char *>(s.c_str())));
+			explicit Module (const std::string&s): Object() {
+				set (PyImport_ImportModule(const_cast<char *>(s.c_str())), true);
 				validate ();
 			}
 
@@ -1792,9 +1809,11 @@ NAMESPACE_BEGIN(Py)
                 set(rhsp);
                 return *this;
             }
+
 			Dict getDict()
 				{
-				return Dict( PyModule_GetDict( ptr() ) );
+				return Dict(PyModule_GetDict(ptr())); 
+				// Caution -- PyModule_GetDict returns borrowed reference!
 				}
         };
         
@@ -1810,14 +1829,14 @@ NAMESPACE_BEGIN(Py)
             return asObject(PyNumber_Absolute(*a));
         }
         
-        inline STD::pair<Object,Object> coerce(const Object& a, const Object& b) {
+        inline std::pair<Object,Object> coerce(const Object& a, const Object& b) {
             PyObject *p1, *p2;
             p1 = *a;
             p2 = *b;
             if(PyNumber_Coerce(&p1,&p2) == -1) {
                 throw Exception();
             }
-            return STD::pair<Object,Object>(asObject(p1), asObject(p2));
+            return std::pair<Object,Object>(asObject(p1), asObject(p2));
         }
         
         inline Object operator+ (const Object& a, const Object& b) {
@@ -1929,5 +1948,5 @@ NAMESPACE_BEGIN(Py)
 			return result;
 		}
 
-NAMESPACE_END
+} // namespace Py
 #endif	// __CXX_Objects__h	

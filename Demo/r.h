@@ -2,12 +2,12 @@
 #define __r__h
 #include "CXX_Extensions.h"
 
-#include STANDARD_HEADER(strstream)
-USING(STD::ostrstream)
-USING(namespace Py)
+#include <strstream>
+using std::ostrstream;
+
 
 // Making an extension object
-class r: public PythonExtension<r> {
+class r: public Py::PythonExtension<r> {
 public:
     long	start;
     long	stop;
@@ -17,12 +17,12 @@ public:
         start = start_;
         stop = stop_;
         step = step_;
-        std::cout << "r created " << this << std::endl;
+        //std::cout << "r created " << this << std::endl;
     }
 
     virtual ~r()
     {
-        std::cout << "r destroyed " << this << std::endl;
+        //std:cout << "r destroyed " << this << std::endl;
     }
 
     static void init_type(void);
@@ -45,10 +45,10 @@ public:
         return new r(start, stop + k, step);      
     }
     
-    STD::string asString() const {
+    std::string asString() const {
         ostrstream s;
-        s << "r(" << start << ", " << stop << ", " << step << ")" << STD::ends;
-        return STD::string(s.str());
+        s << "r(" << start << ", " << stop << ", " << step << ")" << std::ends;
+        return std::string(s.str());
     }  
     
     // override functions from PythonExtension
@@ -66,39 +66,39 @@ public:
     Py::Object assign (const Py::Tuple& args); 
 	Py::Object reference_count (const Py::Tuple& args) 
 	{
-		return Int(this->ob_refcnt);
+		return Py::Int(this->ob_refcnt);
 	}
 
-    Py::Object c_value(const Tuple&) const {
-        List result;
+    Py::Object c_value(const Py::Tuple&) const {
+		Py::List result;
         for(int i = start; i <= stop; i += step) {
-            result.append(Int(i));
+            result.append(Py::Int(i));
         }
         return result;
     }
 
-    void c_assign(const Tuple&, const Py::Object& rhs) {
-        Tuple w(rhs);
+    void c_assign(const Py::Tuple&, const Py::Object& rhs) {
+		Py::Tuple w(rhs);
         w.verify_length(3);
-        start = long(Int(w[0]));
-        stop = long(Int(w[1]));
-        step = long(Int(w[2]));
+        start = long(Py::Int(w[0]));
+        stop = long(Py::Int(w[1]));
+        step = long(Py::Int(w[2]));
     }
 };
 
-class R: public SeqBase<Int> {
+class R: public Py::SeqBase<Py::Int> {
 public:
     
-    explicit R (PyObject *pyob): SeqBase<Int>(pyob) {
+    explicit R (PyObject *pyob, bool owned = false): Py::SeqBase<Py::Int>(pyob, owned) {
         validate();
     }
 
     explicit R(int start, int stop, int step = 1) 
-        :SeqBase<Int>(FromAPI(new r(start, stop, step)))
     {
+		set (new r(start, stop, step), true);
     }
 
-    R(const R& other): SeqBase<Int>(*other) {
+    R(const R& other): Py::SeqBase<Py::Int>(*other) {
         validate();
     }
     
@@ -116,11 +116,11 @@ public:
         return pyob && r::check(pyob);
     }
     
-    Py::Object value(const Tuple& t) const {
+    Py::Object value(const Py::Tuple& t) const {
         return static_cast<r *>(ptr())->c_value(t);
     }
 
-    void assign(const Tuple& t, const Object& rhs) {
+    void assign(const Py::Tuple& t, const Py::Object& rhs) {
         static_cast<r *>(ptr())->c_assign(t, rhs);
     }
 };
