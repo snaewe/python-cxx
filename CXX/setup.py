@@ -11,7 +11,7 @@ sources = glob (os.path.join ("Src", "*.cxx")) + \
 support_dir = os.path.normpath(
                    os.path.join(
 			sys.prefix,
-			'etc',
+			'share',
 			'python%d.%d' % (sys.version_info[0],sys.version_info[1]),
 			'CXX') )
 
