@@ -1,6 +1,6 @@
 #include "CXX_Extensions.h"
 
-NAMESPACE_BEGIN( Py )
+namespace Py {
 
 //================================================================================
 //
@@ -47,7 +47,7 @@ PyMethodDef* MethodTable::table()
 	int t1size = t.size();
 	mt = new PyMethodDef[t1size];
 	int j = 0;
-	for( STD::vector<PyMethodDef>::iterator i = t.begin(); i != t.end(); i++ )
+	for( std::vector<PyMethodDef>::iterator i = t.begin(); i != t.end(); i++ )
 	{
 	    mt[j++] = *i;
 	}
@@ -81,7 +81,7 @@ public:
 	ExtensionModuleBase *module;
 	};
 
-// Initialize returns the new module dictionary so you can add to it.
+
 void ExtensionModuleBase::initialize( const char *module_doc )
 	{
 	PyObject *module_ptr = new ExtensionModuleBasePtr( this );
@@ -1070,4 +1070,4 @@ int PythonExtensionBase::buffer_getsegcount( int* )
 //
 //--------------------------------------------------------------------------------
 
-NAMESPACE_END
+}
