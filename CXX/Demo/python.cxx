@@ -8,9 +8,9 @@ extern "C" void initexample();
 extern "C" void Py_Initialize();
 int
 main(int argc, char** argv)
-{
+	{
 	std::cout << "Greetings. Type from example import *; test()" << std::endl;
 	Py_Initialize();
-    initexample();
+	initexample();
 	return Py_Main(argc, argv);
-}
+	}

@@ -6,13 +6,14 @@
 
 #include "CXX/Extensions.hxx"
 #include "range.hxx"
+
 // This test also illustrates using the Py namespace explicitly
 
 extern void debug_check_ref_queue();
 
 
 std::string test_extension_object() 
-{ 
+	{ 
 	debug_check_ref_queue();
 
 	Py::Tuple a; // just something that isn't an range...
@@ -75,16 +76,15 @@ std::string test_extension_object()
 		return("Extension object test failed. (4)");
 
 	debug_check_ref_queue();
+		{
+		Py::ExtensionObject<range> rheap( new range(1, 10, 2) );
 
-	{
-	Py::ExtensionObject<range> rheap( new range(1, 10, 2) );
+		debug_check_ref_queue();
 
-	debug_check_ref_queue();
-
-	// delete rheap
-	}
+		// delete rheap
+		}
 
 	debug_check_ref_queue();
 
 	return "ok.";
-}
+	}
