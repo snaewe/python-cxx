@@ -1630,9 +1630,12 @@ namespace Py
 		// Tuple from any sequence
 		explicit Tuple (const Sequence& s)
 			{
-			set(PyTuple_New (s.length()), true);
+			sequence_index_type limit( sequence_index_type( s.length() ) );
+
+			set(PyTuple_New (limit), true);
 			validate();
-			for(sequence_index_type i=0; i < s.length(); i++)
+			
+			for(sequence_index_type i=0; i < limit; i++)
 				{
 				if(PyTuple_SetItem (ptr(), i, new_reference_to(s[i])) == -1)
 					{
