@@ -19,10 +19,10 @@ extern "C" {
     extern PyObject py_object_initializer;
 }
 
-#include STANDARD_HEADER(vector)
-#include STANDARD_HEADER(map)
+#include <vector>
+#include <map>
 
-NAMESPACE_BEGIN(Py)
+namespace Py {
 
 class MethodTable 
 {
@@ -34,7 +34,7 @@ public:
         PyMethodDef* table();
 
 protected:
-        STD::vector<PyMethodDef> t;	// accumulator of PyMethodDef's
+        std::vector<PyMethodDef> t;	// accumulator of PyMethodDef's
         PyMethodDef *mt;		// Actual method table produced when full
         
         static PyMethodDef method (const char* method_name, PyCFunction f, int flags = 1, const char* doc="");
@@ -54,13 +54,14 @@ class MethodDefExt : public PyMethodDef
 public:
 	typedef Object (T::*method_varargs_function_t)( const Tuple &args );
 	typedef Object (T::*method_keyword_function_t)( const Tuple &args, const Dict &kws );
-	typedef PyObject *(*method_call_handler_t)( PyObject *_self, PyObject *_args );
+	typedef PyObject *(*method_varargs_call_handler_t)( PyObject *_self, PyObject *_args );
+	typedef PyObject *(*method_keyword_call_handler_t)( PyObject *_self, PyObject *_args, PyObject *_dict );
 
 	MethodDefExt
 		(
 		const char *_name,
 		method_varargs_function_t _function,
-		method_call_handler_t _handler,
+		method_varargs_call_handler_t _handler,
 		const char *_doc
 		)
 		{
@@ -77,12 +78,12 @@ public:
 		(
 		const char *_name,
 		method_keyword_function_t _function,
-		method_call_handler_t _handler,
+		method_keyword_call_handler_t _handler,
 		const char *_doc
 		)
 		{
 		ext_meth_def.ml_name = const_cast<char *>(_name);
-		ext_meth_def.ml_meth = _handler;
+		ext_meth_def.ml_meth = method_varargs_call_handler_t( _handler );
 		ext_meth_def.ml_flags = METH_VARARGS|METH_KEYWORDS;
 		ext_meth_def.ml_doc = const_cast<char *>(_doc);
 
@@ -104,15 +105,15 @@ public:
 	ExtensionModuleBase( const char *name );
 	virtual ~ExtensionModuleBase();
 
-	Module ExtensionModuleBase::module(void) const;		// only valid after initialize() has been called
-	Dict ExtensionModuleBase::moduleDictionary(void) const;	// only valid after initialize() has been called
+	Module module(void) const;		// only valid after initialize() has been called
+	Dict moduleDictionary(void) const;	// only valid after initialize() has been called
 
 
 protected:
 	// Initialize the module
 	void initialize( const char *module_doc );
 
-	const STD::string module_name;
+	const std::string module_name;
 	MethodTable method_table;
 
 private:
@@ -138,7 +139,7 @@ public:
 protected:
 	typedef Object (T::*method_varargs_function_t)( const Tuple &args );
 	typedef Object (T::*method_keyword_function_t)( const Tuple &args, const Dict &kws );
-	typedef STD::map<STD::string,MethodDefExt<T> *> method_map_t;
+	typedef std::map<std::string,MethodDefExt<T> *> method_map_t;
 
 	static void add_varargs_method( const char *name, method_varargs_function_t function, const char *doc="" )
 		{
@@ -152,7 +153,7 @@ protected:
 			doc
 			);
 
-		mm[STD::string( name )] = method_definition;
+		mm[std::string( name )] = method_definition;
 		}
 
 	static void add_keyword_method( const char *name, method_keyword_function_t function, const char *doc="" )
@@ -167,7 +168,7 @@ protected:
 			doc
 			);
 
-		mm[STD::string( name )] = method_definition;
+		mm[std::string( name )] = method_definition;
 		}
 
 	void initialize( const char *module_doc="" )
@@ -534,12 +535,12 @@ protected:
 
 	typedef Object (T::*method_varargs_function_t)( const Tuple &args );
 	typedef Object (T::*method_keyword_function_t)( const Tuple &args, const Dict &kws );
-	typedef STD::map<STD::string,MethodDefExt<T> *> method_map_t;
+	typedef std::map<std::string,MethodDefExt<T> *> method_map_t;
 
 	// turn a name into function object
 	virtual Object getattr_methods( const char *_name )
 		{
-		STD::string name( _name );
+		std::string name( _name );
 
 		method_map_t &mm = methods();
 
@@ -566,7 +567,7 @@ protected:
 
 		PyObject *func = PyCFunction_New( &method_definition->ext_meth_def, self.ptr() );
 
-		return Object( FromAPI( func ) );
+		return Object(func, true);
 		}
 
 	static void add_varargs_method( const char *name, method_varargs_function_t function, const char *doc="" )
@@ -581,7 +582,7 @@ protected:
 			doc
 			);
 
-		mm[STD::string( name )] = method_definition;
+		mm[std::string( name )] = method_definition;
 		}
 
 	static void add_keyword_method( const char *name, method_keyword_function_t function, const char *doc="" )
@@ -596,7 +597,7 @@ protected:
 			doc
 			);
 
-		mm[STD::string( name )] = method_definition;
+		mm[std::string( name )] = method_definition;
 		}
 
 private:
@@ -727,6 +728,6 @@ public:
 		}
 };
 
-NAMESPACE_END
+} // Namespace Py
 // End of CXX_Extensions.h
 #endif
