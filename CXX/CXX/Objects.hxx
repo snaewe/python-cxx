@@ -2425,6 +2425,12 @@ namespace Py
 			return asObject(PyObject_CallObject(ptr(), args.ptr()));
 			}
 
+		// Call with keywords
+		Object apply(const Tuple& args, const Dict& kw) const
+			{
+			return asObject( PyEval_CallObjectWithKeywords( ptr(), args.ptr(), kw.ptr() ) );
+			}
+
 		Object apply(PyObject* pargs = 0) const
 			{
 			return apply (Tuple(pargs));
