@@ -383,7 +383,7 @@ private:
 
 
 		Float f(0.0);
-		for( int i = 0; i < a.length(); i++ )
+		for( Sequence::size_type i = 0; i < a.length(); i++ )
 			{    
 			Float g (a[i]);
 			f = f + g;

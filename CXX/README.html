@@ -28,8 +28,70 @@ p.param {background-color: #eeeeee; border-top: lightskyblue solid 4}
 
 <h1>PyCXX -- Python C++ Extensions Support</h1>
 
-<h2>Installation</h2>
+<h2>Installation using distutils</h2>
 
+<h3>Windows Installation and Demo</h3>
+<ol>
+<li>Fetch <a href="http://prdownloads.sourceforge.net/cxx/PyCXX-5.1.tar.gz">
+http://prdownloads.sourceforge.net/cxx/PyCXX-5.1.tar.gz</a>
+<li>Expand the archive into a directory of your choosing C:\PyCXX for example. Note: WinZip can expand .tar.gz files.
+<li>Install the PyCXX files:
+<ol>
+<li><pre>C:> cd \PyCXX</pre>
+<li><pre>C:\PyCXX> python setup.py install</pre>
+</ol>
+<li>Install the PyCXX Demo:
+<ol>
+<li><pre>C:> cd \PyCXX\Demo</pre>
+<li><pre>C:\PyCXX\Demo> python setup.py install</pre>
+</ol>
+<li>Run the demo:
+<ol>
+<li><pre>C:> python</pre>
+<li><pre>&gt;&gt;&gt; import CXX.example</pre>
+<li><pre>&gt;&gt;&gt; CXX.example.test()</pre>
+<li><pre>&gt;&gt;&gt; r = CXX.example.range( 11, 100, 13 )</pre>
+<li><pre>&gt;&gt;&gt; for i in r: print i</pre>
+<li><pre>...</pre>
+</ol>
+</ul>
+</ol>
+
+
+<h3>Unix Installation and Demo</h3>
+<p>Note: distutils is not available for Python 1.5.2</p>
+
+<ol>
+<li>Fetch <a href="http://prdownloads.sourceforge.net/cxx/PyCXX-5.1.tar.gz">
+http://prdownloads.sourceforge.net/cxx/PyCXX-5.1.tar.gz</a>
+<li>Login as root. root access is typically needed on Unix systems to install the PyCXX files into the Python directories.
+<li>Expand the archive into a directory of your choosing ~\PyCXX for example.
+<li>Install the PyCXX files:
+<ol>
+<li><pre># cd ~\PyCXX</pre>
+<li><pre># python setup.py install</pre>
+</ol>
+<li>Install the PyCXX Demo:
+<ol>
+<li><pre># cd ~\PyCXX\Demo</pre>
+<li><pre># python setup.py install</pre>
+</ol>
+<li>Run the demo:
+<ol>
+<li><pre>~ python</pre>
+<li><pre>&gt;&gt;&gt; import CXX.example</pre>
+<li><pre>&gt;&gt;&gt; CXX.example.test()</pre>
+<li><pre>&gt;&gt;&gt; r = CXX.example.range( 11, 100, 13 )</pre>
+<li><pre>&gt;&gt;&gt; for i in r: print i</pre>
+<li><pre>...</pre>
+</ol>
+</ul>
+</ol>
+
+<h2>Installation using Project and Makefile</h2>
+
+<p>If you cannot or do not wish to use the distutils methods to work with PyCXX a set
+of Makefiles and Project files are provided.</p>
 
 <h3>Windows Installation and Demo</h3>
 <p>
@@ -89,21 +151,20 @@ is not compiled and linked to support C and C++.</p>
 </p>
 
 <h2>Revision History</h2>
-<h3>Version 5.1 (19-Aug-2001)</h3>
+<h3>Version 5.1 (2-Aug-2001)</h3>
 <p>I'm using the name PyCXX for this package, CXX is far to close to a compilers name.</p>
 
 <p>PyCXX supports Python version 2.2a1, 2.1.1, 2.1, 2.0, 2.0.1 and 1.5.2 on Windows and Unix.</p>
 
-
 <p>New in this release:</p>
 <ul>
-<li>Support for the Windows Linker /DELAYLOAD feature. Enable this feature with by
+<li>Support for the Windows Linker /DELAYLOAD feature. Enable this feature by
 defining PY_WIN32_DELAYLOAD_PYTHON_DLL when compiling IndirectPythonInterface.cxx
 <li>Remove "CXX/Array.hxx" and associated code - its does not belong in PyCXX
 <li>Work on the docs. Mostly to clean up the HTML to allow more extensive work.
 <li>Reformated the sources to a consistent style. The mix of styles and tabs sizes
 was making working on the sources error prone.
-<li>Gave up on distutils - no support for C++ and none in the pipe line.
+<li>Added workaround to setup.py to allow GCC to compile c++ code.
 <li>Added Microsoft Visual C++ 6.0 project files for 1.5, 2.0 and 2.1 builds
 <li>Added Unix make files for Linux (tested on RedHat 7.1) and FreeBSD (tested on 4.3)
 <li>Merged changes from Tom Malcolmson
