@@ -13,7 +13,7 @@
 ./example_py20.dsw
 ./example_py21.dsp
 ./example_py21.dsw
-./Legal.htm
+./Legal.html
 ./m
 ./MANIFEST
 ./README.html
@@ -39,3 +39,5 @@
 ./Src/cxx_extensions.cxx
 ./Src/cxxsupport.cxx
 ./Src/IndirectPythonInterface.cxx
+
+./Lib/__init__.py
