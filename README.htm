@@ -1,63 +1,234 @@
-<!doctype html public "-//w3c//dtd html 4.0 transitional//en">
 <html>
+
 <head>
-   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-   <meta name="GENERATOR" content="Mozilla/4.7 [en] (X11; I; Linux 2.2.12-20smp i686) [Netscape]">
+<title></title>
 </head>
+
 <body>
 
-<h1>
-CXX -- C++ Extensions Support</h1>
-You don't&nbsp; make and install CXX in the conventional sense. You'll
-need to make Python link with C++. To do that, before running configure,
-set the environment variables LINKCC to 'g++' and LDSHARED to 'g++ -shared'
-or whatever is appropriate for your C++ compiler.
-<h2>
-Version 4 (February, 2000)</h2>
-CXX compiles with gcc - 2.95. Includes new version of extension portion
-by Barry Scott.&nbsp; I have personally only tested this on RH Linux 6.&nbsp;
-Version 4.1 will be released at SourceForge, CXX.sourceforge.net.
-<h2>
-Version 3 (June 18, 1999)</h2>
-1. CXX compiles with EGCS snapshot 19990616. EGCS requires a standard library
-class random_access_iterator that is not yet available in some other compilers
-(such as Windows VC6). Therefore a new switch:
-<p>STANDARD_LIBRARY_HAS_ITERATOR_TRAITS
-<p>has been added to CXX_Config.h that you may need to toggle if you get
-an error on the two lines that mention random_access_iterator. The current
-definition is correct for VC6 and EGCS-19990616.
-<p>2. A new constructor was added to Module to allow construction from
-a string containing the module name. A test was added for this to the demo.
-<h2>
-Version 2 (Dec. 28, 1998)</h2>
-Fixed definition of extension type to match 1.5.2. This version will presumably
-not compile with older versions of Python. This can be fixed by using the
-previous version's definition. I did not take the time to find out what
-these new "flags" are for nor put in any methods to deal with them.
-<h2>
-Version 1</h2>
-This is an experimental set of files for supporting the creation of Python
-extensions in C++.
+<h1>CXX -- C++ Extensions Support</h1>
+
+<p>You don't&nbsp; make and install CXX in the conventional sense. The makethis.py / Setup
+enclosed is for the demo. You'll need to make Python link with C++. To do that, before
+running configure, set the environment variables LINKCC to 'g++' and LDSHARED to 'g++
+-shared' or whatever is appropriate for your C++ compiler. </p>
+
+<h2>Version 4 (October 11, 1999)</h2>
+
+<p>This version contains a massive revision to the part of CXX that supports creating
+extension objects and extension modules. Barry Scott contributed these changes.</p>
+
+<p>CXX has always consisted of two parts: the basic CXX_Objects.h and the more
+experimental CXX_Extensions.h. We will describe the changes to CXX_Objects first, and then
+the changes to CXX_Extensions.h.</p>
+
+<h3>Changes to CXX_Objects</h3>
+
+<h4>1. Owned option eliminates need for FromAPI in most cases</h4>
+
+<p>Object's constructor from PyObject* and method set have a new (backward compatible)
+signature:</p>
+
+<p>Object (PyObject* pyob, bool owned = false);<br>
+void set(PyObject* pyob, bool owned = false);</p>
+
+<p>Users may call these with owned = true if they own the reference pyob already and want
+the Object instance to take over ownership.</p>
+
+<p>A new inline function Object asObject(PyObject* pyob) returns Object(pyob, true); thus,
+one way to construct an object from a pointer returned by the Python API is to call
+asObject on it. </p>
+
+<p>Previously a class FromAPI was provided to solve the problem of taking over an owned
+reference. FromAPI will be eliminated in the next release. It is no longer used by CXX
+itself or its demos. The new mechanism is much cleaner and more efficient.</p>
+
+<p>Other classes in CXX have been given the same &quot;owned&quot; option on their
+constructors: Int, Float, Long, Complex, SeqBase&lt;T&gt;, Tuple, List, Dict, Module,
+Callable.</p>
+
+<h4>2. Namespace support in compiler assumed</h4>
+
+<p>Since EGCS / GCC now supports namespaces and the standard library, the need for
+CXX_config.h is almost gone. We have eliminated all the macros except for one obscure one
+dealing with iterator traits in the standard library.</p>
+
+<h3>Changes to CXX_Extensions</h3>
+
+<p>The changes to CXX_Extensions.h are not backward compatible. However, they simplify
+coding so much that we think it is worth the disruption.</p>
+
+<h4>1. Creating an extension module</h4>
+
+<p>To create an extension module, you inherit from class ExtensionModule templated on
+yourself: In the constructor, you make calls to register methods of this class with Python
+as extension module methods. In this example, two methods are added (this is a simplified
+form of the example in Demo/example.cxx):</p>
+
+<p>class example_module : public ExtensionModule&lt;example_module&gt;<br>
+{<br>
+public:<br>
+example_module()<br>
+: ExtensionModule&lt;example_module&gt;( &quot;example&quot; )<br>
+{<br>
+add_varargs_method(&quot;sum&quot;, &amp;example_module::ex_sum, &quot;sum(arglist) = sum
+of arguments&quot;);<br>
+add_varargs_method(&quot;test&quot;, &amp;example_module::ex_test, &quot;test(arglist)
+runs a test suite&quot;);<br>
+<br>
+initialize( &quot;documentation for the example module&quot; );<br>
+}<br>
+<br>
+virtual ~example_module() {}<br>
+<br>
+private:<br>
+Object ex_sum (const Tuple &amp;a) { ... }<br>
+Object ex_test( const Tuple &amp;a) { ... }<br>
+};<br>
+</p>
+
+<p>To initialize the extension, you just instantiate one static instance (static so it
+doesn't destroy itself!):</p>
+
+<p>void initexample()<br>
+{<br>
+static example_module* example = new example_module;<br>
+}</p>
+
+<p>The methods can be written to take Tuples as arguments and return Objects. If
+exceptions occur they are trapped for you and a Python exception is generated. So, for
+example, the implementation of ex_sum might be:</p>
+
+<p>Object ex_sum (const Tuple &amp;a)<br>
+&nbsp;&nbsp;&nbsp; {<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Float f(0.0);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; for( int i = 0; i &lt; a.length(); i++ )<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; { <br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Float g(a[i]);<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; f = f + g;<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; }<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; return f;<br>
+&nbsp;&nbsp;&nbsp; }</p>
+
+<p>class ExtensionModule contains methods to return itself as a Module object, or to
+return its dictionary.</p>
+
+<h4>Creating extension objects</h4>
+
+<p>Creating extension objects is of course harder since you must specify how the object
+behaves and give it methods. This is shown in some detail in the example r.h and r.cxx,
+with the test routine rtest.cxx, in directory Demo.</p>
+
+<p>Here is a brief overview. You create a class that inherits from PythonExtension
+templated upon itself. You override various methods from PythonExtension to implement
+behaviors, such as getattr, sequence_item, etc. You can also add methods to the object
+that are usable from Python using a similar scheme as for module methods above. </p>
+
+<p>One of the consequences of inheriting from PythonExtension is that you are inheriting
+from PyObject itself. So your class is-a PyObject and instances of it can be passed to the
+Python C API. Note: this example uses the namespace feature of CXX. The Py:: 's are not
+required if you use the namespace instead.</p>
+
+<p>class r: public Py::PythonExtension&lt;r&gt; {<br>
+public:<br>
+... constructors, etc.<br>
+<br>
+... methods<br>
+// initializer, see below<br>
+&nbsp;&nbsp;&nbsp;&nbsp; static void init_type();<br>
+// override functions from PythonExtension<br>
+&nbsp;&nbsp;&nbsp; virtual Py::Object repr();<br>
+&nbsp;&nbsp;&nbsp; virtual Py::Object getattr( const char *name );<br>
+<br>
+&nbsp;&nbsp; virtual int sequence_length();<br>
+&nbsp;&nbsp; virtual Py::Object sequence_item( int i );<br>
+&nbsp;&nbsp;&nbsp; virtual Py::Object sequence_concat( const Py::Object &amp;j );<br>
+&nbsp;&nbsp;&nbsp; virtual Py::Object sequence_slice( int i, int j );<br>
+<br>
+// define python methods of this object<br>
+&nbsp;&nbsp;&nbsp; Py::Object amethod (const Py::Tuple&amp; args);<br>
+&nbsp;&nbsp;&nbsp; Py::Object value (const Py::Tuple&amp; args);<br>
+&nbsp;&nbsp;&nbsp; Py::Object assign (const Py::Tuple&amp; args); <br>
+};</p>
+
+<p><br>
+To initialize the type you provide a static method that you can call from some module's
+initializer. This method sets the name, doc string, and indicates which behaviors it
+supports. It then adds the methods.</p>
+
+<p>void r::init_type()<br>
+{<br>
+&nbsp;&nbsp;&nbsp; behaviors().name(&quot;r&quot;);<br>
+&nbsp;&nbsp;&nbsp; behaviors().doc(&quot;r objects: start, stop, step&quot;);<br>
+&nbsp;&nbsp;&nbsp; behaviors().supportRepr();<br>
+&nbsp;&nbsp;&nbsp; behaviors().supportGetattr();<br>
+&nbsp;&nbsp;&nbsp; behaviors().supportSequenceType();<br>
+<br>
+&nbsp;&nbsp;&nbsp; add_varargs_method(&quot;amethod&quot;, &amp;r::amethod,<br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &quot;demonstrate how to document
+amethod&quot;);<br>
+&nbsp;&nbsp;&nbsp; add_varargs_method(&quot;assign&quot;, &amp;r::assign);<br>
+&nbsp;&nbsp;&nbsp; add_varargs_method(&quot;value&quot;, &amp;r::value);<br>
+}</p>
+
+<h2>Version 3 (June 18, 1999)</h2>
+
+<p>1. CXX compiles with EGCS snapshot 19990616. EGCS requires a standard library class
+random_access_iterator that is not yet available in some other compilers (such as Windows
+VC6). Therefore a new switch:</p>
+
+<p>STANDARD_LIBRARY_HAS_ITERATOR_TRAITS</p>
+
+<p>has been added to CXX_Config.h that you may need to toggle if you get an error on the
+two lines that mention random_access_iterator. The current definition is correct for VC6
+and EGCS-19990616. </p>
+
+<p>2. A new constructor was added to Module to allow construction from a string containing
+the module name. A test was added for this to the demo.</p>
+
+<h2>Version 2 (Dec. 28, 1998)</h2>
+
+<p>Fixed definition of extension type to match 1.5.2. This version will presumably not
+compile with older versions of Python. This can be fixed by using the previous version's
+definition. I did not take the time to find out what these new &quot;flags&quot; are for
+nor put in any methods to deal with them.</p>
+
+<h2>Version 1</h2>
+
+<p>This is an experimental set of files for supporting the creation of Python extensions
+in C++. </p>
+
 <p>Documentation is in progress at <a href="http://xfiles.llnl.gov">http://xfiles.llnl.gov</a>.
-<p>To use CXX you use the header files in Include, such as CXX_Objects.h
-or CXX_Extensions.h. You must include the sources in Src in your sources
-to supply parts of the CXX classes required.
-<p>A demo is included. The Setup file in this directory compiles this demo
-named "example". To try the demo, which is also a test routine, you import
-example and then execute:
-<p>example.test()
-<p>You can also play with the extension object whose constructor is named
-"r":
-<p>s = r(1, 100, 2)
-<br>print s[2]&nbsp; # should print 5
-<p>Compilation with Microsoft Visual C++ 5.0 will succeed but only if you
-have Service Pack 3 installed. Compilation has been known to succeed on
-a Unix system using KCC by using:
-<p>setenv CCC "KCC -x"
-<p>before running makethis.py.
-<p>There is also a python.cxx file for making a stand-alone Python containing
-this example, as well as a similar file arraytest.cxx for testing Array.
-<p>Comments to dubois1@llnl.gov, please.
-<p>Paul Dubois
+</p>
+
+<p>To use CXX you use the header files in Include, such as CXX_Objects.h or
+CXX_Extensions.h. You must include the sources in Src in your sources to supply parts of
+the CXX classes required.</p>
+
+<p>A demo is included. The Setup file in this directory compiles this demo named
+&quot;example&quot;. To try the demo, which is also a test routine, you import example and
+then execute:</p>
+
+<p>example.test()</p>
+
+<p>You can also play with the extension object whose constructor is named &quot;r&quot;:</p>
+
+<p>s = r(1, 100, 2)<br>
+print s[2]&nbsp; # should print 5</p>
+
+<p>Compilation with Microsoft Visual C++ 5.0 will succeed but only if you have Service
+Pack 3 installed. Compilation has been known to succeed on a Unix system using KCC by
+using:</p>
+
+<p>setenv CCC &quot;KCC -x&quot;</p>
+
+<p>before running makethis.py.</p>
+
+<p>There is also a python.cxx file for making a stand-alone Python containing this
+example, as well as a similar file arraytest.cxx for testing Array.</p>
+
+<p>Comments to dubois1@llnl.gov, please. </p>
+
+<p>Paul Dubois</p>
 </body>
 </html>
