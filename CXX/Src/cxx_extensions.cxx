@@ -327,7 +327,7 @@ int PythonType::print_handler( PyObject *self, FILE *fp, int flags )
 		}
 	catch( Py::Exception & )
 		{
-		return 0;
+		return -1;	// indicate error
 		}
 	}
 
@@ -340,7 +340,7 @@ PyObject* PythonType::getattr_handler( PyObject *self, char *name )
 		}
 	catch( Py::Exception & )
 		{
-		return Py::Null();
+		return NULL;	// indicate error
 		}
 	}
 
@@ -353,7 +353,7 @@ int PythonType::setattr_handler( PyObject *self, char *name, PyObject *value )
 		}
 	catch( Py::Exception & )
 		{
-		return 0;
+		return -1;	// indicate error
 		}
 	}
 
@@ -366,7 +366,7 @@ PyObject* PythonType::getattro_handler( PyObject *self, PyObject *name )
 		}
 	catch( Py::Exception & )
 		{
-		return Py::Null();
+		return NULL;	// indicate error
 		}
 	}
 
@@ -379,7 +379,7 @@ int PythonType::setattro_handler( PyObject *self, PyObject *name, PyObject *valu
 		}
 	catch( Py::Exception & )
 		{
-		return 0;
+		return -1;	// indicate error
 		}
 	}
 
@@ -392,7 +392,7 @@ int PythonType::compare_handler( PyObject *self, PyObject *other )
 		}
 	catch( Py::Exception & )
 		{
-		return 0;
+		return -1;	// indicate error
 		}
 	}
 
@@ -405,7 +405,7 @@ PyObject* PythonType::repr_handler( PyObject *self )
 		}
 	catch( Py::Exception & )
 		{
-		return Py::Null();
+		return NULL;	// indicate error
 		}
 	}
 
@@ -418,7 +418,7 @@ PyObject* PythonType::str_handler( PyObject *self )
 		}
 	catch( Py::Exception & )
 		{
-		return Py::Null();
+		return NULL;	// indicate error
 		}
 	}
 
@@ -431,7 +431,7 @@ long PythonType::hash_handler( PyObject *self )
 		}
 	catch( Py::Exception & )
 		{
-		return 0;
+		return -1;	// indicate error
 		}
 	}
 
@@ -444,7 +444,7 @@ PyObject* PythonType::call_handler( PyObject *self, PyObject *args, PyObject *kw
 		}
 	catch( Py::Exception & )
 		{
-		return Py::Null();
+		return NULL;	// indicate error
 		}
 	}
 
@@ -459,7 +459,7 @@ int PythonType::sequence_length_handler( PyObject *self )
 		}
 	catch( Py::Exception & )
 		{
-		return 0;
+		return -1;	// indicate error
 		}
 	}
 
@@ -472,7 +472,7 @@ PyObject* PythonType::sequence_concat_handler( PyObject *self, PyObject *other )
 		}
 	catch( Py::Exception & )
 		{
-		return Py::Null();
+		return NULL;	// indicate error
 		}
 	}
 
@@ -485,7 +485,7 @@ PyObject* PythonType::sequence_repeat_handler( PyObject *self, int count )
 		}
 	catch( Py::Exception & )
 		{
-		return Py::Null();
+		return NULL;	// indicate error
 		}
 	}
 
@@ -498,7 +498,7 @@ PyObject* PythonType::sequence_item_handler( PyObject *self, int index )
 		}
 	catch( Py::Exception & )
 		{
-		return Py::Null();
+		return NULL;	// indicate error
 		}
 	}
 
@@ -511,7 +511,7 @@ PyObject* PythonType::sequence_slice_handler( PyObject *self, int first, int las
 		}
 	catch( Py::Exception & )
 		{
-		return Py::Null();
+		return NULL;	// indicate error
 		}
 	}
 
@@ -524,7 +524,7 @@ int PythonType::sequence_ass_item_handler( PyObject *self, int index, PyObject *
 		}
 	catch( Py::Exception & )
 		{
-		return 0;
+		return -1;	// indicate error
 		}
 	}
 
@@ -537,7 +537,7 @@ int PythonType::sequence_ass_slice_handler( PyObject *self, int first, int last,
 		}
 	catch( Py::Exception & )
 		{
-		return 0;
+		return -1;	// indicate error
 		}
 	}
 
@@ -551,7 +551,7 @@ int PythonType::mapping_length_handler( PyObject *self )
 		}
 	catch( Py::Exception & )
 		{
-		return 0;
+		return -1;	// indicate error
 		}
 	}
 
@@ -564,7 +564,7 @@ PyObject* PythonType::mapping_subscript_handler( PyObject *self, PyObject *key )
 		}
 	catch( Py::Exception & )
 		{
-		return Py::Null();
+		return NULL;	// indicate error
 		}
 	}
 
@@ -577,7 +577,7 @@ int PythonType::mapping_ass_subscript_handler( PyObject *self, PyObject *key, Py
 		}
 	catch( Py::Exception & )
 		{
-		return 0;
+		return -1;	// indicate error
 		}
 	}
 
@@ -591,7 +591,7 @@ int PythonType::number_nonzero_handler( PyObject *self )
 		}
 	catch( Py::Exception & )
 		{
-		return 0;
+		return -1;	// indicate error
 		}
 	}
 
@@ -604,7 +604,7 @@ PyObject* PythonType::number_negative_handler( PyObject *self )
 		}
 	catch( Py::Exception & )
 		{
-		return Py::Null();
+		return NULL;	// indicate error
 		}
 	}
 
@@ -617,7 +617,7 @@ PyObject* PythonType::number_positive_handler( PyObject *self )
 		}
 	catch( Py::Exception & )
 		{
-		return Py::Null();
+		return NULL;	// indicate error
 		}
 	}
 
@@ -630,7 +630,7 @@ PyObject* PythonType::number_absolute_handler( PyObject *self )
 		}
 	catch( Py::Exception & )
 		{
-		return Py::Null();
+		return NULL;	// indicate error
 		}
 	}
 
@@ -643,7 +643,7 @@ PyObject* PythonType::number_invert_handler( PyObject *self )
 		}
 	catch( Py::Exception & )
 		{
-		return Py::Null();
+		return NULL;	// indicate error
 		}
 	}
 
@@ -656,7 +656,7 @@ PyObject* PythonType::number_int_handler( PyObject *self )
 		}
 	catch( Py::Exception & )
 		{
-		return Py::Null();
+		return NULL;	// indicate error
 		}
 	}
 
@@ -669,7 +669,7 @@ PyObject* PythonType::number_float_handler( PyObject *self )
 		}
 	catch( Py::Exception & )
 		{
-		return Py::Null();
+		return NULL;	// indicate error
 		}
 	}
 
@@ -682,7 +682,7 @@ PyObject* PythonType::number_long_handler( PyObject *self )
 		}
 	catch( Py::Exception & )
 		{
-		return Py::Null();
+		return NULL;	// indicate error
 		}
 	}
 
@@ -695,7 +695,7 @@ PyObject* PythonType::number_oct_handler( PyObject *self )
 		}
 	catch( Py::Exception & )
 		{
-		return Py::Null();
+		return NULL;	// indicate error
 		}
 	}
 
@@ -708,7 +708,7 @@ PyObject* PythonType::number_hex_handler( PyObject *self )
 		}
 	catch( Py::Exception & )
 		{
-		return Py::Null();
+		return NULL;	// indicate error
 		}
 	}
 
@@ -721,7 +721,7 @@ PyObject* PythonType::number_add_handler( PyObject *self, PyObject *other )
 		}
 	catch( Py::Exception & )
 		{
-		return Py::Null();
+		return NULL;	// indicate error
 		}
 	}
 
@@ -734,7 +734,7 @@ PyObject* PythonType::number_subtract_handler( PyObject *self, PyObject *other )
 		}
 	catch( Py::Exception & )
 		{
-		return Py::Null();
+		return NULL;	// indicate error
 		}
 	}
 
@@ -747,7 +747,7 @@ PyObject* PythonType::number_multiply_handler( PyObject *self, PyObject *other )
 		}
 	catch( Py::Exception & )
 		{
-		return Py::Null();
+		return NULL;	// indicate error
 		}
 	}
 
@@ -760,7 +760,7 @@ PyObject* PythonType::number_divide_handler( PyObject *self, PyObject *other )
 		}
 	catch( Py::Exception & )
 		{
-		return Py::Null();
+		return NULL;	// indicate error
 		}
 	}
 
@@ -773,7 +773,7 @@ PyObject* PythonType::number_remainder_handler( PyObject *self, PyObject *other 
 		}
 	catch( Py::Exception & )
 		{
-		return Py::Null();
+		return NULL;	// indicate error
 		}
 	}
 
@@ -786,7 +786,7 @@ PyObject* PythonType::number_divmod_handler( PyObject *self, PyObject *other )
 		}
 	catch( Py::Exception & )
 		{
-		return Py::Null();
+		return NULL;	// indicate error
 		}
 	}
 
@@ -799,7 +799,7 @@ PyObject* PythonType::number_lshift_handler( PyObject *self, PyObject *other )
 		}
 	catch( Py::Exception & )
 		{
-		return Py::Null();
+		return NULL;	// indicate error
 		}
 	}
 
@@ -812,7 +812,7 @@ PyObject* PythonType::number_rshift_handler( PyObject *self, PyObject *other )
 		}
 	catch( Py::Exception & )
 		{
-		return Py::Null();
+		return NULL;	// indicate error
 		}
 	}
 
@@ -825,7 +825,7 @@ PyObject* PythonType::number_and_handler( PyObject *self, PyObject *other )
 		}
 	catch( Py::Exception & )
 		{
-		return Py::Null();
+		return NULL;	// indicate error
 		}
 	}
 
@@ -838,7 +838,7 @@ PyObject* PythonType::number_xor_handler( PyObject *self, PyObject *other )
 		}
 	catch( Py::Exception & )
 		{
-		return Py::Null();
+		return NULL;	// indicate error
 		}
 	}
 
@@ -851,7 +851,7 @@ PyObject* PythonType::number_or_handler( PyObject *self, PyObject *other )
 		}
 	catch( Py::Exception & )
 		{
-		return Py::Null();
+		return NULL;	// indicate error
 		}
 	}
 
@@ -864,7 +864,7 @@ PyObject* PythonType::number_power_handler( PyObject *self, PyObject *x1, PyObje
 		}
 	catch( Py::Exception & )
 		{
-		return Py::Null();
+		return NULL;	// indicate error
 		}
 	}
 
@@ -878,7 +878,7 @@ int PythonType::buffer_getreadbuffer_handler( PyObject *self, int index, void **
 		}
 	catch( Py::Exception & )
 		{
-		return 0;
+		return -1;	// indicate error
 		}
 	}
 
@@ -891,7 +891,7 @@ int PythonType::buffer_getwritebuffer_handler( PyObject *self, int index, void *
 		}
 	catch( Py::Exception & )
 		{
-		return 0;
+		return -1;	// indicate error
 		}
 	}
 
@@ -904,7 +904,7 @@ int PythonType::buffer_getsegcount_handler( PyObject *self, int *count )
 		}
 	catch( Py::Exception & )
 		{
-		return 0;
+		return -1;	// indicate error
 		}
 	}
 
@@ -920,147 +920,147 @@ void PythonExtensionBase::missing_method()
 }
 
 int PythonExtensionBase::print( FILE *, int )
-	{ missing_method(); return 0; }
+	{ missing_method(); return -1; }
 
 Py::Object PythonExtensionBase::getattr( const char* )
-	{ missing_method(); return Py::Nothing(); }
+	{ missing_method(); return NULL; }
 
 int PythonExtensionBase::setattr( const char*, const Py::Object & )
-	{ missing_method(); return 0; }
+	{ missing_method(); return -1; }
 
 Py::Object PythonExtensionBase::getattro( const Py::Object & )
-	{ missing_method(); return Py::Nothing(); }
+	{ missing_method(); return NULL; }
 
 int PythonExtensionBase::setattro( const Py::Object &, const Py::Object & )
-	{ missing_method(); return 0; }
+	{ missing_method(); return -1; }
 
 int PythonExtensionBase::compare( const Py::Object & )
-	{ missing_method(); return 0; }
+	{ missing_method(); return -1; }
 
 Py::Object PythonExtensionBase::repr()
-	{ missing_method(); return Py::Nothing(); }
+	{ missing_method(); return NULL; }
 
 Py::Object PythonExtensionBase::str()
-	{ missing_method(); return Py::Nothing(); }
+	{ missing_method(); return NULL; }
 
 long PythonExtensionBase::hash()
-	{ missing_method(); return 0; }
+	{ missing_method(); return -1; }
 
 Py::Object PythonExtensionBase::call( const Py::Object &, const Py::Object & )
-	{ missing_method(); return Py::Nothing(); }
+	{ missing_method(); return NULL; }
 
 
 	// Sequence methods
 int PythonExtensionBase::sequence_length()
-	{ missing_method(); return 0; }
+	{ missing_method(); return -1; }
 
 Py::Object PythonExtensionBase::sequence_concat( const Py::Object & )
-	{ missing_method(); return Py::Nothing(); }
+	{ missing_method(); return NULL; }
 
 Py::Object PythonExtensionBase::sequence_repeat( int )
-	{ missing_method(); return Py::Nothing(); }
+	{ missing_method(); return NULL; }
 
 Py::Object PythonExtensionBase::sequence_item( int )
-	{ missing_method(); return Py::Nothing(); }
+	{ missing_method(); return NULL; }
 
 Py::Object PythonExtensionBase::sequence_slice( int, int )
-	{ missing_method(); return Py::Nothing(); }
+	{ missing_method(); return NULL; }
 
 int PythonExtensionBase::sequence_ass_item( int, const Py::Object & )
-	{ missing_method(); return 0; }
+	{ missing_method(); return -1; }
 
 int PythonExtensionBase::sequence_ass_slice( int, int, const Py::Object & )
-	{ missing_method(); return 0; }
+	{ missing_method(); return -1; }
 
 
 	// Mapping
 int PythonExtensionBase::mapping_length()
-	{ missing_method(); return 0; }
+	{ missing_method(); return -1; }
 
 Py::Object PythonExtensionBase::mapping_subscript( const Py::Object & )
-	{ missing_method(); return Py::Nothing(); }
+	{ missing_method(); return NULL; }
 
 int PythonExtensionBase::mapping_ass_subscript( const Py::Object &, const Py::Object & )
-	{ missing_method(); return 0; }
+	{ missing_method(); return -1; }
 
 
 	// Number
 int PythonExtensionBase::number_nonzero()
-	{ missing_method(); return 0; }
+	{ missing_method(); return -1; }
 
 Py::Object PythonExtensionBase::number_negative()
-	{ missing_method(); return Py::Nothing(); }
+	{ missing_method(); return NULL; }
 
 Py::Object PythonExtensionBase::number_positive()
-	{ missing_method(); return Py::Nothing(); }
+	{ missing_method(); return NULL; }
 
 Py::Object PythonExtensionBase::number_absolute()
-	{ missing_method(); return Py::Nothing(); }
+	{ missing_method(); return NULL; }
 
 Py::Object PythonExtensionBase::number_invert()
-	{ missing_method(); return Py::Nothing(); }
+	{ missing_method(); return NULL; }
 
 Py::Object PythonExtensionBase::number_int()
-	{ missing_method(); return Py::Nothing(); }
+	{ missing_method(); return NULL; }
 
 Py::Object PythonExtensionBase::number_float()
-	{ missing_method(); return Py::Nothing(); }
+	{ missing_method(); return NULL; }
 
 Py::Object PythonExtensionBase::number_long()
-	{ missing_method(); return Py::Nothing(); }
+	{ missing_method(); return NULL; }
 
 Py::Object PythonExtensionBase::number_oct()
-	{ missing_method(); return Py::Nothing(); }
+	{ missing_method(); return NULL; }
 
 Py::Object PythonExtensionBase::number_hex()
-	{ missing_method(); return Py::Nothing(); }
+	{ missing_method(); return NULL; }
 
 Py::Object PythonExtensionBase::number_add( const Py::Object & )
-	{ missing_method(); return Py::Nothing(); }
+	{ missing_method(); return NULL; }
 
 Py::Object PythonExtensionBase::number_subtract( const Py::Object & )
-	{ missing_method(); return Py::Nothing(); }
+	{ missing_method(); return NULL; }
 
 Py::Object PythonExtensionBase::number_multiply( const Py::Object & )
-	{ missing_method(); return Py::Nothing(); }
+	{ missing_method(); return NULL; }
 
 Py::Object PythonExtensionBase::number_divide( const Py::Object & )
-	{ missing_method(); return Py::Nothing(); }
+	{ missing_method(); return NULL; }
 
 Py::Object PythonExtensionBase::number_remainder( const Py::Object & )
-	{ missing_method(); return Py::Nothing(); }
+	{ missing_method(); return NULL; }
 
 Py::Object PythonExtensionBase::number_divmod( const Py::Object & )
-	{ missing_method(); return Py::Nothing(); }
+	{ missing_method(); return NULL; }
 
 Py::Object PythonExtensionBase::number_lshift( const Py::Object & )
-	{ missing_method(); return Py::Nothing(); }
+	{ missing_method(); return NULL; }
 
 Py::Object PythonExtensionBase::number_rshift( const Py::Object & )
-	{ missing_method(); return Py::Nothing(); }
+	{ missing_method(); return NULL; }
 
 Py::Object PythonExtensionBase::number_and( const Py::Object & )
-	{ missing_method(); return Py::Nothing(); }
+	{ missing_method(); return NULL; }
 
 Py::Object PythonExtensionBase::number_xor( const Py::Object & )
-	{ missing_method(); return Py::Nothing(); }
+	{ missing_method(); return NULL; }
 
 Py::Object PythonExtensionBase::number_or( const Py::Object & )
-	{ missing_method(); return Py::Nothing(); }
+	{ missing_method(); return NULL; }
 
 Py::Object PythonExtensionBase::number_power( const Py::Object &, const Py::Object & )
-	{ missing_method(); return Py::Nothing(); }
+	{ missing_method(); return NULL; }
 
 
 	// Buffer
 int PythonExtensionBase::buffer_getreadbuffer( int, void** )
-	{ missing_method(); return 0; }
+	{ missing_method(); return -1; }
 
 int PythonExtensionBase::buffer_getwritebuffer( int, void** )
-	{ missing_method(); return 0; }
+	{ missing_method(); return -1; }
 
 int PythonExtensionBase::buffer_getsegcount( int* )
-	{ missing_method(); return 0; }
+	{ missing_method(); return -1; }
 
 //--------------------------------------------------------------------------------
 //
