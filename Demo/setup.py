@@ -1,5 +1,5 @@
 import os, sys
-from distutils.core import setup
+from distutils.core import setup, Extension
 support_dir = os.path.join(sys.prefix, "etc", "CXX")
 setup (name = "CXXDemo",
        version = "5.0",
@@ -11,15 +11,14 @@ setup (name = "CXXDemo",
        packages = ['CXX'],
        package_dir = {'CXX': '.'},
        ext_modules = [
-         ('CXX.example',
-            {'sources' : ['example.cxx',
+         Extension('CXX.example',
+                   'sources' = ['example.cxx',
                          'r.cxx',
                          'rtest.cxx',
                          os.path.join(support_dir,'cxxsupport.cxx'),
                          os.path.join(support_dir,'cxx_extensions.cxx'),
                          os.path.join(support_dir,'cxxextensions.c'),
                          ],
-            }
-         )
+            )
        ]
 )
