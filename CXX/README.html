@@ -32,8 +32,8 @@ p.param {background-color: #eeeeee; border-top: lightskyblue solid 4}
 
 <h3>Windows Installation and Demo</h3>
 <ol>
-<li>Fetch <a href="http://prdownloads.sourceforge.net/cxx/PyCXX-V5.1-rc1.tar.gz">
-http://prdownloads.sourceforge.net/cxx/PyCXX-V5.1-rc1.tar.gz</a>
+<li>Fetch <a href="http://prdownloads.sourceforge.net/cxx/PyCXX-V5.2.0.tar.gz">
+http://prdownloads.sourceforge.net/cxx/PyCXX-V5.2.0.tar.gz</a>
 <li>Expand the archive into a directory of your choosing C:\ for example. Note: WinZip can expand .tar.gz files.
 <li>Install the PyCXX files:
 <ol>
@@ -62,8 +62,8 @@ http://prdownloads.sourceforge.net/cxx/PyCXX-V5.1-rc1.tar.gz</a>
 <p>Note: distutils is not available for Python 1.5.2</p>
 
 <ol>
-<li>Fetch <a href="http://prdownloads.sourceforge.net/cxx/PyCXX-5.1.tar.gz">
-http://prdownloads.sourceforge.net/cxx/PyCXX-V5.2.tar.gz</a>
+<li>Fetch <a href="http://prdownloads.sourceforge.net/cxx/PyCXX-5.2.0.tar.gz">
+http://prdownloads.sourceforge.net/cxx/PyCXX-V5.2.0.tar.gz</a>
 <li>Login as root. root access is typically needed on Unix systems to install the PyCXX files into the Python directories.
 <li>Expand the archive into a directory of your choosing ~\ for example.
 <li>Install the PyCXX files:
@@ -96,8 +96,8 @@ of Makefiles and Project files are provided.</p>
 <h3>Windows Installation and Demo</h3>
 <p>
 <ol>
-<li>Fetch <a href="http://prdownloads.sourceforge.net/cxx/PyCXX-V5.2.tar.gz">
-http://prdownloads.sourceforge.net/cxx/PyCXX-V5.2.tar.gz</a>
+<li>Fetch <a href="http://prdownloads.sourceforge.net/cxx/PyCXX-V5.2.0.tar.gz">
+http://prdownloads.sourceforge.net/cxx/PyCXX-V5.2.0.tar.gz</a>
 <li>Expand the archive into a directory of your choosing C:\ for example. WinZip can expand .tar.gz files.
 <li>Build the example. Using Microsoft Visual C++ 6.0 load the workspace corresponsing to the version of
 Python you wish the work with.
@@ -105,10 +105,12 @@ Python you wish the work with.
 <li>example_py15.dsw - Python 1.5.2
 <li>example_py20.dsw - Python 2.0 and 2.0.1
 <li>example_py21.dsw - Python 2.1 and 2.1.1
+<li>example_py22.dsw - Python 2.2 and its maintanence release
+<li>example_py23.dsw - Python 2.3 and its maintanence release
 </ul>
-<li>Run the example. (I'll assume you are testing Python 2.1)
+<li>Run the example. (I'll assume you are testing Python 2.3)
 <ul>
-<li>cd c:\PyCXX-V5.2\pyds21
+<li>cd c:\PyCXX-V5.2\pyds23
 <li>c:\python21\python -c "import example;example.test()"
 </ul>
 </ol>
@@ -116,8 +118,8 @@ Python you wish the work with.
 <h3>Unix Installation and Demo</h3>
 <p>
 <ol>
-<li>Fetch <a href="http://prdownloads.sourceforge.net/cxx/PyCXX-V5.2.tar.gz">
-http://prdownloads.sourceforge.net/cxx/PyCXX-V5.2.tar.gz</a>
+<li>Fetch <a href="http://prdownloads.sourceforge.net/cxx/PyCXX-V5.2.0.tar.gz">
+http://prdownloads.sourceforge.net/cxx/PyCXX-V5.2.0.tar.gz</a>
 <li>Expand the archive into a directory of your choosing ~/ for example.
 <li>Select to makefile for your system and python version.
 <ul>
@@ -128,7 +130,7 @@ http://prdownloads.sourceforge.net/cxx/PyCXX-V5.2.tar.gz</a>
 <li>example_linux_py15.mak - Linux Python 1.5.2
 <li>example_linux_py20.mak - Linux Python 2.0, 2.0.1
 <li>example_linux_py21.mak - Linux Python 2.1, 2.1.1
-<li>example_linux_py22.mak - Linux Python 2.2a1
+<li>example_linux_py22.mak - Linux Python 2.2
 </ul>
 <li>Build the example. Use GNU make<br>
 $ make -f <var>example-makefile</var> example.so
@@ -151,14 +153,18 @@ is not compiled and linked to support C and C++.</p>
 </p>
 
 <h2>Revision History</h2>
-<h3>Version 5.2 (19-Oct-2003)</h3>
-<p>PyCXX supports Python version 2.3, 2.2, 2.1.1, 2.1, 2.0, 2.0.1 and 1.5.2 on Windows and Unix.</p>
-<p>Fixed a bug with keyword functions.</p>
+<h3>Version 5.2 (27-Nov-2003)</h3>
+<p>PyCXX supports Python version 2.3, 2.2, 2.1, 2.0 and 1.5.2 on Windows and Unix.</p>
+<p>Fixed problems with keyword functions.</p>
+<p>Improve Extension API to give access to names and docs
+<p>Support GCC 3.</p>
+<p>Added support for custom Exceptions</p>
+<p></p>
 
 <h3>Version 5.1 (2-Aug-2001)</h3>
 <p>I'm using the name PyCXX for this package, CXX is far to close to a compilers name.</p>
 
-<p>PyCXX supports Python version 2.2a1, 2.1.1, 2.1, 2.0, 2.0.1 and 1.5.2 on Windows and Unix.</p>
+<p>PyCXX supports Python version 2.2, 2.1.1, 2.1, 2.0, 2.0.1 and 1.5.2 on Windows and Unix.</p>
 
 <p>New in this release:</p>
 <ul>
