@@ -1,6 +1,6 @@
 #ifndef __r__h
 #define __r__h
-#include "CXX/CXX_Extensions.h"
+#include "CXX/Extensions.hxx"
 
 #include <strstream>
 using std::ostrstream;
@@ -32,6 +32,9 @@ public:
     }
 
     long item(int i) const {
+	if( i >= length() )
+		// this exception stops a Python for loop over r.
+		throw Py::IndexError("index too large");
         return start + i * step;
     }
 
