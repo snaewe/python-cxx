@@ -11,10 +11,10 @@
 
 
 #include "Python.h"
-#include "CXX/CXX_Objects.h"
-#include "CXX/CXX_Extensions.h"
+#include "CXX/Objects.hxx"
+#include "CXX/Extensions.hxx"
 
-#include "r.h"  // Extension object
+#include "r.hxx"  // Extension object
 extern std::string test_extension_object();
 
 #include <algorithm>
@@ -313,7 +313,7 @@ private:
 	Object ex_sum (const Tuple &a)
 	{
 		// this is just to test the function verify_length:
-                try
+		try
 			{
 			a.verify_length(0);
 			std::cout << "I see that you refuse to give me any work to do." << endl;
@@ -323,6 +323,7 @@ private:
 			e.clear();
 			std::cout << "I will now add up your elements, oh great one." << endl;
 			}
+
 
 		Float f(0.0);
 		for( int i = 0; i < a.length(); i++ )

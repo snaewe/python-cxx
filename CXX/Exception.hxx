@@ -7,7 +7,7 @@
 #define __CXX_Exception_h
 
 #include "Python.h"
-#include "CXX_Config.h"
+#include "CXX/Config.hxx"
 
 #include <string>
 #include <iostream>

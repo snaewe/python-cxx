@@ -4,7 +4,7 @@
 #pragma warning(disable: 4786)
 #endif
 
-#include "r.h"
+#include "r.hxx"
 // Connect r objects to Python
 
 
