@@ -45,7 +45,7 @@ class my_install (install):
             self.copy_file (s, self.install_source)
 
 setup (name = "CXX",
-       version = "5.0",
+       version = "5.0b",
        maintainer = "Paul Dubois",
        maintainer_email = "dubois@users.sourceforge.net",
        description = "Facility for extending Python with C++",
