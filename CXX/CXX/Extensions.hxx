@@ -14,6 +14,7 @@
 #endif
 
 
+#include "CXX/Version.hxx"
 #include "CXX/Config.hxx"
 #include "CXX/Objects.hxx"
 

@@ -7,6 +7,7 @@
 #define __CXX_Exception_h
 
 #include "Python.h"
+#include "CXX/Version.hxx"
 #include "CXX/Config.hxx"
 #include "CXX/IndirectPythonInterface.hxx"
 
