@@ -1176,11 +1176,20 @@ extern "C" PyObject *method_keyword_call_handler( PyObject *_self_and_name_tuple
 		std::string name( py_name.as_std_string() );
 
 		Tuple args( _args );
-		Dict keywords( _keywords );
+		if( _keywords == NULL )
+			{
+			Dict keywords;	// pass an empty dict
 
-		Object result( self->invoke_method_keyword( name, args, keywords ) );
+			Object result( self->invoke_method_keyword( name, args, keywords ) );
+			return new_reference_to( result.ptr() );
+			}
+		else
+			{
+			Dict keywords( _keywords );
 
-		return new_reference_to( result.ptr() );
+			Object result( self->invoke_method_keyword( name, args, keywords ) );
+			return new_reference_to( result.ptr() );
+			}
 		}
 	catch( Exception & )
 		{
