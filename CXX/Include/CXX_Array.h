@@ -3,7 +3,7 @@
 #include "CXX_Objects.h"
 #include "Numeric/arrayobject.h"
 
-NAMESPACE_BEGIN(Py)
+namespace Py {
 
 class Array: public Sequence
 {
@@ -12,7 +12,7 @@ public:
         return pyob && PyArray_Check (pyob);
     }
     
-    explicit Array (PyObject *pyob): Sequence(pyob) {
+    explicit Array (PyObject *pyob, bool owned = false): Sequence(pyob, owned) {
         validate();
     }
     
@@ -31,13 +31,13 @@ public:
     }
     
     explicit Array (int n=0, PyArray_TYPES t = PyArray_DOUBLE)
-        : Sequence(FromAPI(PyArray_FromDims(1, &n, t))) {
+        : Sequence(PyArray_FromDims(1, &n, t), true) {
         validate();
     }
 
     Array clone() const {
         PyObject *p = PyArray_CopyFromObject(ptr(), species(), rank(), rank());
-        return Array(p);
+        return Array(p, true);
     }
 
     int species() const {
@@ -66,7 +66,7 @@ public:
 
     Array as_contiguous() {
         if (is_contiguous()) return Array(ptr());
-        return Array((PyObject*)PyArray_ContiguousFromObject(ptr(), species(), 1, 0));
+        return Array((PyObject*)PyArray_ContiguousFromObject(ptr(), species(), 1, 0), true);
     }        
 };
 
@@ -84,13 +84,12 @@ Array toArray(PyObject* p) {
     if (t < 0) { 
         throw RuntimeError("Unsuitable object for toArray");
     }
-    return Array(FromAPI(PyArray_CopyFromObject(p, t, 1, 0)));
+    return Array(PyArray_CopyFromObject(p, t, 1, 0), true);
 }
 
 Array toArray(const Object&ob) {
     return toArray(*ob);
 }
 
-
-NAMESPACE_END
+} // end namespace Py
 #endif
