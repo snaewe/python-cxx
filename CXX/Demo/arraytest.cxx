@@ -2,7 +2,7 @@
 
 #include "Python.h"
 #include <iostream>
-#include "CXX_Array.h"
+#include "CXX/CXX_Array.h"
 #include <algorithm>
 
 using namespace Py;

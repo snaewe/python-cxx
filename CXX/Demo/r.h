@@ -1,6 +1,6 @@
 #ifndef __r__h
 #define __r__h
-#include "CXX_Extensions.h"
+#include "CXX/CXX_Extensions.h"
 
 #include <strstream>
 using std::ostrstream;
