@@ -12,10 +12,10 @@ Demo/rtest.cxx
 Demo/setup.py
 Doc/cxx.htm
 CXX/Array.hxx
-CXX/Config.h
-CXX/Exception.h
-CXX/Extensions.h
-CXX/Objects.h
+CXX/Config.hxx
+CXX/Exception.hxx
+CXX/Extensions.hxx
+CXX/Objects.hxx
 Src/cxx_extensions.cxx
 Src/cxxextensions.c
 Src/cxxsupport.cxx

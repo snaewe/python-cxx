@@ -12,7 +12,7 @@ setup (name = "CXXDemo",
        package_dir = {'CXX': '.'},
        ext_modules = [
          Extension('CXX.example',
-                   'sources' = ['example.cxx',
+                   sources = ['example.cxx',
                          'r.cxx',
                          'rtest.cxx',
                          os.path.join(support_dir,'cxxsupport.cxx'),
