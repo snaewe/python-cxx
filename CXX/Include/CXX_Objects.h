@@ -1248,16 +1248,22 @@ inline Object asObject (PyObject *p)
         String (const Object& ob): SeqBase<Char>(ob) {
             validate();
         }
-        
-        String (const std::string& v = "")
-            :SeqBase<Char>(PyString_FromString (const_cast<char*>(v.c_str())), true)
+
+        String()
+            : SeqBase<Char>( PyString_FromStringAndSize( "", 0 ), true )
+        {
+            validate();
+        }
+
+        String (const std::string& v )
+            : SeqBase<Char>( PyString_FromStringAndSize( const_cast<char*>(v.data()), v.length() ), true )
         {
             validate();
         }
         
 
         String (const std::string& v, std::string::size_type vsize)
-            :SeqBase<Char>(PyString_FromStringAndSize (const_cast<char*>(v.c_str()), vsize), true)
+            :SeqBase<Char>(PyString_FromStringAndSize( const_cast<char*>(v.data()), vsize), true)
         {
             validate();
         }
@@ -1291,7 +1297,7 @@ inline Object asObject (PyObject *p)
         
         // Assignment from C string
         String& operator= (const std::string& v) {
-            set(PyString_FromString (const_cast<char*>(v.c_str())), true);
+            set(PyString_FromStringAndSize (const_cast<char*>(v.data()), v.length() ), true);
             return *this;
         }
         // Queries
@@ -1300,7 +1306,7 @@ inline Object asObject (PyObject *p)
         }
         
         operator std::string () const {
-            return std::string(PyString_AsString (ptr()));
+            return std::string( PyString_AsString( ptr() ), PyString_Size( ptr() ) );
         }           
     };
     
