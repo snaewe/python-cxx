@@ -13,7 +13,7 @@
 #endif
 
 
-#include "CXX_Objects.h"
+#include "CXX/Objects.hxx"
 
 extern "C" {
     extern PyObject py_object_initializer;
@@ -48,14 +48,18 @@ private:
         
 }; // end class MethodTable
 
+extern "C"
+	{
+	typedef PyObject *(*method_varargs_call_handler_t)( PyObject *_self, PyObject *_args );
+	typedef PyObject *(*method_keyword_call_handler_t)( PyObject *_self, PyObject *_args, PyObject *_dict );
+	};
+
 template<class T>
 class MethodDefExt : public PyMethodDef
 	{
 public:
 	typedef Object (T::*method_varargs_function_t)( const Tuple &args );
 	typedef Object (T::*method_keyword_function_t)( const Tuple &args, const Dict &kws );
-	typedef PyObject *(*method_varargs_call_handler_t)( PyObject *_self, PyObject *_args );
-	typedef PyObject *(*method_keyword_call_handler_t)( PyObject *_self, PyObject *_args, PyObject *_dict );
 
 	MethodDefExt
 		(
@@ -108,6 +112,8 @@ public:
 	Module module(void) const;		// only valid after initialize() has been called
 	Dict moduleDictionary(void) const;	// only valid after initialize() has been called
 
+	virtual Object invoke_method_keyword( const std::string &_name, const Tuple &_args, const Dict &_keywords ) = 0;
+	virtual Object invoke_method_varargs( const std::string &_name, const Tuple &_args ) = 0;
 
 protected:
 	// Initialize the module
@@ -125,6 +131,14 @@ private:
 	void operator=( const ExtensionModuleBase & );		//unimplemented
 
 };
+
+extern "C"
+	{
+	PyObject *method_keyword_call_handler( PyObject *_self_and_name_tuple, PyObject *_args, PyObject *_keywords );
+	PyObject *method_varargs_call_handler( PyObject *_self_and_name_tuple, PyObject *_args );
+	void do_not_dealloc( void * );
+	};
+
 
 template<class T>
 class ExtensionModule : public ExtensionModuleBase
@@ -204,7 +218,6 @@ protected:
 		}
 
 private:
-	static void do_not_dealloc( void * ) {}
 	static method_map_t &methods(void)
 		{
 		static method_map_t *map_of_methods = NULL;
@@ -215,69 +228,40 @@ private:
 		}
 
 
-	static PyObject *method_keyword_call_handler( PyObject *_self_and_name_tuple, PyObject *_args, PyObject *_keywords )
+	// this invoke function must be called from within a try catch block
+	virtual Object invoke_method_keyword( const std::string &name, const Tuple &args, const Dict &keywords )
 		{
-		try
+		method_map_t &mm = methods();
+		MethodDefExt<T> *meth_def = mm[ name ];
+		if( meth_def == NULL )
 			{
-			Tuple self_and_name_tuple( _self_and_name_tuple );
-
-			PyObject *self_in_cobject = self_and_name_tuple[0].ptr();
-			void *self_as_void = PyCObject_AsVoidPtr( self_in_cobject );
-			if( self_as_void == NULL )
-				return NULL;
-
-			T *self = static_cast<T *>( self_as_void );
-
-			String name( self_and_name_tuple[1] );
-
-			method_map_t &mm = methods();
-			MethodDefExt<T> *meth_def = mm[ name ];
-			if( meth_def == NULL )
-				return 0;
-
-			Tuple args( _args );
-			Dict keywords( _keywords );
-
-			Object result( (self->*meth_def->ext_keyword_function)( args, keywords ) );
-
-			return new_reference_to( result.ptr() );
+			std::string error_msg( "CXX - can invoke keyword method named " );
+			error_msg += name;
+			throw RuntimeError( error_msg );
 			}
-		catch( Exception & )
-			{
-			return 0;
-			}
+
+		// cast up to the derived class
+		T *self = static_cast<T *>(this);
+
+		return (self->*meth_def->ext_keyword_function)( args, keywords );
 		}
 
-	static PyObject *method_varargs_call_handler( PyObject *_self_and_name_tuple, PyObject *_args )
+	// this invoke function must be called from within a try catch block
+	virtual Object invoke_method_varargs( const std::string &name, const Tuple &args )
 		{
-		try
+		method_map_t &mm = methods();
+		MethodDefExt<T> *meth_def = mm[ name ];
+		if( meth_def == NULL )
 			{
-			Tuple self_and_name_tuple( _self_and_name_tuple );
-
-			PyObject *self_in_cobject = self_and_name_tuple[0].ptr();
-			void *self_as_void = PyCObject_AsVoidPtr( self_in_cobject );
-			if( self_as_void == NULL )
-				return NULL;
-
-			T *self = static_cast<T *>( self_as_void );
-
-			String name( self_and_name_tuple[1] );
-
-			method_map_t &mm = methods();
-			MethodDefExt<T> *meth_def = mm[ name ];
-			if( meth_def == NULL )
-				return 0;
-
-			Tuple args( _args );
-
-			Object result( (self->*meth_def->ext_varargs_function)( args ) );
-
-			return new_reference_to( result.ptr() );
+			std::string error_msg( "CXX - can invoke varargs method named " );
+			error_msg += name;
+			throw RuntimeError( error_msg );
 			}
-		catch( Exception & )
-			{
-			return 0;
-			}
+
+		// cast up to the derived class
+		T *self = static_cast<T *>(this);
+
+		return (self->*meth_def->ext_varargs_function)( args );
 		}
 
 	//
@@ -331,64 +315,6 @@ protected:
 	void init_buffer();
 
 private:
-	static void standard_dealloc(PyObject* p);
-
-	//
-	// All the following functions redirect the call from Python
-	// onto the matching virtual function in PythonExtensionBase
-	//
-	static int print_handler (PyObject*, FILE *, int);
-	static PyObject* getattr_handler (PyObject*, char*);
-	static int setattr_handler (PyObject*, char*, PyObject*);
-	static PyObject* getattro_handler (PyObject*, PyObject*);
-	static int setattro_handler (PyObject*, PyObject*, PyObject*);
-	static int compare_handler (PyObject*, PyObject*);
-	static PyObject* repr_handler (PyObject*);
-	static PyObject* str_handler (PyObject*);
-	static long hash_handler (PyObject*);
-	static PyObject* call_handler (PyObject*, PyObject*, PyObject*);
-
-	// Sequence methods
-	static int sequence_length_handler(PyObject*);
-	static PyObject* sequence_concat_handler(PyObject*,PyObject*);
-	static PyObject* sequence_repeat_handler(PyObject*, int);
-	static PyObject* sequence_item_handler(PyObject*, int);
-	static PyObject* sequence_slice_handler(PyObject*, int, int);
-	static int sequence_ass_item_handler(PyObject*, int, PyObject*);
-	static int sequence_ass_slice_handler(PyObject*, int, int, PyObject*);
-	// Mapping
-	static int mapping_length_handler(PyObject*);
-	static PyObject* mapping_subscript_handler(PyObject*, PyObject*);
-	static int mapping_ass_subscript_handler(PyObject*, PyObject*, PyObject*);
-	static int number_nonzero_handler (PyObject*);
-
-	static PyObject* number_negative_handler (PyObject*);
-	static PyObject* number_positive_handler (PyObject*);
-	static PyObject* number_absolute_handler (PyObject*);
-	static PyObject* number_invert_handler (PyObject*);
-	static PyObject* number_int_handler (PyObject*);
-	static PyObject* number_float_handler (PyObject*);
-	static PyObject* number_long_handler (PyObject*);
-	static PyObject* number_oct_handler (PyObject*);
-	static PyObject* number_hex_handler (PyObject*);
-	static PyObject* number_add_handler (PyObject*, PyObject*);
-	static PyObject* number_subtract_handler (PyObject*, PyObject*);
-	static PyObject* number_multiply_handler (PyObject*, PyObject*);
-	static PyObject* number_divide_handler (PyObject*, PyObject*);
-	static PyObject* number_remainder_handler (PyObject*, PyObject*);
-	static PyObject* number_divmod_handler (PyObject*, PyObject*);
-	static PyObject* number_lshift_handler (PyObject*, PyObject*);
-	static PyObject* number_rshift_handler (PyObject*, PyObject*);
-	static PyObject* number_and_handler (PyObject*, PyObject*);
-	static PyObject* number_xor_handler (PyObject*, PyObject*);
-	static PyObject* number_or_handler (PyObject*, PyObject*);
-	static PyObject* number_power_handler(PyObject*, PyObject*, PyObject*);
-	// Buffer
-	static int buffer_getreadbuffer_handler (PyObject*, int, void**);
-	static int buffer_getwritebuffer_handler (PyObject*, int, void**);
-	static int buffer_getsegcount_handler (PyObject*, int*);
-
-private:
 	//
 	// prevent the compiler generating these unwanted functions
 	//
@@ -427,11 +353,9 @@ public:
 	virtual ~PythonExtensionBase()
 		{}
 
-protected:
-	friend class PythonType;
-
+public:
 	virtual int print( FILE *, int );
-	virtual Object getattr( const char * );
+	virtual Object getattr( const char * ) = 0;
 	virtual int setattr( const char *, const Object & );
 	virtual Object getattro( const Object & );
 	virtual int setattro( const Object &, const Object & );
@@ -509,12 +433,25 @@ public:
 		return check( ob.ptr());
 		}
 
+
+	//
+	// every object needs getattr implemented
+	// to support methods
+	//
+	virtual Object getattr( const char *name )
+		{
+		return getattr_methods( name );
+		}
+
 protected:
 	explicit PythonExtension()
 		: PythonExtensionBase()
 		{
 		ob_refcnt = 1;
 		ob_type = type_object();
+
+		// every object must suport getattr
+		behaviors().supportGetattr();
 		}
 
 	virtual ~PythonExtension()
@@ -523,7 +460,7 @@ protected:
 	static PythonType &behaviors()
 		{
 		static PythonType* p;
-		if(!p ) 
+		if( p == NULL ) 
 			{
 			p = new PythonType( sizeof( T ), 0 );
 			p->dealloc( extension_object_deallocator );
@@ -601,8 +538,6 @@ protected:
 		}
 
 private:
-	static void do_not_dealloc( void * ) {}
-
 	static method_map_t &methods(void)
 		{
 		static method_map_t *map_of_methods = NULL;

@@ -7,7 +7,7 @@
 #define __CXX_Objects__h
 
 #include "Python.h"
-#include "CXX_Exception.h"
+#include "CXX/Exception.hxx"
 
 
 #include <iostream>
@@ -1174,7 +1174,7 @@ inline Object asObject (PyObject *p)
     typedef SeqBase<Object> Sequence;
     
     // ==================================================
-    // class String
+    // class Char
     // Python strings return strings as individual elements.
     // I'll try having a class Char which is a String of length 1
     //
@@ -1300,12 +1300,17 @@ inline Object asObject (PyObject *p)
             set(PyString_FromStringAndSize (const_cast<char*>(v.data()), v.length() ), true);
             return *this;
         }
+
         // Queries
         virtual size_type size () const { 
             return PyString_Size (ptr());
         }
         
         operator std::string () const {
+            return std::string( PyString_AsString( ptr() ), PyString_Size( ptr() ) );
+        }           
+
+        std::string as_std_string() const {
             return std::string( PyString_AsString( ptr() ), PyString_Size( ptr() ) );
         }           
     };

@@ -9,11 +9,11 @@
 <h1>CXX -- C++ Extensions Support</h1>
 <h2>Installation</h2>
 <p>
-python setup.py install \br
+python setup.py install <br>
 will install the include files into your Python
 include path in a directory "CXX". You refer to the files in your
-include statements like this:\br
-#include "CXX/CXX_objects.h"
+include statements like this:<br>
+#include "CXX/Objects.h"
 </p>
 <p>
 The option --install-header= can be used to change the install directory.
@@ -38,13 +38,26 @@ LDSHARED to 'g++ -shared' or whatever is appropriate for your C++ compiler.
 <h2>Making the Demo</h2>
 <p>
 The Demo directory contains a small example that also serves as a test for 
-CXX. Make and install the Demo with \br
+CXX. Make and install the Demo with <br>
 python setup.py install
 </p>
 <p>
 Run the Demo by importing CXX.example, and running CXX.example.test().
 </p>
 <h2>Revision History</h2>
+<h3>(July 9, 2000)</h3>
+<p>Renamed all header files to reflect the CXX include name space and that they are
+C++ header files.
+<p>
+<table border=1>
+<tr><th>Old</th><th>New</th></tr>
+<tr><td>#include "CXX_Array.h"</td><td>#include "CXX/Array.hxx"</td>
+<tr><td>#include "CXX_Config.h"</td><td>#include "CXX/Config.hxx"</td>
+<tr><td>#include "CXX_Exception.h"</td><td>#include "CXX/Exception.hxx"</td>
+<tr><td>#include "CXX_Extensions.h"</td><td>#include "CXX/Extensions.hxx"</td>
+<tr><td>#include "CXX_Objects.h"</td><td>#include "CXX/Objects.hxx"</td>
+</table>
+
 <h3>Version 5 (May 18, 2000)</h3>
 This version adds Distutils support for installation and some code cleanup.
 
