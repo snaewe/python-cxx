@@ -4,8 +4,8 @@
 #pragma warning(disable: 4786)
 #endif
 
-#include "CXX/CXX_Extensions.h"
-#include "r.h"
+#include "CXX/Extensions.hxx"
+#include "r.hxx"
 // This test also illustrates using the Py namespace explicitly
 
 std::string test_extension_object() 
