@@ -12,7 +12,7 @@
 
 
 #include <iostream>
-#include <strstream>
+#include STR_STREAM
 #include <string>
 #include <iterator>
 #include <utility>
@@ -25,9 +25,9 @@ namespace Py
 	// Forward declarations
 	class Object;
 	class Type;
-	template<class T> class SeqBase;
+	template<TEMPLATE_TYPENAME T> class SeqBase;
 	class String;
-	template<class T> class MapBase;
+	template<TEMPLATE_TYPENAME T> class MapBase;
 
 	// new_reference_to also overloaded below on Object
 	inline PyObject* new_reference_to(PyObject* p)
@@ -796,7 +796,7 @@ namespace Py
 	// Changing them to Object(x[i]) helps the compiler to understand that the
 	// conversion of a seqref to an Object is wanted.
 
-	template<class T>
+	template<TEMPLATE_TYPENAME T>
 	class seqref
 		{
 	protected:
@@ -857,15 +857,9 @@ namespace Py
 			return the_item.type();
 			}
 
-		String str () const
-			{
-			return the_item.str();
-			}
+		String str () const;
 
-		String repr () const
-			{
-			return the_item.repr();
-			}
+		String repr () const;
 
 		bool hasAttr (const std::string& attr_name) const
 			{
@@ -987,7 +981,7 @@ namespace Py
 	// class SeqBase<T>
 	// ...the base class for all sequence types
 
-	template<class T>
+	template<TEMPLATE_TYPENAME T>
 	class SeqBase: public Object
 		{
 	public:
@@ -1250,7 +1244,7 @@ namespace Py
 
 			std::string diagnose() const
 				{
-				std::ostrstream oss;
+				std::OSTRSTREAM oss;
 				oss << "iterator diagnosis " << seq << ", " << count << std::ends;
 				return std::string(oss.str());
 				}
@@ -1398,19 +1392,19 @@ namespace Py
 	// Here's an important typedef you might miss if reading too fast...
 	typedef SeqBase<Object> Sequence;
 
-	template <class T> bool operator==(const SeqBase<T>::iterator& left, const SeqBase<T>::iterator& right);
-	template <class T> bool operator!=(const SeqBase<T>::iterator& left, const SeqBase<T>::iterator& right);
-	template <class T> bool operator< (const SeqBase<T>::iterator& left, const SeqBase<T>::iterator& right);
-	template <class T> bool operator> (const SeqBase<T>::iterator& left, const SeqBase<T>::iterator& right);
-	template <class T> bool operator<=(const SeqBase<T>::iterator& left, const SeqBase<T>::iterator& right);
-	template <class T> bool operator>=(const SeqBase<T>::iterator& left, const SeqBase<T>::iterator& right);
+	template <TEMPLATE_TYPENAME T> bool operator==(const EXPLICIT_TYPENAME SeqBase<T>::iterator& left, const EXPLICIT_TYPENAME SeqBase<T>::iterator& right);
+	template <TEMPLATE_TYPENAME T> bool operator!=(const EXPLICIT_TYPENAME SeqBase<T>::iterator& left, const EXPLICIT_TYPENAME SeqBase<T>::iterator& right);
+	template <TEMPLATE_TYPENAME T> bool operator< (const EXPLICIT_TYPENAME SeqBase<T>::iterator& left, const EXPLICIT_TYPENAME SeqBase<T>::iterator& right);
+	template <TEMPLATE_TYPENAME T> bool operator> (const EXPLICIT_TYPENAME SeqBase<T>::iterator& left, const EXPLICIT_TYPENAME SeqBase<T>::iterator& right);
+	template <TEMPLATE_TYPENAME T> bool operator<=(const EXPLICIT_TYPENAME SeqBase<T>::iterator& left, const EXPLICIT_TYPENAME SeqBase<T>::iterator& right);
+	template <TEMPLATE_TYPENAME T> bool operator>=(const EXPLICIT_TYPENAME SeqBase<T>::iterator& left, const EXPLICIT_TYPENAME SeqBase<T>::iterator& right);
 
-	template <class T> bool operator==(const SeqBase<T>::const_iterator& left, const SeqBase<T>::const_iterator& right);
-	template <class T> bool operator!=(const SeqBase<T>::const_iterator& left, const SeqBase<T>::const_iterator& right);
-	template <class T> bool operator< (const SeqBase<T>::const_iterator& left, const SeqBase<T>::const_iterator& right);
-	template <class T> bool operator> (const SeqBase<T>::const_iterator& left, const SeqBase<T>::const_iterator& right);
-	template <class T> bool operator<=(const SeqBase<T>::const_iterator& left, const SeqBase<T>::const_iterator& right);
-	template <class T> bool operator>=(const SeqBase<T>::const_iterator& left, const SeqBase<T>::const_iterator& right); 
+	template <TEMPLATE_TYPENAME T> bool operator==(const EXPLICIT_TYPENAME SeqBase<T>::const_iterator& left, const EXPLICIT_TYPENAME SeqBase<T>::const_iterator& right);
+	template <TEMPLATE_TYPENAME T> bool operator!=(const EXPLICIT_TYPENAME SeqBase<T>::const_iterator& left, const EXPLICIT_TYPENAME SeqBase<T>::const_iterator& right);
+	template <TEMPLATE_TYPENAME T> bool operator< (const EXPLICIT_TYPENAME SeqBase<T>::const_iterator& left, const EXPLICIT_TYPENAME SeqBase<T>::const_iterator& right);
+	template <TEMPLATE_TYPENAME T> bool operator> (const EXPLICIT_TYPENAME SeqBase<T>::const_iterator& left, const EXPLICIT_TYPENAME SeqBase<T>::const_iterator& right);
+	template <TEMPLATE_TYPENAME T> bool operator<=(const EXPLICIT_TYPENAME SeqBase<T>::const_iterator& left, const EXPLICIT_TYPENAME SeqBase<T>::const_iterator& right);
+	template <TEMPLATE_TYPENAME T> bool operator>=(const EXPLICIT_TYPENAME SeqBase<T>::const_iterator& left, const EXPLICIT_TYPENAME SeqBase<T>::const_iterator& right); 
 
 
 	extern bool operator==(const Sequence::iterator& left, const Sequence::iterator& right);
@@ -1785,7 +1779,7 @@ namespace Py
 
 	// Mappings
 	// ==================================================
-	template<class T>
+	template<TEMPLATE_TYPENAME T>
 	class mapref
 		{
 	protected:
@@ -1954,7 +1948,7 @@ namespace Py
 		return true;    // not completed.
 		}
 
-	template<class T>
+	template<TEMPLATE_TYPENAME T>
 	class MapBase: public Object
 		{
 	protected:
@@ -2234,7 +2228,7 @@ namespace Py
 
 			std::string diagnose() const
 				{
-				std::ostrstream oss;
+				std::OSTRSTREAM oss;
 				oss << "iterator diagnosis " << map << ", " << pos << std::ends;
 				return std::string(oss.str());
 				}
@@ -2337,10 +2331,10 @@ namespace Py
 
 	typedef MapBase<Object> Mapping;
 
-	template <class T> bool operator==(const MapBase<T>::iterator& left, const MapBase<T>::iterator& right);
-	template <class T> bool operator!=(const MapBase<T>::iterator& left, const MapBase<T>::iterator& right);
-	template <class T> bool operator==(const MapBase<T>::const_iterator& left, const MapBase<T>::const_iterator& right);
-	template <class T> bool operator!=(const MapBase<T>::const_iterator& left, const MapBase<T>::const_iterator& right);
+	template <TEMPLATE_TYPENAME T> bool operator==(const EXPLICIT_TYPENAME MapBase<T>::iterator& left, const EXPLICIT_TYPENAME MapBase<T>::iterator& right);
+	template <TEMPLATE_TYPENAME T> bool operator!=(const EXPLICIT_TYPENAME MapBase<T>::iterator& left, const EXPLICIT_TYPENAME MapBase<T>::iterator& right);
+	template <TEMPLATE_TYPENAME T> bool operator==(const EXPLICIT_TYPENAME MapBase<T>::const_iterator& left, const EXPLICIT_TYPENAME MapBase<T>::const_iterator& right);
+	template <TEMPLATE_TYPENAME T> bool operator!=(const EXPLICIT_TYPENAME MapBase<T>::const_iterator& left, const EXPLICIT_TYPENAME MapBase<T>::const_iterator& right);
 
 	extern bool operator==(const Mapping::iterator& left, const Mapping::iterator& right);
 	extern bool operator!=(const Mapping::iterator& left, const Mapping::iterator& right);
@@ -2637,6 +2631,21 @@ namespace Py
 		PyErr_Restore(ptype, pvalue, ptrace);
 		return result;
 		}
+
+
+
+template<TEMPLATE_TYPENAME T>
+String seqref<T>::str () const
+			{
+			return the_item.str();
+			}
+
+template<TEMPLATE_TYPENAME T>
+String seqref<T>::repr () const
+			{
+			return the_item.repr();
+			}
+
 
 	} // namespace Py
 #endif	// __CXX_Objects__h

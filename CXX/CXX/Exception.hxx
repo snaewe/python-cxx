@@ -16,10 +16,13 @@
 // This mimics the Python structure, in order to minimize confusion
 namespace Py
 	{
-	
+	class ExtensionExceptionType;
+
 	class Exception
 		{
 	public:
+		Exception( ExtensionExceptionType &exception, const std::string& reason );
+
 		explicit Exception ()
 			{}
 		
@@ -33,6 +36,7 @@ namespace Py
 			PyErr_SetString (exception, reason.c_str());
 			}
 		
+
 		void clear() // clear the error
 		// technically but not philosophically const
 			{
@@ -202,7 +206,7 @@ namespace Py
 			PyErr_SetString (Py::_Exc_SystemExit(),reason.c_str());
 			}
 		};
-	
+
 	}// Py
 
 #endif

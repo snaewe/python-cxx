@@ -27,6 +27,19 @@ extern "C"
 
 namespace Py
 	{
+	class ExtensionModuleBase;
+	
+	// Make an Exception Type for use in raising custom exceptions
+	class ExtensionExceptionType : public Object
+		{
+	public:
+		ExtensionExceptionType();
+		virtual ~ExtensionExceptionType();
+
+		// call init to create the type
+		void init(  ExtensionModuleBase &module, const std::string& name );
+		};
+
 	
 	class MethodTable 
 		{
@@ -119,6 +132,9 @@ namespace Py
 		virtual Object invoke_method_keyword( const std::string &_name, const Tuple &_args, const Dict &_keywords ) = 0;
 		virtual Object invoke_method_varargs( const std::string &_name, const Tuple &_args ) = 0;
 		
+		const std::string &name() const;
+		const std::string &fullName() const;
+	
 	protected:
 		// Initialize the module
 		void initialize( const char *module_doc );
@@ -142,7 +158,7 @@ namespace Py
 	extern "C" void do_not_dealloc( void * );
 	
 	
-	template<class T>
+	template<TEMPLATE_TYPENAME T>
 	class ExtensionModule : public ExtensionModuleBase
 		{
 	public:
@@ -186,7 +202,7 @@ namespace Py
 			
 			mm[std::string( name )] = method_definition;
 			}
-		
+
 		void initialize( const char *module_doc="" )
 			{
 			ExtensionModuleBase::initialize( module_doc );
@@ -197,7 +213,7 @@ namespace Py
 			// so that we get called back at the function in T.
 			//
 			method_map_t &mm = methods();
-			method_map_t::iterator i;
+			EXPLICIT_TYPENAME method_map_t::iterator i;
 			
 			for( i=mm.begin(); i != mm.end(); ++i )
 				{
@@ -238,7 +254,7 @@ namespace Py
 			MethodDefExt<T> *meth_def = mm[ name ];
 			if( meth_def == NULL )
 				{
-				std::string error_msg( "CXX - can invoke keyword method named " );
+				std::string error_msg( "CXX - cannot invoke keyword method named " );
 				error_msg += name;
 				throw RuntimeError( error_msg );
 				}
@@ -256,7 +272,7 @@ namespace Py
 			MethodDefExt<T> *meth_def = mm[ name ];
 			if( meth_def == NULL )
 				{
-				std::string error_msg( "CXX - can invoke varargs method named " );
+				std::string error_msg( "CXX - cannot invoke varargs method named " );
 				error_msg += name;
 				throw RuntimeError( error_msg );
 				}
@@ -282,9 +298,12 @@ namespace Py
 		// if you define one sequence method you must define 
 		// all of them except the assigns
 		
-		PythonType (size_t base_size, int itemsize);
+		PythonType (size_t base_size, int itemsize, const char *default_name );
 		virtual ~PythonType ();
 		
+		const char *getName () const;
+		const char *getDoc () const;
+
 		PyTypeObject* type_object () const;
 		void name (const char* nam);
 		void doc (const char* d);
@@ -415,7 +434,7 @@ namespace Py
 		static PyObject *method_call_handler( PyObject *self, PyObject *args );
 		};
 	
-	template<class T>
+	template<TEMPLATE_TYPENAME T>
 	class PythonExtension: public PythonExtensionBase 
 		{
 	public:
@@ -456,7 +475,7 @@ namespace Py
 			ob_type = type_object();
 			#endif
 			
-			// every object must suport getattr
+			// every object must support getattr
 			behaviors().supportGetattr();
 			}
 		
@@ -468,7 +487,12 @@ namespace Py
 			static PythonType* p;
 			if( p == NULL ) 
 				{
-				p = new PythonType( sizeof( T ), 0 );
+#if defined( _CPPRTTI )
+				const char *default_name = (typeid ( T )).name();
+#else
+				const char *default_name = "unknown";
+#endif
+				p = new PythonType( sizeof( T ), 0, default_name );
 				p->dealloc( extension_object_deallocator );
 				}
 			
@@ -480,6 +504,39 @@ namespace Py
 		typedef Object (T::*method_keyword_function_t)( const Tuple &args, const Dict &kws );
 		typedef std::map<std::string,MethodDefExt<T> *> method_map_t;
 		
+		// support the default attributes, __name__, __doc__ and methods
+		virtual Object getattr_default( const char *_name )
+			{
+			std::string name( _name );
+
+			if( name == "__name__" && type_object()->tp_name != NULL )
+				{
+				return Py::String( type_object()->tp_name );
+				}
+			else if( name == "__doc__" && type_object()->tp_doc != NULL )
+				{
+				return Py::String( type_object()->tp_doc );
+				}
+
+// trying to fake out being a class for help()
+//			else if( name == "__bases__"  )
+//				{
+//				return Py::Tuple(0);
+//				}
+//			else if( name == "__module__"  )
+//				{
+//				return Py::Nothing();
+//				}
+//			else if( name == "__dict__"  )
+//				{
+//				return Py::Dict();
+//				}
+			else
+				{
+				return getattr_methods( _name );
+				}
+			}
+
 		// turn a name into function object
 		virtual Object getattr_methods( const char *_name )
 			{
@@ -491,15 +548,15 @@ namespace Py
 				{
 				List methods;
 				
-				for( method_map_t::iterator i = mm.begin(); i != mm.end(); ++i )
-				methods.append( String( (*i).first ) );
+				for( EXPLICIT_TYPENAME method_map_t::iterator i = mm.begin(); i != mm.end(); ++i )
+					methods.append( String( (*i).first ) );
 				
 				return methods;
 				}
 			
 			// see if name exists
 			if( mm.find( name ) == mm.end() )
-			throw NameError( name );
+				throw AttributeError( name );
 			
 			Tuple self( 2 );
 			
@@ -567,10 +624,14 @@ namespace Py
 				method_map_t &mm = methods();
 				MethodDefExt<T> *meth_def = mm[ name ];
 				if( meth_def == NULL )
-				return 0;
+					return 0;
 				
 				Tuple args( _args );
-				Dict keywords( _keywords );
+
+				// _keywords may be NULL so be careful about the way the dict is created
+				Dict keywords;
+				if( _keywords != NULL )
+					keywords = Dict( _keywords );
 				
 				Object result( (self->*meth_def->ext_keyword_function)( args, keywords ) );
 				
@@ -596,7 +657,7 @@ namespace Py
 				method_map_t &mm = methods();
 				MethodDefExt<T> *meth_def = mm[ name ];
 				if( meth_def == NULL )
-				return 0;
+					return 0;
 				
 				Tuple args( _args );
 				
@@ -640,7 +701,7 @@ namespace Py
 	//
 	// ExtensionObject<T> is an Object that will accept only T's.
 	//
-	template<class T>
+	template<TEMPLATE_TYPENAME T>
 	class ExtensionObject: public Object
 		{
 	public:
@@ -652,7 +713,13 @@ namespace Py
 			}
 		
 		ExtensionObject( const ExtensionObject<T>& other )
-			: Object(*other )
+			: Object( *other )
+			{
+			validate();
+			}
+		
+		ExtensionObject( const Object& other )
+			: Object( *other )
 			{
 			validate();
 			}

@@ -1,4 +1,5 @@
 #include "CXX/Extensions.hxx"
+#include "CXX/Exception.hxx"
 
 #include <assert.h>
 
@@ -73,6 +74,15 @@ ExtensionModuleBase::ExtensionModuleBase( const char *name )
 ExtensionModuleBase::~ExtensionModuleBase()
 	{}
 
+const std::string &ExtensionModuleBase::name() const
+	{
+	return module_name;
+	}
+
+const std::string &ExtensionModuleBase::fullName() const
+	{
+	return full_module_name;
+	}
 
 class ExtensionModuleBasePtr : public PythonExtension<ExtensionModuleBasePtr>
 	{
@@ -262,7 +272,7 @@ void PythonType::supportBufferType()
 // if you define one sequence method you must define 
 // all of them except the assigns
 
-PythonType::PythonType( size_t basic_size, int itemsize )
+PythonType::PythonType( size_t basic_size, int itemsize, const char *default_name )
 	: table( new PyTypeObject )
 	, sequence_table( NULL )
 	, mapping_table( NULL )
@@ -272,7 +282,7 @@ PythonType::PythonType( size_t basic_size, int itemsize )
 	*reinterpret_cast<PyObject*>( table ) = py_object_initializer;
 	table->ob_type = _Type_Type();
 	table->ob_size = 0;
-	table->tp_name = "unknown";
+	table->tp_name = const_cast<char *>( default_name );
 	table->tp_basicsize = basic_size;
 	table->tp_itemsize = itemsize;
 	table->tp_dealloc = ( destructor ) standard_dealloc;
@@ -334,9 +344,19 @@ void PythonType::name( const char* nam )
 	table->tp_name = const_cast<char *>( nam );
 	}
 
+const char *PythonType::getName() const
+	{
+	return table->tp_name;
+	}
+
 void PythonType::doc( const char* d )
 	{
 	table->tp_doc = const_cast<char *>( d );
+	}
+
+const char *PythonType::getDoc() const
+	{
+	return table->tp_doc;
 	}
 
 void PythonType::dealloc( void( *f )( PyObject* ))
@@ -1227,5 +1247,35 @@ extern "C" PyObject *method_varargs_call_handler( PyObject *_self_and_name_tuple
 
 extern "C" void do_not_dealloc( void * )
 	{}
+
+
+//--------------------------------------------------------------------------------
+//
+//	ExtensionExceptionType
+//
+//--------------------------------------------------------------------------------
+ExtensionExceptionType::ExtensionExceptionType()
+	: Py::Object()
+	{
+	}
+
+void ExtensionExceptionType::init( ExtensionModuleBase &module, const std::string& name )
+	{
+	std::string module_name( module.fullName() );
+	module_name += ".";
+	module_name += name;
+
+	set( PyErr_NewException( const_cast<char *>( module_name.c_str() ), NULL, NULL ), true );
+	}
+
+ExtensionExceptionType::~ExtensionExceptionType()
+	{
+	}
+
+Exception::Exception( ExtensionExceptionType &exception, const std::string& reason )
+	{
+	PyErr_SetString (exception.ptr(), reason.c_str());
+	}
+
 
 }	// end of namespace Py
