@@ -37,8 +37,8 @@
 //
 //	Which C++ standard is in use?
 //
-#if defined( _MSCVER )
-#  if _MSCVER <= 1200
+#if defined( _MSC_VER )
+#  if _MSC_VER <= 1200
 // MSVC++ 6.0
 #    define PYCXX_ISO_CPP_LIB 0
 #    define STR_STREAM <strstream>
