@@ -37,13 +37,13 @@ http://prdownloads.sourceforge.net/cxx/PyCXX-V5.1-rc1.tar.gz</a>
 <li>Expand the archive into a directory of your choosing C:\ for example. Note: WinZip can expand .tar.gz files.
 <li>Install the PyCXX files:
 <ol>
-<li><pre>C:> cd \PyCXX-V5.1-rc1</pre>
-<li><pre>C:\PyCXX-V5.1-rc1> python setup.py install</pre>
+<li><pre>C:> cd \PyCXX-V5.2</pre>
+<li><pre>C:\PyCXX-V5.2> python setup.py install</pre>
 </ol>
 <li>Install the PyCXX Demo:
 <ol>
-<li><pre>C:> cd \PyCXX-V5.1-rc1\Demo</pre>
-<li><pre>C:\PyCXX-V5.1-rc1\Demo> python setup.py install</pre>
+<li><pre>C:> cd \PyCXX-V5.2\Demo</pre>
+<li><pre>C:\PyCXX-V5.2\Demo> python setup.py install</pre>
 </ol>
 <li>Run the demo:
 <ol>
@@ -63,17 +63,17 @@ http://prdownloads.sourceforge.net/cxx/PyCXX-V5.1-rc1.tar.gz</a>
 
 <ol>
 <li>Fetch <a href="http://prdownloads.sourceforge.net/cxx/PyCXX-5.1.tar.gz">
-http://prdownloads.sourceforge.net/cxx/PyCXX-V5.1-rc1.tar.gz</a>
+http://prdownloads.sourceforge.net/cxx/PyCXX-V5.2.tar.gz</a>
 <li>Login as root. root access is typically needed on Unix systems to install the PyCXX files into the Python directories.
 <li>Expand the archive into a directory of your choosing ~\ for example.
 <li>Install the PyCXX files:
 <ol>
-<li><pre># cd ~\PyCXX-V5.1-rc1</pre>
+<li><pre># cd ~\PyCXX-V5.2</pre>
 <li><pre># python setup.py install</pre>
 </ol>
 <li>Install the PyCXX Demo:
 <ol>
-<li><pre># cd ~\PyCXX-V5.1-rc1\Demo</pre>
+<li><pre># cd ~\PyCXX-V5.2\Demo</pre>
 <li><pre># python setup.py install</pre>
 </ol>
 <li>Run the demo:
@@ -96,8 +96,8 @@ of Makefiles and Project files are provided.</p>
 <h3>Windows Installation and Demo</h3>
 <p>
 <ol>
-<li>Fetch <a href="http://prdownloads.sourceforge.net/cxx/PyCXX-V5.1-rc1.tar.gz">
-http://prdownloads.sourceforge.net/cxx/PyCXX-V5.1-rc1.tar.gz</a>
+<li>Fetch <a href="http://prdownloads.sourceforge.net/cxx/PyCXX-V5.2.tar.gz">
+http://prdownloads.sourceforge.net/cxx/PyCXX-V5.2.tar.gz</a>
 <li>Expand the archive into a directory of your choosing C:\ for example. WinZip can expand .tar.gz files.
 <li>Build the example. Using Microsoft Visual C++ 6.0 load the workspace corresponsing to the version of
 Python you wish the work with.
@@ -108,7 +108,7 @@ Python you wish the work with.
 </ul>
 <li>Run the example. (I'll assume you are testing Python 2.1)
 <ul>
-<li>cd c:\PyCXX-V5.1-rc1\pyds21
+<li>cd c:\PyCXX-V5.2\pyds21
 <li>c:\python21\python -c "import example;example.test()"
 </ul>
 </ol>
@@ -116,15 +116,15 @@ Python you wish the work with.
 <h3>Unix Installation and Demo</h3>
 <p>
 <ol>
-<li>Fetch <a href="http://prdownloads.sourceforge.net/cxx/PyCXX-V5.1-rc1.tar.gz">
-http://prdownloads.sourceforge.net/cxx/PyCXX-V5.1-rc1.tar.gz</a>
+<li>Fetch <a href="http://prdownloads.sourceforge.net/cxx/PyCXX-V5.2.tar.gz">
+http://prdownloads.sourceforge.net/cxx/PyCXX-V5.2.tar.gz</a>
 <li>Expand the archive into a directory of your choosing ~/ for example.
 <li>Select to makefile for your system and python version.
 <ul>
 <li>example_freebsd_py15.mak - FreeBSD Python 1.5.2 (see <a href="#note_1_5_2">note</a> below)
 <li>example_freebsd_py20.mak - FreeBSD Python 2.0, 2.0.1
 <li>example_freebsd_py21.mak - FreeBSD Python 2.1, 2.1.1
-<li>example_freebsd_py22.mak - FreeBSD Python 2.2a1
+<li>example_freebsd_py22.mak - FreeBSD Python 2.2
 <li>example_linux_py15.mak - Linux Python 1.5.2
 <li>example_linux_py20.mak - Linux Python 2.0, 2.0.1
 <li>example_linux_py21.mak - Linux Python 2.1, 2.1.1
@@ -151,6 +151,10 @@ is not compiled and linked to support C and C++.</p>
 </p>
 
 <h2>Revision History</h2>
+<h3>Version 5.2 (19-Oct-2003)</h3>
+<p>PyCXX supports Python version 2.3, 2.2, 2.1.1, 2.1, 2.0, 2.0.1 and 1.5.2 on Windows and Unix.</p>
+<p>Fixed a bug with keyword functions.</p>
+
 <h3>Version 5.1 (2-Aug-2001)</h3>
 <p>I'm using the name PyCXX for this package, CXX is far to close to a compilers name.</p>
 
@@ -412,7 +416,7 @@ setenv CCC &quot;KCC -x&quot;
 <p>There is also a python.cxx file for making a stand-alone Python containing this
 example, as well as a similar file arraytest.cxx for testing Array.</p>
 
-<p>Comments to barry@scottb.demon.co.uk, please.</p>
+<p>Comments to barry@barrys-emacs.org, please.</p>
 
 <p>Barry Scott</p>
 </body>
