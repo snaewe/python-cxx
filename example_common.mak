@@ -3,13 +3,17 @@
 #
 #	include this mak file after defining the variables it needs
 #
+COMMON_OBJECTS=cxxsupport.o cxx_extensions.o cxxextensions.o IndirectPythonInterface.o
+EXAMPLE_OBJECTS=example.o range.o rangetest.o $(COMMON_OBJECTS)
+PYCXX_ITER_OBJECTS=pycxx_iter.o $(COMMON_OBJECTS)
 
-OBJECTS=example.o range.o rangetest.o cxxsupport.o cxx_extensions.o cxxextensions.o IndirectPythonInterface.o
+all: example.so pycxx_iter.so
 
-all: example.so
-
-example.so: $(OBJECTS)
-	$(LDSHARED) -o $@ $(OBJECTS) $(LDLIBS)
+#
+#	Example
+#
+example.so: $(EXAMPLE_OBJECTS)
+	$(LDSHARED) -o $@ $(EXAMPLE_OBJECTS) $(LDLIBS)
 
 example.o: Demo/example.cxx
 	$(CCC) $(CCCFLAGS) -o $@ $<
@@ -20,6 +24,18 @@ range.o: Demo/range.cxx
 rangetest.o: Demo/rangetest.cxx
 	$(CCC) $(CCCFLAGS) -o $@ $<
 
+#
+#	pycxx_iter
+#
+pycxx_iter.so: $(PYCXX_ITER_OBJECTS)
+	$(LDSHARED) -o $@ $(PYCXX_ITER_OBJECTS) $(LDLIBS)
+
+pycxx_iter.o: Demo/pycxx_iter.cxx
+	$(CCC) $(CCCFLAGS) -o $@ $<
+
+#
+#	common objects
+#
 cxxsupport.o: Src/cxxsupport.cxx
 	$(CCC) $(CCCFLAGS) -o $@ $<
 
@@ -32,9 +48,17 @@ cxxextensions.o: Src/cxxextensions.c
 IndirectPythonInterface.o: Src/IndirectPythonInterface.cxx
 	$(CCC) $(CCCFLAGS) -o $@ $< 
 
+#
+#	Clean rule
+#
 clean:
 	rm -f *.o
 	rm -f example.so
+	rm -f pycxx_iter.so
 
-test: example.so
-	$(PYTHON) -c "import example;example.test()"
+#
+#	test rule
+#
+test: example.so pycxx_iter.so pycxx_callback.so
+	PYTHONPATH=. $(PYTHON) Demo/test_example.py
+	PYTHONPATH=. $(PYTHON) Demo/test_pycxx_iter.py

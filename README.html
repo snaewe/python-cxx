@@ -32,18 +32,18 @@ p.param {background-color: #eeeeee; border-top: lightskyblue solid 4}
 
 <h3>Windows Installation and Demo</h3>
 <ol>
-<li>Fetch <a href="http://prdownloads.sourceforge.net/cxx/pycxx_5_3_1.tar.gz">
-http://prdownloads.sourceforge.net/cxx/pycxx_5_3_1.tar.gz</a>
+<li>Fetch <a href="http://prdownloads.sourceforge.net/cxx/pycxx_5_3_4.tar.gz">
+http://prdownloads.sourceforge.net/cxx/pycxx_5_3_4.tar.gz</a>
 <li>Expand the archive into a directory of your choosing C:\ for example. Note: WinZip can expand .tar.gz files.
 <li>Install the PyCXX files:
 <ol>
-<li><pre>C:> cd \pycxx_5_3_1</pre>
-<li><pre>C:\pycxx_5_3_1> python setup.py install</pre>
+<li><pre>C:> cd \pycxx_5_3_4</pre>
+<li><pre>C:\pycxx_5_3_4> python setup.py install</pre>
 </ol>
 <li>Install the PyCXX Demo:
 <ol>
-<li><pre>C:> cd \PYCXX_5_3_1\Demo</pre>
-<li><pre>C:\PYCXX_5_3_1\Demo> python setup.py install</pre>
+<li><pre>C:> cd \PYCXX_5_3_4\Demo</pre>
+<li><pre>C:\PYCXX_5_3_4\Demo> python setup.py install</pre>
 </ol>
 <li>Run the demo:
 <ol>
@@ -62,21 +62,21 @@ http://prdownloads.sourceforge.net/cxx/pycxx_5_3_1.tar.gz</a>
 <p>Note: distutils is not available for Python 1.5.2</p>
 
 <ol>
-<li>Fetch <a href="http://prdownloads.sourceforge.net/cxx/pycxx_5_3_1.tar.gz">
+<li>Fetch <a href="http://prdownloads.sourceforge.net/cxx/pycxx_5_3_4.tar.gz">
 http://prdownloads.sourceforge.net/cxx/PyCXX-V5.3.0.tar.gz</a>
 <li>Login as root. root access is typically needed on Unix systems to install the PyCXX files into the Python directories.
 <li>Expand the archive into a directory of your choosing ~\ for example.
 <li>Install the PyCXX files:
 <ol>
-<li><pre># cd ~\PYCXX_5_3_1</pre>
+<li><pre># cd ~\PYCXX_5_3_4</pre>
 <li><pre># python setup.py install</pre>
 </ol>
 <li>Install the PyCXX Demo:
 <ol>
-<li><pre># cd ~\PYCXX_5_3_1\Demo</pre>
+<li><pre># cd ~\PYCXX_5_3_4\Demo</pre>
 <li><pre># python setup.py install</pre>
 </ol>
-<li>Run the demo:
+<li>Run the demos:
 <ol>
 <li><pre>~ python</pre>
 <li><pre>&gt;&gt;&gt; import CXX.example</pre>
@@ -97,9 +97,14 @@ of Makefiles and Project files are provided.</p>
 <p>
 <ol>
 <li>Fetch <a href="http://prdownloads.sourceforge.net/cxx/PyCXX-V5.3.0.tar.gz">
-http://prdownloads.sourceforge.net/cxx/pycxx_5_3_1.tar.gz</a>
+http://prdownloads.sourceforge.net/cxx/pycxx_5_3_4.tar.gz</a>
 <li>Expand the archive into a directory of your choosing C:\ for example. WinZip can expand .tar.gz files.
-<li>Build the example. Using Microsoft Visual C++ 6.0 load the workspace corresponsing to the version of
+<li>Build the example. Using Microsoft .NET 2003 C++ for python version 2.4 or later load the workspace corresponsing to the version of
+Python you wish the work with.
+<ul>
+<li>example_py24.sln - Python 2.4 and its maintanence release
+</ul>
+<li>Build the example. Using Microsoft Visual C++ 6.0 for python versions upto 2.3 load the solution corresponsing to the version of
 Python you wish the work with.
 <ul>
 <li>example_py15.dsw - Python 1.5.2
@@ -110,12 +115,12 @@ Python you wish the work with.
 </ul>
 <li>Run the example. (I'll assume you are testing Python 2.3)
 <ul>
-<li>cd c:\PYCXX_5_3_1\pyds23
+<li>cd c:\PYCXX_5_3_4\pyds23
 <li>c:\python21\python -c "import example;example.test()"
 </ul>
 </ol>
 </p>
-<h3>Unix Installation and Demo</h3>
+<h3>Unix and Mac OS X Installation and Demo</h3>
 <p>
 <ol>
 <li>Fetch <a href="http://prdownloads.sourceforge.net/cxx/PyCXX-V5.3.0.tar.gz">
@@ -127,14 +132,20 @@ http://prdownloads.sourceforge.net/cxx/PyCXX-V5.3.0.tar.gz</a>
 <li>example_freebsd_py20.mak - FreeBSD Python 2.0, 2.0.1
 <li>example_freebsd_py21.mak - FreeBSD Python 2.1, 2.1.1
 <li>example_freebsd_py22.mak - FreeBSD Python 2.2
+<li>example_freebsd_py23.mak - FreeBSD Python 2.3
 <li>example_linux_py15.mak - Linux Python 1.5.2
 <li>example_linux_py20.mak - Linux Python 2.0, 2.0.1
 <li>example_linux_py21.mak - Linux Python 2.1, 2.1.1
 <li>example_linux_py22.mak - Linux Python 2.2
+<li>example_linux_py23.mak - Linux Python 2.3
+<li>example_linux_py24.mak - Linux Python 2.4
+<li>example_fink_10.3_py24.mak - Mac OS X 10.3 fink Python 2.4
+<li>example_fink_10.4_py24.mak - Mac OS X 10.4 fink Python 2.4
+<li>example_mac_py23.mak - Mac OS X Python 2.3
 </ul>
 <li>Build the example. Use GNU make<br>
 $ make -f <var>example-makefile</var> example.so
-<li>Run the example.<br>
+<li>Run the examples.<br>
 $ make -f <var>example-makefile</var> test
 </ol>
 </p>
@@ -153,6 +164,16 @@ is not compiled and linked to support C and C++.</p>
 </p>
 
 <h2>Revision History</h2>
+<h3>Version 5.3.4 (14-Aug-2005)</h3>
+<p>Add interator support - thanks to Helmut Jarausch - see pycxx_iter demo
+<p>Allow an extension to be part of a python package
+<p>Allow creation of Exception hierachies
+<p>Fix problem compiling with GCC 2.9X
+<p>Fix uninitialise memory problem
+
+<h3>Version 5.3.3 and 5.3.2</h3>
+<p>No detailed recorded</p>
+
 <h3>Version 5.3.1 (19-Jan-2005)</h3>
 <p>Support GCC4 and Microsoft .NET 2003 aka MSVC 7.1
 
