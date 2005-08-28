@@ -3,8 +3,7 @@
 	ProjectType="Visual C++"
 	Version="7.10"
 	Name="example"
-	SccProjectName="&quot;$/Latest/PyCXX/CXX&quot;, VHPDAAAA"
-	SccLocalPath=".">
+        ProjectGUID="{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}">
 	<Platforms>
 		<Platform
 			Name="Win32"/>
