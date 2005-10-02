@@ -2769,7 +2769,7 @@ namespace Py
 		PyObject *ptype, *pvalue, *ptrace;
 		PyErr_Fetch(&ptype, &pvalue, &ptrace);
 		Object result;
-		if(ptrace) result = pvalue;
+		if(ptrace) result = ptrace;
 		PyErr_Restore(ptype, pvalue, ptrace);
 		return result;
 		}
