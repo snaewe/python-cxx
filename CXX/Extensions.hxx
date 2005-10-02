@@ -474,7 +474,7 @@ namespace Py
 			: PythonExtensionBase()
 			{
 			#ifdef PyObject_INIT
-			PyObject_INIT( this, type_object() );
+			(void)PyObject_INIT( this, type_object() );
 			#else
 			ob_refcnt = 1;
 			ob_type = type_object();
@@ -518,7 +518,7 @@ namespace Py
 				{
 				return Py::String( type_object()->tp_name );
 				}
-			else if( name == "__doc__" && type_object()->tp_doc != NULL )
+			if( name == "__doc__" && type_object()->tp_doc != NULL )
 				{
 				return Py::String( type_object()->tp_doc );
 				}
@@ -536,10 +536,8 @@ namespace Py
 //				{
 //				return Py::Dict();
 //				}
-			else
-				{
-				return getattr_methods( _name );
-				}
+
+			return getattr_methods( _name );
 			}
 
 		// turn a name into function object
