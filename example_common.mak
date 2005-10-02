@@ -59,6 +59,6 @@ clean:
 #
 #	test rule
 #
-test: example.so pycxx_iter.so pycxx_callback.so
+test: example.so pycxx_iter.so
 	PYTHONPATH=. $(PYTHON) Demo/test_example.py
 	PYTHONPATH=. $(PYTHON) Demo/test_pycxx_iter.py
