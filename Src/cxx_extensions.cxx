@@ -1259,7 +1259,6 @@ extern "C" PyObject *method_keyword_call_handler( PyObject *_self_and_name_tuple
 		Object result( self->invoke_method_keyword( name, args, keywords ) );
 		return new_reference_to( result.ptr() );
 		}
-		}
 	catch( Exception & )
 		{
 		return 0;
