@@ -8,7 +8,7 @@ namespace Py
 bool InitialisePythonIndirectInterface();
 
 //
-//	Wrap Exception variables as function calls
+//    Wrap Exception variables as function calls
 //
 PyObject * _Exc_Exception();
 PyObject * _Exc_StandardError();
@@ -51,13 +51,13 @@ PyObject * _Exc_UnicodeError();
 #endif
 
 //
-//	Wrap Object variables as function calls
+//    Wrap Object variables as function calls
 //
 PyObject * _None();
 
 
 //
-//	Wrap Type variables as function calls
+//    Wrap Type variables as function calls
 //
 PyTypeObject * _List_Type();
 bool _List_Check( PyObject *o );
@@ -153,4 +153,4 @@ void _XDECREF( PyObject *op );
 char *__Py_PackageContext();
 };
 
-#endif	// __CXX_INDIRECT_PYTHON_INTERFACE__HXX__
+#endif    // __CXX_INDIRECT_PYTHON_INTERFACE__HXX__
