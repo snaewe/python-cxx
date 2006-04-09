@@ -3,7 +3,7 @@
 #
 CCC=g++
 CCCFLAGS=-c -fPIC -I/System/Library/Frameworks/Python.framework/Versions/2.3/include/python2.3 -I.
-LDSHARED=$(CCC) -bundle -g -u _PyMac_Error -framework System -framework Python
+LDSHARED=$(CCC) -bundle -g -u _PyMac_Error -F/System/Library/Frameworks -framework System -framework Python
 LDLIBS=
 PYTHON=/usr/bin/python
 
