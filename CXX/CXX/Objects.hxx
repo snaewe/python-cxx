@@ -483,7 +483,7 @@ namespace Py
     {
     public:
         // Constructor
-        explicit Int (PyObject *pyob, bool owned = false): Object (pyob, owned)
+        Int (PyObject *pyob, bool owned = false): Object (pyob, owned)
         {
             validate();
         }
@@ -494,13 +494,21 @@ namespace Py
         }
 
         // create from long
-        explicit Int (long v = 0L): Object(PyInt_FromLong(v), true)
+        Int (long v = 0L): Object(PyInt_FromLong(v), true)
         {
             validate();
         }
 
+#ifdef HAVE_LONG_LONG
+        // create from long
+        Int (PY_LONG_LONG v): Object(PyLong_FromLongLong(v), true)
+        {
+            validate();
+        }
+#endif
+
         // create from int
-        explicit Int (int v)
+        Int (int v)
         {
             long w = v;
             set(PyInt_FromLong(w), true);
@@ -508,7 +516,7 @@ namespace Py
         }
 
         // create from bool
-        explicit Int (bool v)
+        Int (bool v)
         {
             long w = v ? 1 : 0;
             set(PyInt_FromLong(w), true);
@@ -534,28 +542,49 @@ namespace Py
             set (PyNumber_Int(rhsp), true);
             return *this;
         }
+
         // Membership
         virtual bool accepts (PyObject *pyob) const
         {
             return pyob && Py::_Int_Check (pyob);
         }
+
         // convert to long
         operator long() const
         {
             return PyInt_AsLong (ptr());
         }
+
+#ifdef HAVE_LONG_LONG
+        // convert to long long
+        PY_LONG_LONG asLongLong() const
+        {
+            return PyLong_AsLongLong (ptr());
+        }
+#endif
+
         // assign from an int
         Int& operator= (int v)
         {
             set (PyInt_FromLong (long(v)), true);
             return *this;
         }
+
         // assign from long
         Int& operator= (long v)
         {
             set (PyInt_FromLong (v), true);
             return *this;
         }
+
+#ifdef HAVE_LONG_LONG
+        // assign from long
+        Int& operator= (PY_LONG_LONG v)
+        {
+            set (PyLong_FromLongLong (v), true);
+            return *this;
+        }
+#endif
     };
 
     // ===============================================
