@@ -1955,15 +1955,15 @@ namespace Py
         {
             key = String(k);
             if(map.hasKey(key)) the_item = map.getItem(key);
-        };
+        }
 
         mapref<T> (MapBase<T>& map, const Object& k)
             : s(map), key(k), the_item()
         {
             if(map.hasKey(key)) the_item = map.getItem(key);
-        };
+        }
 
-        ~mapref<T>()
+        virtual ~mapref<T>()
         {}
 
         // MapBase<T> stuff
@@ -1974,7 +1974,7 @@ namespace Py
             the_item = other.the_item;
             s.setItem(key, other.the_item);
             return *this;
-        };
+        }
 
         mapref<T>& operator= (const T& ob)
         {
