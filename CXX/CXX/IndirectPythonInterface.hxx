@@ -1,7 +1,7 @@
 #ifndef __CXX_INDIRECT_PYTHON_INTERFACE__HXX__
 #define __CXX_INDIRECT_PYTHON_INTERFACE__HXX__
 
-#include <Python.h>
+#include "CXX/WrapPython.h"
 
 namespace Py
 {

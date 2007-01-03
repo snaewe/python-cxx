@@ -13,7 +13,7 @@
 #pragma warning(disable: 4786)
 #endif
 
-#include <Python.h>
+#include "CXX/WrapPython.h"
 #include "CXX/Version.hxx"
 #include "CXX/Config.hxx"
 #include "CXX/Objects.hxx"

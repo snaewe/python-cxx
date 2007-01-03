@@ -9,8 +9,6 @@
 #pragma warning(disable: 4786)
 #endif
 
-
-#include "Python.h"
 #include "CXX/Objects.hxx"
 #include "CXX/Extensions.hxx"
 
