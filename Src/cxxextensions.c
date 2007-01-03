@@ -3,7 +3,8 @@
  All rights reserved. See Legal.htm for full text and disclaimer.
 */
 
-#include "Python.h"
+#include "CXX/WrapPython.h"
+
 #ifdef __cplusplus
 extern "C" 
 {
