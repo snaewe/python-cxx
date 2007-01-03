@@ -6,7 +6,7 @@
 #ifndef __CXX_Objects__h
 #define __CXX_Objects__h
 
-#include "Python.h"
+#include "CXX/WrapPython.h"
 #include "CXX/Version.hxx"
 #include "CXX/Config.hxx"
 #include "CXX/Exception.hxx"

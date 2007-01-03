@@ -1,5 +1,4 @@
 #include "pycxx_iter.hxx"
-#include "Python.h"
 #include "CXX/Objects.hxx"
 
 void IterT::init_type()

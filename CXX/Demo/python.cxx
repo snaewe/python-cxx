@@ -1,6 +1,6 @@
 /* Minimal main program -- everything is loaded from the library */
 
-#include "Python.h"
+#include "CXX/WrapPython.h"
 #include <iostream>
 
 extern "C" int Py_Main(int argc, char** argv);
