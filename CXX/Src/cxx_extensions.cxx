@@ -233,7 +233,7 @@ extern "C" void standard_dealloc( PyObject* p )
     PyMem_DEL( p );
 }
 
-void PythonType::supportSequenceType()
+PythonType & PythonType::supportSequenceType()
 {
     if( !sequence_table )
     {
@@ -249,9 +249,10 @@ void PythonType::supportSequenceType()
         sequence_table->sq_ass_item = sequence_ass_item_handler;    // BAS setup seperately?
         sequence_table->sq_ass_slice = sequence_ass_slice_handler;  // BAS setup seperately?
     }
+    return *this;
 }
 
-void PythonType::supportMappingType()
+PythonType & PythonType::supportMappingType()
 {
     if( !mapping_table )
     {
@@ -262,9 +263,10 @@ void PythonType::supportMappingType()
         mapping_table->mp_subscript = mapping_subscript_handler;
         mapping_table->mp_ass_subscript = mapping_ass_subscript_handler;    // BAS setup seperately?
     }
+    return *this;
 }
 
-void PythonType::supportNumberType()
+PythonType & PythonType::supportNumberType()
 {
     if( !number_table )
     {
@@ -295,9 +297,10 @@ void PythonType::supportNumberType()
         number_table->nb_oct = number_oct_handler;
         number_table->nb_hex = number_hex_handler;
     }
+    return *this;
 }
 
-void PythonType::supportBufferType()
+PythonType & PythonType::supportBufferType()
 {
     if( !buffer_table )
     {
@@ -308,6 +311,7 @@ void PythonType::supportBufferType()
         buffer_table->bf_getwritebuffer = buffer_getwritebuffer_handler;
         buffer_table->bf_getsegcount = buffer_getsegcount_handler;
     }
+    return *this;
 }
 
 // if you define one sequence method you must define 
@@ -387,9 +391,10 @@ PythonType::~PythonType( )
 PyTypeObject* PythonType::type_object( ) const
 {return table;}
 
-void PythonType::name( const char* nam )
+PythonType & PythonType::name( const char* nam )
 {
     table->tp_name = const_cast<char *>( nam );
+    return *this;
 }
 
 const char *PythonType::getName() const
@@ -397,9 +402,10 @@ const char *PythonType::getName() const
     return table->tp_name;
 }
 
-void PythonType::doc( const char* d )
+PythonType & PythonType::doc( const char* d )
 {
     table->tp_doc = const_cast<char *>( d );
+    return *this;
 }
 
 const char *PythonType::getDoc() const
@@ -407,65 +413,77 @@ const char *PythonType::getDoc() const
     return table->tp_doc;
 }
 
-void PythonType::dealloc( void( *f )( PyObject* ))
+PythonType & PythonType::dealloc( void( *f )( PyObject* ))
 {
     table->tp_dealloc = f;
+    return *this;
 }
 
-void PythonType::supportPrint()
+PythonType & PythonType::supportPrint()
 {
     table->tp_print = print_handler;
+    return *this;
 }
 
-void PythonType::supportGetattr()
+PythonType & PythonType::supportGetattr()
 {
     table->tp_getattr = getattr_handler;
+    return *this;
 }
 
-void PythonType::supportSetattr()
+PythonType & PythonType::supportSetattr()
 {
     table->tp_setattr = setattr_handler;
+    return *this;
 }
 
-void PythonType::supportGetattro()
+PythonType & PythonType::supportGetattro()
 {
     table->tp_getattro = getattro_handler;
+    return *this;
 }
 
-void PythonType::supportSetattro()
+PythonType & PythonType::supportSetattro()
 {
     table->tp_setattro = setattro_handler;
+    return *this;
 }
 
-void PythonType::supportCompare()
+PythonType & PythonType::supportCompare()
 {
     table->tp_compare = compare_handler;
+    return *this;
 }
 
-void PythonType::supportRepr()
+PythonType & PythonType::supportRepr()
 {
     table->tp_repr = repr_handler;
+    return *this;
 }
 
-void PythonType::supportStr()
+PythonType & PythonType::supportStr()
 {
     table->tp_str = str_handler;
+    return *this;
 }
 
-void PythonType::supportHash()
+PythonType & PythonType::supportHash()
 {
     table->tp_hash = hash_handler;
+    return *this;
 }
 
-void PythonType::supportCall()
+PythonType & PythonType::supportCall()
 {
     table->tp_call = call_handler;
+    return *this;
 }
 
-void PythonType::supportIter()
+PythonType & PythonType::supportIter()
 {
     table->tp_iter = iter_handler;
     table->tp_iternext = iternext_handler;
+    return *this;
 }
 
 //--------------------------------------------------------------------------------
