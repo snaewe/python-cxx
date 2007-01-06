@@ -181,8 +181,8 @@ extern "C"
     static PyObject* str_handler (PyObject*);
     static long hash_handler (PyObject*);
     static PyObject* call_handler (PyObject*, PyObject*, PyObject*);
-        static PyObject* iter_handler (PyObject*);
-        static PyObject* iternext_handler (PyObject*);
+    static PyObject* iter_handler (PyObject*);
+    static PyObject* iternext_handler (PyObject*);
 
     // Sequence methods
     static Py_ssize_t sequence_length_handler(PyObject*);
@@ -225,7 +225,7 @@ extern "C"
     static Py_ssize_t buffer_getreadbuffer_handler (PyObject*, Py_ssize_t, void**);
     static Py_ssize_t buffer_getwritebuffer_handler (PyObject*, Py_ssize_t, void**);
     static Py_ssize_t buffer_getsegcount_handler (PyObject*, Py_ssize_t*);
-};
+}
 
 
 extern "C" void standard_dealloc( PyObject* p )
@@ -247,7 +247,7 @@ void PythonType::supportSequenceType()
         sequence_table->sq_slice = sequence_slice_handler;
 
         sequence_table->sq_ass_item = sequence_ass_item_handler;    // BAS setup seperately?
-        sequence_table->sq_ass_slice = sequence_ass_slice_handler;    // BAS setup seperately?
+        sequence_table->sq_ass_slice = sequence_ass_slice_handler;  // BAS setup seperately?
     }
 }
 
@@ -382,7 +382,7 @@ PythonType::~PythonType( )
     delete mapping_table;
     delete number_table;
     delete buffer_table;
-};
+}
 
 PyTypeObject* PythonType::type_object( ) const
 {return table;}
@@ -465,7 +465,7 @@ void PythonType::supportCall()
 void PythonType::supportIter()
 {
     table->tp_iter = iter_handler;
-        table->tp_iternext = iternext_handler;
+    table->tp_iternext = iternext_handler;
 }
 
 //--------------------------------------------------------------------------------
