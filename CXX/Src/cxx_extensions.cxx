@@ -613,11 +613,10 @@ extern "C" PyObject* call_handler( PyObject *self, PyObject *args, PyObject *kw 
     try
     {
         PythonExtensionBase *p = static_cast<PythonExtensionBase *>( self );
-        return new_reference_to( p->call( Py::Object( args ), Py::Object( kw ) ) );
         if( kw != NULL )
-        return new_reference_to( p->call( Py::Object( args ), Py::Object( kw ) ) );
+            return new_reference_to( p->call( Py::Object( args ), Py::Object( kw ) ) );
         else
-        return new_reference_to( p->call( Py::Object( args ), Py::Object() ) );
+            return new_reference_to( p->call( Py::Object( args ), Py::Object() ) );
     }
     catch( Py::Exception & )
     {
