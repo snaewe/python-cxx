@@ -32,20 +32,20 @@ p.param {background-color: #eeeeee; border-top: lightskyblue solid 4}
 
 <h3>Windows Installation and Demo</h3>
 <ol>
-<li>Fetch <a href="http://prdownloads.sourceforge.net/cxx/pycxx-5.3.7.tar.gz">
-http://prdownloads.sourceforge.net/cxx/pycxx-5.3.7.tar.gz</a></li>
+<li>Fetch <a href="http://prdownloads.sourceforge.net/cxx/pycxx-5.4.0.tar.gz">
+http://prdownloads.sourceforge.net/cxx/pycxx-5.4.0.tar.gz</a></li>
 <li>Expand the archive into a directory of your choosing C:\ for example.
 Note: WinZip can expand .tar.gz files.</li>
 <li>Install the PyCXX files:
 <ol>
-<li><pre>C:> cd \pycxx-5.3.7</pre></li>
-<li><pre>C:\pycxx-5.3.7> python setup.py install</pre></li>
+<li><pre>C:> cd \pycxx-5.4.0</pre></li>
+<li><pre>C:\pycxx-5.4.0> python setup.py install</pre></li>
 </ol>
 </li>
 <li>Install the PyCXX Demo:
 <ol>
-<li><pre>C:> cd \pycxx-5.3.7\Demo</pre></li>
-<li><pre>C:\pycxx-5.3.7\Demo> python setup.py install</pre></li>
+<li><pre>C:> cd \pycxx-5.4.0\Demo</pre></li>
+<li><pre>C:\pycxx-5.4.0\Demo> python setup.py install</pre></li>
 </ol>
 </li>
 <li>Run the demo:
@@ -67,18 +67,18 @@ Note: WinZip can expand .tar.gz files.</li>
 <p>Note: distutils is not available for Python 1.5.2</p>
 
 <ol>
-<li>Fetch <a href="http://prdownloads.sourceforge.net/cxx/pycxx-5.3.7.tar.gz">
-http://prdownloads.sourceforge.net/cxx/pycxx-5.3.7.tar.gz</a>
+<li>Fetch <a href="http://prdownloads.sourceforge.net/cxx/pycxx-5.4.0.tar.gz">
+http://prdownloads.sourceforge.net/cxx/pycxx-5.4.0.tar.gz</a>
 <li>Login as root. root access is typically needed on Unix systems to install the PyCXX files into the Python directories.
 <li>Expand the archive into a directory of your choosing ~\ for example.
 <li>Install the PyCXX files:
 <ol>
-<li><pre># cd ~\pycxx-5.3.7</pre>
+<li><pre># cd ~\pycxx-5.4.0</pre>
 <li><pre># python setup.py install</pre>
 </ol>
 <li>Install the PyCXX Demo:
 <ol>
-<li><pre># cd ~\pycxx-5.3.7\Demo</pre>
+<li><pre># cd ~\pycxx-5.4.0\Demo</pre>
 <li><pre># python setup.py install</pre>
 </ol>
 <li>Run the demos:
@@ -101,8 +101,8 @@ of Makefiles and Project files are provided.</p>
 <h3>Windows Installation and Demo</h3>
 <p>
 <ol>
-<li>Fetch <a href="http://prdownloads.sourceforge.net/cxx/pycxx-5.3.7.tar.gz">
-http://prdownloads.sourceforge.net/cxx/pycxx-5.3.7.tar.gz</a>
+<li>Fetch <a href="http://prdownloads.sourceforge.net/cxx/pycxx-5.4.0.tar.gz">
+http://prdownloads.sourceforge.net/cxx/pycxx-5.4.0.tar.gz</a>
 <li>Expand the archive into a directory of your choosing C:\ for example. WinZip can expand .tar.gz files.
 <li>Build the example. Using Microsoft .NET 2003 C++ for python version 2.4 or later load the workspace corresponsing to the version of
 Python you wish the work with.
@@ -121,7 +121,7 @@ Python you wish the work with.
 </ul>
 <li>Run the example. (I'll assume you are testing Python 2.3)
 <ul>
-<li>cd c:\pycxx-5.3.7\pyds23
+<li>cd c:\pycxx-5.4.0\pyds23
 <li>c:\python21\python -c "import example;example.test()"
 </ul>
 </ol>
@@ -129,8 +129,8 @@ Python you wish the work with.
 <h3>Unix and Mac OS X Installation and Demo</h3>
 <p>
 <ol>
-<li>Fetch <a href="http://prdownloads.sourceforge.net/cxx/pycxx-5.3.7.tar.gz">
-http://prdownloads.sourceforge.net/cxx/pycxx-5.3.7.tar.gz</a>
+<li>Fetch <a href="http://prdownloads.sourceforge.net/cxx/pycxx-5.4.0.tar.gz">
+http://prdownloads.sourceforge.net/cxx/pycxx-5.4.0.tar.gz</a>
 <li>Expand the archive into a directory of your choosing ~/ for example.
 <li>Select to makefile for your system and python version.
 <ul>
@@ -173,8 +173,14 @@ is not compiled and linked to support C and C++.</p>
 
 <h2>Revision History</h2>
 
-<h3>Version 5.3.7 (3-Jan-2007)</h3>
-<p>Fix problems with compiling with gcc 4.1.1</p>
+<h3>Version 5.4.0 (3-Jan-2007)</h3>
+<p>PyCXX has a new <a href="https://svn.sourceforge.net/svnroot/cxx/trunk/CXX/COPYRIGHT">BSD license</a>
+to make it open source compatible.
+Many thanks to Sebastian Sauer for bring this matter to our attention and 
+to Paul Dubios for working with the LLNL people to get the license changed.</p>
+<p>Fix compilation issues with GCC 4.1 found on FC6.</p>
+<p>Fix compilation issues caused by problems in IRIX header files.</p>
+<p>Add PY_LONG_LONG support from patch contributed by Dmitry Kostjuchenko.</p>
 
 <h3>Version 5.3.6 (15-Oct-2006)</h3>
 <p>Support for Python 2.5 - Fix issues around new typedef Py_ssize_t</p>
