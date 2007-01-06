@@ -2977,7 +2977,8 @@ namespace Py
     {
         PyObject *ptype, *pvalue, *ptrace;
         PyErr_Fetch(&ptype, &pvalue, &ptrace);
-        Object result(pvalue);
+        Object result;
+        if(ptype) result = ptype;
         PyErr_Restore(ptype, pvalue, ptrace);
         return result;
     }
@@ -3002,20 +3003,17 @@ namespace Py
         return result;
     }
 
-
-
 template<TEMPLATE_TYPENAME T>
 String seqref<T>::str () const
-        {
-            return the_item.str();
-        }
+{
+    return the_item.str();
+}
 
 template<TEMPLATE_TYPENAME T>
 String seqref<T>::repr () const
-        {
-            return the_item.repr();
-        }
-
+{
+    return the_item.repr();
+}
 
 } // namespace Py
 #endif    // __CXX_Objects__h
