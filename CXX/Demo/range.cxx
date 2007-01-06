@@ -55,7 +55,7 @@ int range::sequence_length()
     return length();
 }
 
-Py::Object range::sequence_item(int i) 
+Py::Object range::sequence_item(Py_ssize_t i) 
 {
     return Py::Int(item(i));
 }
@@ -66,7 +66,7 @@ Py::Object range::sequence_concat( const Py::Object &j )
     return Py::asObject(extend(int(k)));
 }
 
-Py::Object range::sequence_slice(int i, int j)
+Py::Object range::sequence_slice(Py_ssize_t i, Py_ssize_t j)
 {
     return Py::asObject(slice(i,j));
 }
