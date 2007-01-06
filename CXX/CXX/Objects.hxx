@@ -43,7 +43,6 @@
 #include "CXX/Config.hxx"
 #include "CXX/Exception.hxx"
 
-
 #include <iostream>
 #include STR_STREAM
 #include <string>
@@ -319,6 +318,11 @@ namespace Py
         bool isCallable () const
         {
             return PyCallable_Check (p) != 0;
+        }
+
+        bool isInstance () const
+        {
+            return PyInstance_Check (p) != 0;
         }
 
         bool isDict () const
@@ -1132,6 +1136,11 @@ namespace Py
         bool isCallable () const
         {
             return the_item.isCallable();
+        }
+
+        bool isInstance () const
+        {
+            return the_item.isInstance();
         }
 
         bool isDict () const
@@ -2215,6 +2224,11 @@ namespace Py
         bool isCallable () const
         {
             return the_item.isCallable();
+        }
+
+        bool isInstance () const
+        {
+            return the_item.isInstance();
         }
 
         bool isList () const
