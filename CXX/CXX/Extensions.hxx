@@ -339,26 +339,26 @@ namespace Py
         const char *getDoc () const;
 
         PyTypeObject* type_object () const;
-        void name (const char* nam);
-        void doc (const char* d);
-        void dealloc(void (*f)(PyObject*));
+        PythonType & name (const char* nam);
+        PythonType & doc (const char* d);
+        PythonType & dealloc(void (*f)(PyObject*));
         
-        void supportPrint(void);
-        void supportGetattr(void);
-        void supportSetattr(void);
-        void supportGetattro(void);
-        void supportSetattro(void);
-        void supportCompare(void);
-        void supportRepr(void);
-        void supportStr(void);
-        void supportHash(void);
-        void supportCall(void);
-                void supportIter(void);
+        PythonType & supportPrint(void);
+        PythonType & supportGetattr(void);
+        PythonType & supportSetattr(void);
+        PythonType & supportGetattro(void);
+        PythonType & supportSetattro(void);
+        PythonType & supportCompare(void);
+        PythonType & supportRepr(void);
+        PythonType & supportStr(void);
+        PythonType & supportHash(void);
+        PythonType & supportCall(void);
+        PythonType & supportIter(void);
         
-        void supportSequenceType(void);
-        void supportMappingType(void);
-        void supportNumberType(void);
-        void supportBufferType(void);
+        PythonType & supportSequenceType(void);
+        PythonType & supportMappingType(void);
+        PythonType & supportNumberType(void);
+        PythonType & supportBufferType(void);
         
     protected:
         PyTypeObject        *table;
