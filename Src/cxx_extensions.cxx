@@ -84,7 +84,7 @@ PyMethodDef* MethodTable::table()
 {    
     if( !mt )
     {
-        int t1size = t.size();
+        Py_ssize_t t1size = t.size();
         mt = new PyMethodDef[t1size];
         int j = 0;
         for( std::vector<PyMethodDef>::iterator i = t.begin(); i != t.end(); i++ )
@@ -1152,19 +1152,19 @@ int PythonExtensionBase::sequence_length()
 Py::Object PythonExtensionBase::sequence_concat( const Py::Object & )
 { missing_method( sequence_concat ); return Py::Nothing(); }
 
-Py::Object PythonExtensionBase::sequence_repeat( int )
+Py::Object PythonExtensionBase::sequence_repeat( Py_ssize_t )
 { missing_method( sequence_repeat ); return Py::Nothing(); }
 
-Py::Object PythonExtensionBase::sequence_item( int )
+Py::Object PythonExtensionBase::sequence_item( Py_ssize_t )
 { missing_method( sequence_item ); return Py::Nothing(); }
 
-Py::Object PythonExtensionBase::sequence_slice( int, int )
+Py::Object PythonExtensionBase::sequence_slice( Py_ssize_t, Py_ssize_t )
 { missing_method( sequence_slice ); return Py::Nothing(); }
 
-int PythonExtensionBase::sequence_ass_item( int, const Py::Object & )
+int PythonExtensionBase::sequence_ass_item( Py_ssize_t, const Py::Object & )
 { missing_method( sequence_ass_item ); return -1; }
 
-int PythonExtensionBase::sequence_ass_slice( int, int, const Py::Object & )
+int PythonExtensionBase::sequence_ass_slice( Py_ssize_t, Py_ssize_t, const Py::Object & )
 { missing_method( sequence_ass_slice ); return -1; }
 
 

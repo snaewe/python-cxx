@@ -102,9 +102,9 @@ public:
     virtual Py::Object getattr( const char *name );
 
     virtual int sequence_length();
-    virtual Py::Object sequence_item( int i );
+    virtual Py::Object sequence_item( Py_ssize_t i );
     virtual Py::Object sequence_concat( const Py::Object &j );
-    virtual Py::Object sequence_slice( int i, int j );
+    virtual Py::Object sequence_slice( Py_ssize_t i, Py_ssize_t j );
 
     // define python methods of this object
     Py::Object amethod (const Py::Tuple& args);

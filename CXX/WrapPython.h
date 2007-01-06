@@ -39,11 +39,11 @@
 #define __PyCXX_wrap_python_hxx__
 
 // On some platforms we have to include time.h to get select defined
-#ifndef WIN32
+#if !defined(__WIN32__) && !defined(WIN32) && !defined(_WIN32) && !defined(_WIN64)
 #include <sys/time.h>
 #endif
 
-// pull in python definions
+// pull in python definitions
 #include <Python.h>
 
 #endif

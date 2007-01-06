@@ -262,7 +262,7 @@ namespace Py
             return (pyob != 0);
         }
 
-        int reference_count () const
+        Py_ssize_t reference_count () const
         { // the reference count
             return p ? p->ob_refcnt : 0;
         }
@@ -532,8 +532,13 @@ namespace Py
         }
 
 #ifdef HAVE_LONG_LONG
-        // create from long
+        // create from long long
         Int (PY_LONG_LONG v): Object(PyLong_FromLongLong(v), true)
+        {
+            validate();
+        }
+        // create from unsigned long long
+        Int (unsigned PY_LONG_LONG v): Object(PyLong_FromUnsignedLongLong(v), true)
         {
             validate();
         }
@@ -593,6 +598,11 @@ namespace Py
         {
             return PyLong_AsLongLong (ptr());
         }
+        // convert to unsigned long long
+        unsigned PY_LONG_LONG asUnsignedLongLong() const
+        {
+            return PyLong_AsUnsignedLongLong (ptr());
+        }
 #endif
 
         // assign from an int
@@ -610,10 +620,16 @@ namespace Py
         }
 
 #ifdef HAVE_LONG_LONG
-        // assign from long
+        // assign from long long
         Int& operator= (PY_LONG_LONG v)
         {
             set (PyLong_FromLongLong (v), true);
+            return *this;
+        }
+        // assign from unsigned long long
+        Int& operator= (unsigned PY_LONG_LONG v)
+        {
+            set (PyLong_FromUnsignedLongLong (v), true);
             return *this;
         }
 #endif
@@ -712,6 +728,135 @@ namespace Py
             return *this;
         }
     };
+
+#ifdef HAVE_LONG_LONG
+    // ===============================================
+    // class LongLong
+    class LongLong: public Object
+    {
+    public:
+        // Constructor
+        explicit LongLong (PyObject *pyob, bool owned = false): Object (pyob, owned)
+        {
+            validate();
+        }
+
+        LongLong (const LongLong& ob): Object(ob.ptr())
+        {
+            validate();
+        }
+        // create from long long
+        explicit LongLong (long long v = 0L)
+            : Object(PyLong_FromLongLong(v), true)
+        {
+            validate();
+        }
+        // create from unsigned long long
+        explicit LongLong (unsigned long long v)
+            : Object(PyLong_FromUnsignedLongLong(v), true)
+        {
+            validate();
+        }
+        // create from long
+        explicit LongLong (long v)
+            : Object(PyLong_FromLongLong(v), true)
+        {
+            validate();
+        }
+        // create from unsigned long
+        explicit LongLong (unsigned long v)
+            : Object(PyLong_FromUnsignedLongLong(v), true)
+        {
+            validate();
+        }
+        // create from int
+        explicit LongLong (int v)
+            : Object(PyLong_FromLongLong(static_cast<long long>(v)), true)
+        {
+            validate();
+        }
+
+        // try to create from any object
+        LongLong (const Object& ob)
+            : Object(PyNumber_Long(*ob), true)
+        {
+            validate();
+        }
+
+        // Assignment acquires new ownership of pointer
+
+        LongLong& operator= (const Object& rhs)
+        {
+            return (*this = *rhs);
+        }
+
+        LongLong& operator= (PyObject* rhsp)
+        {
+            if(ptr() == rhsp) return *this;
+            set (PyNumber_Long(rhsp), true);
+            return *this;
+        }
+        // Membership
+        virtual bool accepts (PyObject *pyob) const
+        {
+            return pyob && Py::_Long_Check (pyob);
+        }
+        // convert to long long
+        operator long long() const
+        {
+            return PyLong_AsLongLong (ptr());
+        }
+        // convert to unsigned long
+        operator unsigned long long() const
+        {
+            return PyLong_AsUnsignedLongLong (ptr());
+        }
+        // convert to long
+        operator long() const
+        {
+            return PyLong_AsLong (ptr());
+        }
+        // convert to unsigned
+        operator unsigned long() const
+        {
+            return PyLong_AsUnsignedLong (ptr());
+        }
+        operator double() const
+        {
+            return PyLong_AsDouble (ptr());
+        }
+        // assign from an int
+        LongLong& operator= (int v)
+        {
+            set(PyLong_FromLongLong (long(v)), true);
+            return *this;
+        }
+        // assign from long long
+        LongLong& operator= (long long v)
+        {
+            set(PyLong_FromLongLong (v), true);
+            return *this;
+        }
+        // assign from unsigned long long
+        LongLong& operator= (unsigned long long v)
+        {
+            set(PyLong_FromUnsignedLongLong (v), true);
+            return *this;
+        }
+        // assign from long
+        LongLong& operator= (long v)
+        {
+            set(PyLong_FromLongLong (v), true);
+            return *this;
+        }
+        // assign from unsigned long
+        LongLong& operator= (unsigned long v)
+        {
+            set(PyLong_FromUnsignedLongLong (v), true);
+            return *this;
+        }
+    };
+#endif
 
     // ===============================================
     // class Float
@@ -1889,7 +2034,7 @@ namespace Py
         // List from a sequence
         List (const Sequence& s): Sequence()
         {
-            int n = s.length();
+            int n = (int)s.length();
             set(PyList_New (n), true);
             validate();
             for (sequence_index_type i=0; i < n; i++)
