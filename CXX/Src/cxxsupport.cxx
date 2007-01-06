@@ -60,6 +60,11 @@ std::string Object::as_string() const
     return static_cast<std::string>(str());
 }
 
+List Object::dir () const
+        {
+        return List (PyObject_Dir (p), true);
+        }
+
 bool Object::isType (const Type& t) const
 { 
     return type ().ptr() == t.ptr();
