@@ -1,6 +1,7 @@
 How to release PyCXX
 --------------------
 
+0. Update CXX/Version.hxx with the releases version number
 1. Tag the source using tag_pycxx.py (depends on pysvn).
 2. Create the source kit using make_src_kit.py
 3. Upload kit to sourceforge:
