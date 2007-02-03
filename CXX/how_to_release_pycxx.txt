@@ -12,8 +12,8 @@ How to release PyCXX
    5. Change your current directory to /incoming ("cd /incoming")
    6. Upload the desired files for the release ("put filename")
 4. Add new File release on sourceforge.
-   1. Click Admin
-   2. Click File Releases
+   1. http://sourceforge.net/projects/cxx/
+   2. Select Menu Admin... File Releases
    3. Click [Add release]
    4. Fill in version and add
    5. Add release notes
