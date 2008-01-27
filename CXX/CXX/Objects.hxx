@@ -315,7 +315,7 @@ namespace Py
 
         bool isNone() const
         {
-            return p == Py_None;
+            return p == Py::_None;
         }
 
         bool isCallable () const
@@ -753,13 +753,13 @@ namespace Py
             validate();
         }
         // create from long long
-        explicit LongLong (long long v = 0L)
+        explicit LongLong (PY_LONG_LONG v = 0L)
             : Object(PyLong_FromLongLong(v), true)
         {
             validate();
         }
         // create from unsigned long long
-        explicit LongLong (unsigned long long v)
+        explicit LongLong (unsigned PY_LONG_LONG v)
             : Object(PyLong_FromUnsignedLongLong(v), true)
         {
             validate();
@@ -778,7 +778,7 @@ namespace Py
         }
         // create from int
         explicit LongLong (int v)
-            : Object(PyLong_FromLongLong(static_cast<long long>(v)), true)
+            : Object(PyLong_FromLongLong(static_cast<PY_LONG_LONG>(v)), true)
         {
             validate();
         }
@@ -809,12 +809,12 @@ namespace Py
             return pyob && Py::_Long_Check (pyob);
         }
         // convert to long long
-        operator long long() const
+        operator PY_LONG_LONG() const
         {
             return PyLong_AsLongLong (ptr());
         }
         // convert to unsigned long
-        operator unsigned long long() const
+        operator unsigned PY_LONG_LONG() const
         {
             return PyLong_AsUnsignedLongLong (ptr());
         }
@@ -839,13 +839,13 @@ namespace Py
             return *this;
         }
         // assign from long long
-        LongLong& operator= (long long v)
+        LongLong& operator= (PY_LONG_LONG v)
         {
             set(PyLong_FromLongLong (v), true);
             return *this;
         }
         // assign from unsigned long long
-        LongLong& operator= (unsigned long long v)
+        LongLong& operator= (unsigned PY_LONG_LONG v)
         {
             set(PyLong_FromUnsignedLongLong (v), true);
             return *this;
