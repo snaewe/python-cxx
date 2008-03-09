@@ -80,6 +80,83 @@ static std::string test_String()
 }
 
 static std::string
+test_boolean()
+{
+    bool passed = true;
+
+    Py::Object o;
+    Py::Boolean pb1;
+    Py::Boolean pb2;
+    bool b1;
+
+    o = Py::True();
+    if( o.isTrue() )
+        { std::cout << "OK: T1: True" << std::endl; }
+    else
+        { std::cout << "Bad: T1: False" << std::endl; passed = false; }
+
+    pb1 = o;
+    if( pb1 )
+        { std::cout << "OK: T2: True" << std::endl; }
+    else
+        { std::cout << "Bad: T2: False" << std::endl; passed = false; }
+
+    b1 = pb1;
+    if( b1 )
+        { std::cout << "OK: T3: True" << std::endl; }
+    else
+        { std::cout << "Bad: T3: False" << std::endl; passed = false; }
+
+    pb2 = pb1;
+    if( pb2 )
+        { std::cout << "OK: T4: True" << std::endl; }
+    else
+        { std::cout << "Bad: T4: False" << std::endl; passed = false; }
+
+    pb2 = true;
+    if( pb2 )
+        { std::cout << "OK: T5: True" << std::endl; }
+    else
+        { std::cout << "Bad: T5: False" << std::endl; passed = false; }
+
+
+    o = Py::False();
+    if( o.isTrue() )
+        { std::cout << "Bad: F1: True" << std::endl; passed = false; }
+    else
+        { std::cout << "OK: F1: False" << std::endl; }
+
+    pb1 = o;
+    if( pb1 )
+        { std::cout << "Bad: F2: True" << std::endl; passed = false; }
+    else
+        { std::cout << "OK: F2: False" << std::endl; }
+
+    b1 = pb1;
+    if( b1 )
+        { std::cout << "Bad: F3: True" << std::endl; passed = false; }
+    else
+        { std::cout << "OK: F3: False" << std::endl; }
+
+    pb2 = pb1;
+    if( pb2 )
+        { std::cout << "Bad: F4: True" << std::endl; passed = false; }
+    else
+        { std::cout << "OK: F4: False" << std::endl; }
+
+    pb2 = false;
+    if( pb2 )
+        { std::cout << "Bad: F5: True" << std::endl; passed = false; }
+    else
+        { std::cout << "OK: F5: False" << std::endl; }
+
+    if( passed )
+        return "ok";
+    else
+        return "failed";
+}
+
+static std::string
 test_numbers()
 {
     // test the basic numerical classes
@@ -432,23 +509,23 @@ private:
         std::cout << "ex_string: s1.size() " << s1.size() << std::endl;
 
         if( s1.isUnicode() )
-    {
+        {
             std::cout << "ex_string: s2 is s1.encode( utf-8 )" << std::endl;
             Py::String s2( s1.encode( "utf-8" ) );
             std::cout << "ex_string: s2.isString() " << s2.isString() << std::endl;
             std::cout << "ex_string: s2.isUnicode() " << s2.isUnicode() << std::endl;
             std::cout << "ex_string: s2.size() " << s2.size() << std::endl;
             return s2;
-    }
+        }
         else
-    {
+        {
             std::cout << "ex_string: s2 is s1.decode( utf-8 )" << std::endl;
             Py::String s2( s1.decode( "utf-8" ) );
             std::cout << "ex_string: s2.isString() " << s2.isString() << std::endl;
             std::cout << "ex_string: s2.isUnicode() " << s2.isUnicode() << std::endl;
             std::cout << "ex_string: s2.size() " << s2.size() << std::endl;
             return s2;
-    }
+        }
     }
 
     Py::Object ex_sum (const Py::Tuple &a)
@@ -496,6 +573,9 @@ private:
         }
         debug_check_ref_queue();
 
+        std::string result = test_boolean();
+        std::cout << "Py::Boolean: " << result << std::endl;
+        debug_check_ref_queue();
         std::cout << "Numbers: " << test_numbers() << std::endl;
         debug_check_ref_queue();
         std::cout << "Py::String: " << test_String() << std::endl;
