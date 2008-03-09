@@ -315,7 +315,7 @@ namespace Py
 
         bool isNone() const
         {
-            return p == Py::_None;
+            return p == _None();
         }
 
         bool isCallable () const
@@ -463,6 +463,17 @@ namespace Py
         return Object(Py::_None());
     }
 
+    // Python special Boolean values
+    inline Object False()
+    {
+        return Object(Py::_False());
+    }
+
+    inline Object True()
+    {
+        return Object(Py::_True());
+    }
+
     // TMM: 31May'01 - Added the #ifndef so I can exlude iostreams.
 #ifndef CXX_NO_IOSTREAMS
     std::ostream& operator<< (std::ostream& os, const Object& ob);
@@ -513,8 +524,67 @@ namespace Py
         return Object(p, true);
     }
 
+    // ===============================================
+    // class boolean
+    class Boolean: public Object
+    {
+    public:
+        // Constructor
+        Boolean (PyObject *pyob, bool owned = false): Object (pyob, owned)
+        {
+            validate();
+        }
 
+        Boolean (const Boolean& ob): Object(*ob)
+        {
+            validate();
+        }
 
+        // create from bool
+        Boolean (bool v=false)
+        {
+            set(PyBool_FromLong(v ? 1 : 0), true);
+            validate();
+        }
+
+        explicit Boolean (const Object& ob)
+        {
+            set(*ob, true);
+            validate();
+        }
+
+        // Assignment acquires new ownership of pointer
+
+        Boolean& operator= (const Object& rhs)
+        {
+            return (*this = *rhs);
+        }
+
+        Boolean& operator= (PyObject* rhsp)
+        {
+            if(ptr() == rhsp) return *this;
+            set (rhsp, true);
+            return *this;
+        }
+
+        // Membership
+        virtual bool accepts (PyObject *pyob) const
+        {
+            return pyob && Py::_Boolean_Check (pyob);
+        }
+
+        // convert to long
+        operator bool() const
+        {
+            return PyObject_IsTrue (ptr()) != 0;
+        }
+
+        Boolean& operator= (bool v)
+        {
+            set (PyBool_FromLong (v ? 1 : 0), true);
+            return *this;
+        }
+    };
 
     // ===============================================
     // class Int
