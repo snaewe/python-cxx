@@ -608,19 +608,6 @@ namespace Py
             validate();
         }
 
-#ifdef HAVE_LONG_LONG
-        // create from long long
-        Int (PY_LONG_LONG v): Object(PyLong_FromLongLong(v), true)
-        {
-            validate();
-        }
-        // create from unsigned long long
-        Int (unsigned PY_LONG_LONG v): Object(PyLong_FromUnsignedLongLong(v), true)
-        {
-            validate();
-        }
-#endif
-
         // create from int
         Int (int v)
         {
