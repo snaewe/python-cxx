@@ -56,7 +56,107 @@ extern "C"
 }
 
 #include <vector>
+
+// std::map / hash_map selection and declarations ----------------------------
+#if !defined( PYCXX_USING_HASH_MAP )
+
 #include <map>
+
+#else
+
+#if defined( __GNUC__) && !defined( _STLPORT_VERSION )
+    #include <ext/hash_map>
+#else
+    #include <hash_map>
+#endif
+#if defined( _STLPORT_VERSION )
+    #define __PYCXX_HASHMAP_NAMESPACE std
+    using namespace std;
+#elif defined ( _MSC_VER ) && !defined( __INTEL_COMPILER ) && !defined( __ICC ) && !defined( __ICL ) && !defined( __ECC )
+    #define __PYCXX_HASHMAP_NAMESPACE stdext
+    using namespace stdext;
+#elif defined( __INTEL_COMPILER ) || defined( __ICC ) || defined( __ICL ) || defined( __ECC )
+    #define __PYCXX_HASHMAP_NAMESPACE stdext
+    using namespace stdext;
+#elif defined( __GNUC__ )
+    #define __PYCXX_HASHMAP_NAMESPACE __gnu_cxx
+    using namespace __gnu_cxx;
+#else
+    #define __PYCXX_HASHMAP_NAMESPACE std
+    using namespace std;
+#endif
+
+class __pycxx_str_hash_func
+{
+public:
+    enum
+    {
+        // parameters for hash table
+        bucket_size = 4, // 0 < bucket_size
+        min_buckets = 8  // min_buckets = 2 ^^ N, 0 < N
+    };
+    
+    // http://www.azillionmonkeys.com/qed/hash.html
+    size_t operator()( const std::string &str ) const
+    { 
+        const unsigned char * data = reinterpret_cast<const unsigned char *>( str.c_str() );
+        int len = (int)str.length();
+        unsigned int hash = len;
+        unsigned int tmp;
+        int rem;
+
+        if (len <= 0 || data == NULL)
+            return 0;
+
+        rem = len & 3;
+        len >>= 2;
+
+        /* Main loop */
+        for (;len > 0; len--)
+        {
+            hash  += (data[1] << 8) | data[0];
+            tmp    = (((data[3] << 8) | data[2]) << 11) ^ hash;
+            hash   = (hash << 16) ^ tmp;
+            data  += 2*sizeof (unsigned short);
+            hash  += hash >> 11;
+        }
+
+        /* Handle end cases */
+        switch (rem)
+        {
+            case 3: hash += (data[1] << 8) | data[0];
+                    hash ^= hash << 16;
+                    hash ^= data[sizeof (unsigned short)] << 18;
+                    hash += hash >> 11;
+                    break;
+            case 2: hash += (data[1] << 8) | data[0];
+                    hash ^= hash << 11;
+                    hash += hash >> 17;
+                    break;
+            case 1: hash += *data;
+                    hash ^= hash << 10;
+                    hash += hash >> 1;
+        }
+
+        /* Force "avalanching" of final 127 bits */
+        hash ^= hash << 3;
+        hash += hash >> 5;
+        hash ^= hash << 4;
+        hash += hash >> 17;
+        hash ^= hash << 25;
+        hash += hash >> 6;
+
+        return hash;
+    }
+
+    bool operator()(const std::string &str_1, const std::string &str_2) const
+    {    
+        // test if str_1 ordered before str_2
+        return str_1 < str_2;
+    }
+};
+#endif // PYCXX_USING_HASH_MAP
+// ----------------------------------------------------------------------
 
 namespace Py
 {
@@ -205,7 +305,12 @@ namespace Py
     protected:
         typedef Object (T::*method_varargs_function_t)( const Tuple &args );
         typedef Object (T::*method_keyword_function_t)( const Tuple &args, const Dict &kws );
-        typedef std::map<std::string,MethodDefExt<T> *> method_map_t;
+
+#if defined( PYCXX_USING_HASH_MAP )
+        typedef __PYCXX_HASHMAP_NAMESPACE::hash_map<std::string, MethodDefExt<T> *, __pycxx_str_hash_func> method_map_t;
+#else
+        typedef std::map<std::string, MethodDefExt<T> *> method_map_t;
+#endif
         
         static void add_varargs_method( const char *name, method_varargs_function_t function, const char *doc="" )
         {
@@ -247,7 +352,7 @@ namespace Py
             // so that we get called back at the function in T.
             //
             method_map_t &mm = methods();
-            EXPLICIT_TYPENAME method_map_t::iterator i;
+            EXPLICIT_TYPENAME method_map_t::const_iterator i;
             
             for( i=mm.begin(); i != mm.end(); ++i )
             {
@@ -539,7 +644,12 @@ namespace Py
         
         typedef Object (T::*method_varargs_function_t)( const Tuple &args );
         typedef Object (T::*method_keyword_function_t)( const Tuple &args, const Dict &kws );
-        typedef std::map<std::string,MethodDefExt<T> *> method_map_t;
+
+#if defined( PYCXX_USING_HASH_MAP )
+        typedef __PYCXX_HASHMAP_NAMESPACE::hash_map<std::string, MethodDefExt<T> *, __pycxx_str_hash_func> method_map_t;
+#else
+        typedef std::map<std::string, MethodDefExt<T> *> method_map_t;
+#endif
         
         // support the default attributes, __name__, __doc__ and methods
         virtual Object getattr_default( const char *_name )
@@ -578,19 +688,22 @@ namespace Py
             std::string name( _name );
             
             method_map_t &mm = methods();
+
+            EXPLICIT_TYPENAME method_map_t::const_iterator i;
             
             if( name == "__methods__" )
             {
                 List methods;
                 
-                for( EXPLICIT_TYPENAME method_map_t::iterator i = mm.begin(); i != mm.end(); ++i )
+                for( i = mm.begin(); i != mm.end(); ++i )
                     methods.append( String( (*i).first ) );
                 
                 return methods;
             }
             
-            // see if name exists
-            if( mm.find( name ) == mm.end() )
+            // see if name exists and get entry with method
+            i = mm.find( name );
+            if( i == mm.end() )
                 throw AttributeError( name );
             
             Tuple self( 2 );
@@ -598,7 +711,7 @@ namespace Py
             self[0] = Object( this );
             self[1] = String( name );
             
-            MethodDefExt<T> *method_definition = mm[ name ];
+            MethodDefExt<T> *method_definition = i->second;
             
             PyObject *func = PyCFunction_New( &method_definition->ext_meth_def, self.ptr() );
             
@@ -608,6 +721,12 @@ namespace Py
         static void add_varargs_method( const char *name, method_varargs_function_t function, const char *doc="" )
         {
             method_map_t &mm = methods();
+
+            // check that all methods added are unique
+            EXPLICIT_TYPENAME method_map_t::const_iterator i;
+            i = mm.find( name );
+            if( i != mm.end() )
+                throw AttributeError( name );
             
             MethodDefExt<T> *method_definition = new MethodDefExt<T>
             (
@@ -623,6 +742,12 @@ namespace Py
         static void add_keyword_method( const char *name, method_keyword_function_t function, const char *doc="" )
         {
             method_map_t &mm = methods();
+
+            // check that all methods added are unique
+            EXPLICIT_TYPENAME method_map_t::const_iterator i;
+            i = mm.find( name );
+            if( i != mm.end() )
+                throw AttributeError( name );
             
             MethodDefExt<T> *method_definition = new MethodDefExt<T>
             (
@@ -657,9 +782,13 @@ namespace Py
                 String name( self_and_name_tuple[1] );
                 
                 method_map_t &mm = methods();
-                MethodDefExt<T> *meth_def = mm[ name ];
-                if( meth_def == NULL )
+
+                EXPLICIT_TYPENAME method_map_t::const_iterator i;                
+                i = mm.find( name );
+                if( i == mm.end() )
                     return 0;
+
+                MethodDefExt<T> *meth_def = i->second;
                 
                 Tuple args( _args );
 
@@ -690,9 +819,13 @@ namespace Py
                 String name( self_and_name_tuple[1] );
                 
                 method_map_t &mm = methods();
-                MethodDefExt<T> *meth_def = mm[ name ];
-                if( meth_def == NULL )
+
+                EXPLICIT_TYPENAME method_map_t::const_iterator i;                
+                i = mm.find( name );
+                if( i == mm.end() )
                     return 0;
+
+                MethodDefExt<T> *meth_def = i->second;
                 
                 Tuple args( _args );
                 
