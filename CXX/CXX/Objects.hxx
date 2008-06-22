@@ -2774,7 +2774,7 @@ namespace Py
         {
             validate();
         }
-        Dict (const Dict& ob): Mapping(ob)
+        Dict (const Object& ob): Mapping(ob)
         {
             validate();
         }
