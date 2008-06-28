@@ -2,7 +2,7 @@ setlocal
 
 set PY_MAJ=2
 if not "%1" == "" set PY_MAJ=%1
-set PY_MIN=4
+set PY_MIN=5
 if not "%2" == "" set PY_MIN=%2
 
 set PYTHONPATH=pyds%PY_MAJ%%PY_MIN%
