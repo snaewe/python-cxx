@@ -19,7 +19,7 @@ gives you access to the releases, the Subversion repository, and more.</b>
 <p>Patch from Dmitry Kostjuchenko to which improves PyCXX method's calling
 speed/performance by almost 2 times.</p>
 <p>More PY_LONG_LONG support.</p>
-<p>No long allow creation of Py::Int from PY_LONG_LONG as long long cannot fix. Use Py::Long.</p>
+<p>No long allow creation of Py::Int from PY_LONG_LONG as long long can overflow an int. Use Py::Long.</p>
 <p>Py:Dict can now be constructed from a Py::Object.</p>
 
 <hr>
