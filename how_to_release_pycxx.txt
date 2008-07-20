@@ -5,12 +5,9 @@ How to release PyCXX
 1. Tag the source using tag_pycxx.py (depends on pysvn).
 2. Create the source kit using make_src_kit.py
 3. Upload kit to sourceforge:
-   1. FTP to upload.sourceforge.net
-   2. Login as "anonymous"
-   3. Use your e-mail address as the password for this login
-   4. Set your client to binary mode ("bin" on command-line clients)
-   5. Change your current directory to /incoming ("cd /incoming")
-   6. Upload the desired files for the release ("put filename")
+   1. browse to https://frs.sourceforge.net/webupload
+   2. Login using SourceForge username and password
+   3. upload file
 4. Add new File release on sourceforge.
    1. http://sourceforge.net/projects/cxx/
    2. Select Menu Admin... File Releases
