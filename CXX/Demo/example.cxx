@@ -53,25 +53,25 @@ extern std::string test_extension_object();
 
 static std::string test_String()
 {
-    Py::String s("hello");
+    Py::String s( "hello" );
     Py::Char blank = ' ';
-    Py::String r1("world in brief", 5);
+    Py::String r1( "world in brief", 5 );
     s = s + blank + r1;
     s = s * 2;
-    if(std::string(s) != "hello worldhello world")
+    if( std::string(s) != "hello worldhello world" )
     {
-        return "failed (1) '" + std::string(s) + "'";
+        return "failed (1) '" + std::string( s ) + "'";
     }
     // test conversion
-    std::string w = static_cast<std::string>(s);
-    std::string w2 = (std::string) s;
-    if(w != w2)
+    std::string w = static_cast<std::string>( s );
+    std::string w2 = s;
+    if( w != w2 )
     {
         return "failed (2)";
     }
-    Py::String r2("12345 789");
+    Py::String r2( "12345 789" );
     Py::Char c6 = r2[5];
-    if(c6 != blank)
+    if( c6 != blank )
     {
         std::cout << "|" << c6 << "|" << std::endl;
         return "failed (3)";
@@ -160,18 +160,18 @@ static std::string
 test_numbers()
 {
     // test the basic numerical classes
-    Py::Int i;
-    Py::Int j(2);
-    Py::Int k = Py::Int(3);
+    Py::Long i;
+    Py::Long j(2);
+    Py::Long k = Py::Long(3);
 
-    if (! (j < k)) return "failed (1)";
-    if (! (j == j)) return "failed (2)" ;
-    if (! (j != k)) return "failed (3)";
-    if (! (j <= k)) return "failed (4)";
-    if (! (k >= j)) return "failed (5)";
-    if (! (k > j)) return "failed (6)";
-    if (! (j <= j)) return "failed (7)";
-    if (! (j >= Py::Int(2))) return "failed (8)";
+    if( ! (j < k) )  return "failed (1)";
+    if( ! (j == j) ) return "failed (2)" ;
+    if( ! (j != k) ) return "failed (3)";
+    if( ! (j <= k) ) return "failed (4)";
+    if( ! (k >= j) ) return "failed (5)";
+    if( ! (k > j) )  return "failed (6)";
+    if( ! (j <= j) ) return "failed (7)";
+    if( ! (j >= Py::Long( 2 )) ) return "failed (8)";
 
     i = 2;
     Py::Float a;
@@ -187,62 +187,62 @@ test_numbers()
     return "ok";
 }
 
-static std::string 
-test_List_iterators (const Py::List& x, Py::List& y)
+static std::string test_List_iterators( const Py::List& x, Py::List& y )
 {
     std::vector<Py::Object> v;
     Py::Sequence::iterator j;
-    int k = 0;
-    for(Py::Sequence::const_iterator i = x.begin(); i != x.end(); ++i)
+    Py::Long k( 0 );    // qqq k = 0 does not compile
+    for( Py::Sequence::const_iterator i = x.begin(); i != x.end(); ++i )
     {
-        if ((*i).isList())
+        if( (*i).isList() )
         {
             ++k;
         }
     }
-    if(k!=1)
+
+    if( k!=1 )
         return "failed List iterators (1)";
 
     k = 0;
-    for(j = y.begin(); j != y.end(); ++j)
+    for( j = y.begin(); j != y.end(); ++j )
     {
-        *j = Py::Int(k++);
-        v.push_back (*j);
+        *j = Py::Long( k++ );
+        v.push_back( *j );
     }
 
     k = 0;
-    for(j = y.begin(); j != y.end(); j++)
+    for( j = y.begin(); j != y.end(); j++ )
     {
-        if(*j != Py::Int(k))
+        if( *j != Py::Long( k ) )
             return "failed List iterators (2)";
-        if(v[k] != Py::Int(k))
+        if( v[k] != Py::Long( k ) )
             return "failed List iterators (3)";
         ++k;
     }
-    Py::String o1("Howdy");
-    Py::Int o2(1);
-    int caught_it = 0;
+    Py::String o1( "Howdy" );
+    Py::Long o2( 1 );
+    Py::Long caught_it = 0;
     try
     {
         o2 = o1;
     } 
-    catch (Py::Exception& e)
+    catch( Py::Exception& e )
     {
         caught_it = 1;
         e.clear();
     }
-    if(!caught_it)
+    if( !caught_it )
         return "failed exception catch (4).";
     return "ok";
 }
 
 static Py::List
-test_List_references (Py::List& x)
+test_List_references( Py::List &x )
 {
     Py::List y;
-    for(Py::List::size_type i=0; i < x.length(); ++i)
+    for( Py::List::size_type i=0; i < x.length(); ++i )
     {
-        if (x[i].isList())
+        if( x[i].isList() )
         {
             y = x[i];
         }
@@ -250,156 +250,155 @@ test_List_references (Py::List& x)
     return y;
 }
 
-static std::string
-test_List()
+static std::string test_List()
 {
     // test the Py::List class
     Py::List a;
     Py::List ans, aux;
-    aux.append(Py::Int(3));
+    aux.append( Py::Long( 3 ) );
     aux.append(Py::Float(6.0));
 
     Py::Object b;
-    Py::Int i(3);
-    Py::Float x(6.0);
-    Py::Float c(10.0), d(20.0);
-    a.append(i);
-    a.append(x);
-    a.append(Py::Float(0.0));
+    Py::Long i( 3 );
+    Py::Float x( 6.0 );
+    Py::Float c( 10.0 ), d( 20.0 );
+    a.append( i );
+    a.append( x );
+    a.append( Py::Float( 0.0 ) );
     b = a[0]; 
     a[2] = b;
-    a.append(c+d);
-    a.append(aux);
+    a.append( c + d );
+    a.append( aux );
     // a is now [3, 6.0, 3, 30.0, aux]
 
-    ans.append(Py::Int(3));
-    ans.append(Py::Float(6.0));
-    ans.append(Py::Int(3));
-    ans.append(Py::Float(30.0));
-    ans.append(aux);
+    ans.append( Py::Long(3) );
+    ans.append( Py::Float(6.0) );
+    ans.append( Py::Long(3) );
+    ans.append( Py::Float(30.0) );
+    ans.append( aux );
 
     Py::List::iterator l1, l2;
-    for(l1= a.begin(), l2 = ans.begin();
-    l1 != a.end() && l2 != ans.end();
-    ++l1, ++l2) 
+    for( l1= a.begin(), l2 = ans.begin();
+            l1 != a.end() && l2 != ans.end();
+            ++l1, ++l2 )
     {
-        if(*l1 != *l2) return "failed 1" + a.as_string();
+        if( *l1 != *l2 )
+            return "failed 1" + a.as_string();
     }
 
-    if (test_List_references (a)!= aux)
+    if( test_List_references( a ) != aux )
     {
         return "failed 2" + test_List_references(a).as_string();
     }
-    return test_List_iterators(ans, a);
+
+    return test_List_iterators( ans, a );
 }
 
-static std::string
-test_Dict()
+static std::string test_Dict()
 {
     // test the Dict class
     Py::Dict a,b;
     Py::List v;
-    Py::String s("two");
-    a["one"] = Py::Int(1);
-    a[s] = Py::Int(2);
-    a["three"] = Py::Int(3);
-    if(Py::Int(a["one"]) != Py::Int(1))
+    Py::String s( "two" );
+    a["one"] = Py::Long( 1 );
+    a[s] = Py::Long( 2 );
+    a["three"] = Py::Long( 3 );
+    if( Py::Long( a["one"] ) != Py::Long( 1 ) )
         return "failed 1a " + a.as_string();
-    if(Py::Int(a[s]) != Py::Int(2))
+    if( Py::Long( a[s] ) != Py::Long( 2 ) )
         return "failed 1b " + a.as_string();
 
     v = a.values();
 #if 0
-    std::sort(v.begin(), v.end());
+    std::sort( v.begin(), v.end() );
 
-    for(int k = 1; k < 4; ++k)
+    for( Py::Long k = 1; k < 4; ++k )
     {
-        if(v[k-1] != Py::Int(k))
+        if( v[k-1] != Py::Long( k ) )
             return "failed 2 " + v.as_string();
     }
 #endif
 
     b = a;
     b.clear();
-    if(b.keys().length() != 0)
+    if( b.keys().length() != 0 )
     {
         return "failed 3 " + b.as_string();
     }
     return "ok";
 }
 
-static std::string
-test_Tuple()
+static std::string test_Tuple()
 {
     // test the Tuple class
-    Py::Tuple a(3);
+    Py::Tuple a( 3 );
     Py::Tuple t1;
-    Py::Float f1(1.0), f2(2.0), f3(3.0);
+    Py::Float f1( 1.0 ), f2( 2.0 ), f3( 3.0 );
     a[0] = f1; // should be ok since no other reference owned
     a[1] = f2;
     a[2] = f3;
-    Py::Tuple b(a);
-    int k = 0;
-    for(Py::Tuple::iterator i = b.begin(); i != b.end(); ++i)
+    Py::Tuple b( a );
+    Py::Long k( 0 );
+    for( Py::Tuple::iterator i = b.begin(); i != b.end(); ++i )
     {
-        if(*i != Py::Float(++k)) return "failed 1 " + b.as_string();
+        if( *i != Py::Float( ++k ) )
+            return "failed 1 " + b.as_string();
     }
 
     t1 = a;
     try
     {
-        t1[0] = Py::Int(1); // should fail, tuple has multiple references
+        t1[0] = Py::Long( 1 ); // should fail, tuple has multiple references
         return "failed 2";
     }
-    catch (Py::Exception& e)
+    catch( Py::Exception& e )
     {
         e.clear();
     }
     return "ok";
 }
 
-static std::string 
-test_STL()
+static std::string test_STL()
 {
-    int ans1;
+    Py::Long ans1;
     Py::List w;
     Py::List wans;
-    wans.append(Py::Int(1));
-    wans.append(Py::Int(1));
-    wans.append(Py::Int(2));
-    wans.append(Py::Int(3));
-    wans.append(Py::Int(4));
-    wans.append(Py::Int(5));
-    w.append(Py::Int(5));
-    w.append(Py::Int(1));
-    w.append(Py::Int(4));
-    w.append(Py::Int(2));
-    w.append(Py::Int(3));
-    w.append(Py::Int(1));
-    ans1 = std::count(w.begin(), w.end(), Py::Float(1.0));
-    if (ans1 != 2)
+    wans.append( Py::Long(1) );
+    wans.append( Py::Long(1) );
+    wans.append( Py::Long(2) );
+    wans.append( Py::Long(3) );
+    wans.append( Py::Long(4) );
+    wans.append( Py::Long(5) );
+    w.append( Py::Long(5) );
+    w.append( Py::Long(1) );
+    w.append( Py::Long(4) );
+    w.append( Py::Long(2) );
+    w.append( Py::Long(3) );
+    w.append( Py::Long(1) );
+    ans1 = std::count( w.begin(), w.end(), Py::Float(1.0) );
+    if( ans1 != 2 )
     {
         return "failed count test";
     }
 #if 0
-    std::sort(w.begin(), w.end());
-    if (w != wans)
+    std::sort( w.begin(), w.end() );
+    if( w != wans )
     {
         return "failed sort test";
     }
 #endif
 
-    Py::Dict    d;
-    Py::String    s1("blah");
-    Py::String    s2("gorf");
+    Py::Dict d;
+    Py::String s1( "blah" );
+    Py::String s2( "gorf" );
     d[ "one" ] = s1;
     d[ "two" ] = s1;
     d[ "three" ] = s2;
     d[ "four" ] = s2;
 
-    Py::Dict::iterator    it( d.begin() );
-//    it = d.begin();        // this (using the assignment operator) is causing
-                // a problem; if I just use the copy ctor it works fine.
+    Py::Dict::iterator it( d.begin() );
+    //    it = d.begin();       // this (using the assignment operator) is causing
+                                // a problem; if I just use the copy ctor it works fine.
     for( ; it != d.end(); ++it )
     {
         Py::Dict::value_type    vt( *it );
@@ -414,9 +413,8 @@ test_STL()
 void debug_check_ref_queue()
 {
 #ifdef Py_TRACE_REFS
-
     // create an element to find the queue
-    Py::Int list_element;
+    Py::Long list_element;
 
     PyObject *p_slow = list_element.ptr();
     PyObject *p_fast = p_slow;
@@ -476,7 +474,7 @@ private:
             std::cout << "    " << name << std::endl;
         }
 
-        return Py::Int(0);
+        return Py::Long(0);
     }
 
     Py::Object new_r (const Py::Tuple &rargs)
@@ -486,9 +484,9 @@ private:
             throw Py::RuntimeError("Incorrect # of args to range(start,stop [,step]).");
         }
 
-        Py::Int start(rargs[0]);
-        Py::Int stop(rargs[1]);
-        Py::Int step(1);
+        Py::Long start(rargs[0]);
+        Py::Long stop(rargs[1]);
+        Py::Long step(1);
         if (rargs.length() == 3)
         {
             step = rargs[2];
@@ -503,28 +501,28 @@ private:
     Py::Object ex_string (const Py::Tuple &a)
     {
         std::cout << "ex_std::string: s1 is first arg" << std::endl;
-        Py::String s1( a[0] );
-        std::cout << "ex_string: s1.isString() " << s1.isString() << std::endl;
-        std::cout << "ex_string: s1.isUnicode() " << s1.isUnicode() << std::endl;
-        std::cout << "ex_string: s1.size() " << s1.size() << std::endl;
+        Py::Object o1( a[0] );
+        std::cout << "ex_string: s1.isString() " << o1.isString() << std::endl;
 
-        if( s1.isUnicode() )
+        if( o1.isString() )
         {
+            Py::String s1( o1 );
+
+            std::cout << "ex_string: s1.size() " << s1.size() << std::endl;
             std::cout << "ex_string: s2 is s1.encode( utf-8 )" << std::endl;
-            Py::String s2( s1.encode( "utf-8" ) );
-            std::cout << "ex_string: s2.isString() " << s2.isString() << std::endl;
-            std::cout << "ex_string: s2.isUnicode() " << s2.isUnicode() << std::endl;
-            std::cout << "ex_string: s2.size() " << s2.size() << std::endl;
-            return s2;
+            Py::Bytes b1( s1.encode( "utf-8" ) );
+            std::cout << "ex_string: s1.isString() " << b1.isString() << std::endl;
+            std::cout << "ex_string: s1.size() " << b1.size() << std::endl;
+            return b1;
         }
         else
         {
-            std::cout << "ex_string: s2 is s1.decode( utf-8 )" << std::endl;
-            Py::String s2( s1.decode( "utf-8" ) );
-            std::cout << "ex_string: s2.isString() " << s2.isString() << std::endl;
-            std::cout << "ex_string: s2.isUnicode() " << s2.isUnicode() << std::endl;
-            std::cout << "ex_string: s2.size() " << s2.size() << std::endl;
-            return s2;
+            Py::Bytes b1( o1 );
+            std::cout << "ex_string: s1 is b1.decode( utf-8 )" << std::endl;
+            Py::String s1( b1.decode( "utf-8" ) );
+            std::cout << "ex_string: s1.isString() " << s1.isString() << std::endl;
+            std::cout << "ex_string: s1.size() " << s1.size() << std::endl;
+            return s1;
         }
     }
 
@@ -561,8 +559,8 @@ private:
         try
         {
             Py::String s("this should fail");
-            std::cout << "Trying to convert a Py::String to an Py::Int" << std::endl;
-            Py::Int k(s.ptr());
+            std::cout << "Trying to convert a Py::String to an Py::Long" << std::endl;
+            Py::Long k(s.ptr());
         }
         catch (Py::TypeError& e)
         {

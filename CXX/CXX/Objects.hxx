@@ -58,14 +58,15 @@ namespace Py
     class Object;
     class Type;
     template<TEMPLATE_TYPENAME T> class SeqBase;
+    class Bytes;
     class String;
     class List;
     template<TEMPLATE_TYPENAME T> class MapBase;
 
     // new_reference_to also overloaded below on Object
-    inline PyObject* new_reference_to(PyObject* p)
+    inline PyObject* new_reference_to( PyObject* p )
     {
-        Py::_XINCREF(p);
+        Py::_XINCREF( p );
         return p;
     }
 
@@ -73,7 +74,7 @@ namespace Py
     // Python exception
     inline PyObject* Null()
     {
-        return (static_cast<PyObject*>(0));
+        return static_cast<PyObject*>( 0 );
     }
 
     //===========================================================================//
@@ -87,48 +88,54 @@ namespace Py
     // (0) Pick a base class, either Object or perhaps SeqBase<T> or MapBase<T>.
     //     This example assumes Object.
 
-    // (1) Write a routine int MyType_Check (PyObject *) modeled after PyInt_Check,
+    // (1) Write a routine int MyType_Check( PyObject * ) modeled after PyInt_Check,
     //     PyFloat_Check, etc.
 
     // (2) Add method accepts:
-    //     virtual bool accepts (PyObject *pyob) const {
-    //         return pyob && MyType_Check (pyob);
+    //     virtual bool accepts( PyObject *pyob ) const {
+    //         return pyob && MyType_Check( pyob );
     // }
 
     // (3) Include the following constructor and copy constructor
     //
     /*
-    explicit MyType (PyObject *pyob): Object(pyob) {
-    validate();
-}
+    explicit MyType( PyObject *pyob ): Object( pyob )
+    {
+        validate();
+    }
 
-    MyType(const Object& other): Object(other.ptr()) {
-    validate();
-}
+    MyType( const Object& other ): Object( other.ptr() )
+    {
+        validate();
+    }
     */
 
     // Alernate version for the constructor to allow for construction from owned pointers:
     /*
-    explicit MyType (PyObject *pyob): Object(pyob) {
-    validate();
-}
+    explicit MyType( PyObject *pyob ): Object( pyob )
+    {
+        validate();
+    }
     */
 
     // You may wish to add other constructors; see the classes below for examples.
     // Each constructor must use "set" to set the pointer
     // and end by validating the pointer you have created.
 
-    // (4) Each class needs at least these two assignment operators:
+    //( 4 ) Each class needs at least these two assignment operators:
     /*
-    MyType& operator= (const Object& rhs) {
-    return (*this = *rhs);
-}
+    MyType& operator=( const Object& rhs )
+    {
+        return( *this = *rhs );
+    }
 
-    Mytype& operator= (PyObject* rhsp) {
-    if(ptr() == rhsp) return *this;
-    set(rhsp);
-    return *this;
-}
+    Mytype& operator=( PyObject* rhsp )
+    {
+        if( ptr() == rhsp )
+            return *this;
+        set( rhsp );
+        return *this;
+    }
     */
     // Note on accepts: constructors call the base class
     // version of a virtual when calling the base class constructor,
@@ -150,85 +157,84 @@ namespace Py
         PyObject* p;
 
     protected:
-
-        void set (PyObject* pyob, bool owned = false)
+        void set( PyObject* pyob, bool owned = false )
         {
             release();
             p = pyob;
-            if (!owned)
+            if( !owned )
             {
-                Py::_XINCREF (p);
+                Py::_XINCREF( p );
             }
             validate();
         }
 
-        void release ()
+        void release()
         {
-            Py::_XDECREF (p);
+            Py::_XDECREF( p );
             p = 0;
         }
 
         void validate()
         {
             // release pointer if not the right type
-            if (! accepts (p))
+            if( ! accepts( p ) )
             {
-                release ();
-                if(PyErr_Occurred())
+                release();
+                if( PyErr_Occurred() )
                 { // Error message already set
                     throw Exception();
                 }
                 // Better error message if RTTI available
-#if defined( _CPPRTTI ) || defined(__GNUG__)
-                std::string s("CXX : Error creating object of type ");
-                s += (typeid (*this)).name();
-                throw TypeError (s);
+#if defined( _CPPRTTI ) || defined( __GNUG__ )
+                std::string s( "CXX : Error creating object of type " );
+                s +=( typeid( *this ) ).name();
+                throw TypeError( s );
 #else
-                throw TypeError ("CXX: type error.");
+                throw TypeError( "CXX: type error." );
 #endif
             }
         }
 
     public:
         // Constructor acquires new ownership of pointer unless explicitly told not to.
-        explicit Object (PyObject* pyob=Py::_None(), bool owned = false): p (pyob)
+        explicit Object( PyObject* pyob=Py::_None(), bool owned = false ): p( pyob )
         {
-            if(!owned)
+            if( !owned )
             {
-                Py::_XINCREF (p);
+                Py::_XINCREF( p );
             }
             validate();
         }
 
         // Copy constructor acquires new ownership of pointer
-        Object (const Object& ob): p(ob.p)
+        Object( const Object& ob ): p( ob.p )
         {
-            Py::_XINCREF (p);
+            Py::_XINCREF( p );
             validate();
         }
 
         // Assignment acquires new ownership of pointer
-        Object& operator= (const Object& rhs)
+        Object& operator=( const Object& rhs )
         {
-            set(rhs.p);
+            set( rhs.p );
             return *this;
         }
 
-        Object& operator= (PyObject* rhsp)
+        Object& operator=( PyObject* rhsp )
         {
-            if(ptr() == rhsp) return *this;
-            set (rhsp);
+            if( ptr() == rhsp ) return *this;
+            set( rhsp );
             return *this;
         }
 
         // Destructor
-        virtual ~Object ()
+        virtual ~Object()
         {
-            release ();
+            release();
         }
 
         // Loaning the pointer to others, retain ownership
-        PyObject* operator* () const
+        PyObject* operator*() const
         {
             return p;
         }
@@ -236,18 +242,18 @@ namespace Py
         // Explicit reference_counting changes
         void increment_reference_count()
         {
-            Py::_XINCREF(p);
+            Py::_XINCREF( p );
         }
 
         void decrement_reference_count()
         {
             // not allowed to commit suicide, however
-            if(reference_count() == 1)
-            throw RuntimeError("Object::decrement_reference_count error.");
-            Py::_XDECREF(p);
+            if( reference_count() == 1 )
+            throw RuntimeError( "Object::decrement_reference_count error." );
+            Py::_XDECREF( p );
         }
         // Would like to call this pointer() but messes up STL in SeqBase<T>
-        PyObject* ptr () const
+        PyObject* ptr() const
         {
             return p;
         }
@@ -257,58 +263,58 @@ namespace Py
         //
 
         // Can pyob be used in this object's constructor?
-        virtual bool accepts (PyObject *pyob) const
+        virtual bool accepts( PyObject *pyob ) const
         {
-            return (pyob != 0);
+            return pyob != 0;
         }
 
-        Py_ssize_t reference_count () const
+        Py_ssize_t reference_count() const
         { // the reference count
             return p ? p->ob_refcnt : 0;
         }
 
-        Type type () const; // the type object associated with this one
+        Type type() const; // the type object associated with this one
 
-        String str () const; // the str() representation
+        Bytes str() const; // the str() representation
 
         std::string as_string() const;
 
-        String repr () const; // the repr () representation
+        Bytes repr() const; // the repr() representation
 
-        List dir () const; // the dir() list
+        List dir() const; // the dir() list
 
-        bool hasAttr (const std::string& s) const
+        bool hasAttr( const std::string& s ) const
         {
-            return PyObject_HasAttrString (p, const_cast<char*>(s.c_str())) ? true: false;
+            return PyObject_HasAttrString( p, const_cast<char*>( s.c_str() ) ) ? true: false;
         }
 
-        Object getAttr (const std::string& s) const
+        Object getAttr( const std::string& s ) const
         {
-            return Object (PyObject_GetAttrString (p, const_cast<char*>(s.c_str())), true);
+            return Object( PyObject_GetAttrString( p, const_cast<char*>( s.c_str() ) ), true );
         }
 
-        Object getItem (const Object& key) const
+        Object getItem( const Object& key ) const
         {
-            return Object (PyObject_GetItem(p, *key), true);
+            return Object( PyObject_GetItem( p, *key ), true );
         }
 
-        long hashValue () const
+        long hashValue() const
         {
-            return PyObject_Hash (p);
+            return PyObject_Hash( p );
         }
 
         //
-        // int print (FILE* fp, int flags=Py_Print_RAW)
+        // int print( FILE* fp, int flags=Py_Print_RAW )
         //{
-        //    return PyObject_Print (p, fp, flags);
+        //    return PyObject_Print( p, fp, flags );
         //}
         //
-        bool is(PyObject *pother) const
+        bool is( PyObject *pother ) const
         {  // identity test
             return p == pother;
         }
 
-        bool is(const Object& other) const
+        bool is( const Object& other ) const
         { // identity test
             return p == other.p;
         }
@@ -318,135 +324,130 @@ namespace Py
             return p == _None();
         }
 
-        bool isCallable () const
+        bool isCallable() const
         {
-            return PyCallable_Check (p) != 0;
+            return PyCallable_Check( p ) != 0;
         }
 
-        bool isInstance () const
+        bool isDict() const
         {
-            return PyInstance_Check (p) != 0;
+            return Py::_Dict_Check( p );
         }
 
-        bool isDict () const
+        bool isList() const
         {
-            return Py::_Dict_Check (p);
+            return Py::_List_Check( p );
         }
 
-        bool isList () const
+        bool isMapping() const
         {
-            return Py::_List_Check (p);
+            return PyMapping_Check( p ) != 0;
         }
 
-        bool isMapping () const
+        bool isNumeric() const
         {
-            return PyMapping_Check (p) != 0;
+            return PyNumber_Check( p ) != 0;
         }
 
-        bool isNumeric () const
+        bool isSequence() const
         {
-            return PyNumber_Check (p) != 0;
+            return PySequence_Check( p ) != 0;
         }
 
-        bool isSequence () const
+        bool isTrue() const
         {
-            return PySequence_Check (p) != 0;
+            return PyObject_IsTrue( p ) != 0;
         }
 
-        bool isTrue () const
-        {
-            return PyObject_IsTrue (p) != 0;
-        }
-
-        bool isType (const Type& t) const;
+        bool isType( const Type& t ) const;
 
         bool isTuple() const
         {
-            return Py::_Tuple_Check(p);
+            return Py::_Tuple_Check( p );
         }
 
         bool isString() const
         {
-            return Py::_String_Check(p) || Py::_Unicode_Check(p);
+            return Py::_String_Check( p );
         }
 
-        bool isUnicode() const
+        bool isBytes() const
         {
-            return Py::_Unicode_Check(p);
+            return Py::_Bytes_Check( p );
         }
 
         // Commands
-        void setAttr (const std::string& s, const Object& value)
+        void setAttr( const std::string& s, const Object& value )
         {
-            if(PyObject_SetAttrString (p, const_cast<char*>(s.c_str()), *value) == -1)
-            throw AttributeError ("getAttr failed.");
+            if( PyObject_SetAttrString( p, const_cast<char*>( s.c_str() ), *value ) == -1 )
+            throw AttributeError( "getAttr failed." );
         }
 
-        void delAttr (const std::string& s)
+        void delAttr( const std::string& s )
         {
-            if(PyObject_DelAttrString (p, const_cast<char*>(s.c_str())) == -1)
-            throw AttributeError ("delAttr failed.");
+            if( PyObject_DelAttrString( p, const_cast<char*>( s.c_str() ) ) == -1 )
+            throw AttributeError( "delAttr failed." );
         }
 
         // PyObject_SetItem is too weird to be using from C++
         // so it is intentionally omitted.
 
-        void delItem (const Object& key)
+        void delItem( const Object& key )
         {
-            //if(PyObject_DelItem(p, *key) == -1)
+            //if( PyObject_DelItem( p, *key ) == -1 )
             // failed to link on Windows?
-            throw KeyError("delItem failed.");
+            throw KeyError( "delItem failed." );
         }
         // Equality and comparison use PyObject_Compare
 
-        bool operator==(const Object& o2) const
+        bool operator==( const Object& o2 ) const
         {
-            int k = PyObject_Compare (p, *o2);
-            if (PyErr_Occurred()) throw Exception();
+            int k = PyObject_Compare( p, *o2 );
+            if( PyErr_Occurred() ) throw Exception();
             return k == 0;
         }
 
-        bool operator!=(const Object& o2) const
+        bool operator!=( const Object& o2 ) const
         {
-            int k = PyObject_Compare (p, *o2);
-            if (PyErr_Occurred()) throw Exception();
+            int k = PyObject_Compare( p, *o2 );
+            if( PyErr_Occurred() ) throw Exception();
             return k != 0;
 
         }
 
-        bool operator>=(const Object& o2) const
+        bool operator>=( const Object& o2 ) const
         {
-            int k = PyObject_Compare (p, *o2);
-            if (PyErr_Occurred()) throw Exception();
+            int k = PyObject_Compare( p, *o2 );
+            if( PyErr_Occurred() ) throw Exception();
             return k >= 0;
         }
 
-        bool operator<=(const Object& o2) const
+        bool operator<=( const Object& o2 ) const
         {
-            int k = PyObject_Compare (p, *o2);
-            if (PyErr_Occurred()) throw Exception();
+            int k = PyObject_Compare( p, *o2 );
+            if( PyErr_Occurred() ) throw Exception();
             return k <= 0;
         }
 
-        bool operator<(const Object& o2) const
+        bool operator<( const Object& o2 ) const
         {
-            int k = PyObject_Compare (p, *o2);
-            if (PyErr_Occurred()) throw Exception();
+            int k = PyObject_Compare( p, *o2 );
+            if( PyErr_Occurred() ) throw Exception();
             return k < 0;
         }
 
-        bool operator>(const Object& o2) const
+        bool operator>( const Object& o2 ) const
         {
-            int k = PyObject_Compare (p, *o2);
-            if (PyErr_Occurred()) throw Exception();
+            int k = PyObject_Compare( p, *o2 );
+            if( PyErr_Occurred() ) throw Exception();
             return k > 0;
         }
     };
     // End of class Object
-    inline PyObject* new_reference_to(const Object& g)
+    inline PyObject* new_reference_to( const Object& g )
     {
         PyObject* p = g.ptr();
-        Py::_XINCREF(p);
+        Py::_XINCREF( p );
         return p;
     }
 
@@ -454,64 +455,64 @@ namespace Py
     // there is no other return value.
     inline Object Nothing()
     {
-        return Object(Py::_None());
+        return Object( Py::_None() );
     }
 
     // Python special None value
     inline Object None()
     {
-        return Object(Py::_None());
+        return Object( Py::_None() );
     }
 
     // Python special Boolean values
     inline Object False()
     {
-        return Object(Py::_False());
+        return Object( Py::_False() );
     }
 
     inline Object True()
     {
-        return Object(Py::_True());
+        return Object( Py::_True() );
     }
 
     // TMM: 31May'01 - Added the #ifndef so I can exlude iostreams.
 #ifndef CXX_NO_IOSTREAMS
-    std::ostream& operator<< (std::ostream& os, const Object& ob);
+    std::ostream& operator<<( std::ostream& os, const Object& ob );
 #endif
 
     // Class Type
     class Type: public Object
     {
     public:
-        explicit Type (PyObject* pyob, bool owned = false): Object(pyob, owned)
+        explicit Type( PyObject* pyob, bool owned = false ): Object( pyob, owned )
         {
             validate();
         }
 
-        Type (const Object& ob): Object(*ob)
+        Type( const Object& ob ): Object( *ob )
         {
             validate();
         }
 
-        Type(const Type& t): Object(t)
+        Type( const Type& t ): Object( t )
         {
             validate();
         }
 
-        Type& operator= (const Object& rhs)
+        Type& operator=( const Object& rhs )
         {
-            return (*this = *rhs);
+            return( *this = *rhs );
         }
 
-        Type& operator= (PyObject* rhsp)
+        Type& operator=( PyObject* rhsp )
         {
-            if(ptr() == rhsp) return *this;
-            set (rhsp);
+            if( ptr() == rhsp ) return *this;
+            set( rhsp );
             return *this;
         }
-        virtual bool accepts (PyObject *pyob) const
+        virtual bool accepts( PyObject *pyob ) const
         {
-            return pyob && Py::_Type_Check (pyob);
+            return pyob && Py::_Type_Check( pyob );
         }
     };
 
@@ -519,9 +520,9 @@ namespace Py
     //
     //    Convert an owned Python pointer into a CXX Object
     //
-    inline Object asObject (PyObject *p)
+    inline Object asObject( PyObject *p )
     {
-        return Object(p, true);
+        return Object( p, true );
     }
 
     // ===============================================
@@ -530,173 +531,60 @@ namespace Py
     {
     public:
         // Constructor
-        Boolean (PyObject *pyob, bool owned = false): Object (pyob, owned)
+        Boolean( PyObject *pyob, bool owned = false ): Object( pyob, owned )
         {
             validate();
         }
 
-        Boolean (const Boolean& ob): Object(*ob)
+        Boolean( const Boolean& ob ): Object( *ob )
         {
             validate();
         }
 
         // create from bool
-        Boolean (bool v=false)
+        Boolean( bool v=false )
         {
-            set(PyBool_FromLong(v ? 1 : 0), true);
+            set( PyBool_FromLong( v ? 1 : 0 ), true );
             validate();
         }
 
-        explicit Boolean (const Object& ob)
+        explicit Boolean( const Object& ob )
         {
-            set(*ob, true);
+            set( *ob, true );
             validate();
         }
 
         // Assignment acquires new ownership of pointer
 
-        Boolean& operator= (const Object& rhs)
+        Boolean& operator=( const Object& rhs )
         {
-            return (*this = *rhs);
+            return( *this = *rhs );
         }
 
-        Boolean& operator= (PyObject* rhsp)
+        Boolean& operator=( PyObject* rhsp )
         {
-            if(ptr() == rhsp) return *this;
-            set (rhsp, true);
+            if( ptr() == rhsp ) return *this;
+            set( rhsp, true );
             return *this;
         }
 
         // Membership
-        virtual bool accepts (PyObject *pyob) const
+        virtual bool accepts( PyObject *pyob ) const
         {
-            return pyob && Py::_Boolean_Check (pyob);
+            return pyob && Py::_Boolean_Check( pyob );
         }
 
         // convert to long
         operator bool() const
         {
-            return PyObject_IsTrue (ptr()) != 0;
+            return PyObject_IsTrue( ptr() ) != 0;
         }
 
-        Boolean& operator= (bool v)
+        Boolean& operator=( bool v )
         {
-            set (PyBool_FromLong (v ? 1 : 0), true);
+            set( PyBool_FromLong( v ? 1 : 0 ), true );
             return *this;
         }
-    };
-
-    // ===============================================
-    // class Int
-    class Int: public Object
-    {
-    public:
-        // Constructor
-        Int (PyObject *pyob, bool owned = false): Object (pyob, owned)
-        {
-            validate();
-        }
-
-        Int (const Int& ob): Object(*ob)
-        {
-            validate();
-        }
-
-        // create from long
-        Int (long v = 0L): Object(PyInt_FromLong(v), true)
-        {
-            validate();
-        }
-
-        // create from int
-        Int (int v)
-        {
-            long w = v;
-            set(PyInt_FromLong(w), true);
-            validate();
-        }
-
-        // create from bool
-        Int (bool v)
-        {
-            long w = v ? 1 : 0;
-            set(PyInt_FromLong(w), true);
-            validate();
-        }
-
-        explicit Int (const Object& ob)
-        {
-            set(PyNumber_Int(*ob), true);
-            validate();
-        }
-
-        // Assignment acquires new ownership of pointer
-
-        Int& operator= (const Object& rhs)
-        {
-            return (*this = *rhs);
-        }
-
-        Int& operator= (PyObject* rhsp)
-        {
-            if(ptr() == rhsp) return *this;
-            set (PyNumber_Int(rhsp), true);
-            return *this;
-        }
-
-        // Membership
-        virtual bool accepts (PyObject *pyob) const
-        {
-            return pyob && Py::_Int_Check (pyob);
-        }
-
-        // convert to long
-        operator long() const
-        {
-            return PyInt_AsLong (ptr());
-        }
-
-#ifdef HAVE_LONG_LONG
-        // convert to long long
-        PY_LONG_LONG asLongLong() const
-        {
-            return PyLong_AsLongLong (ptr());
-        }
-        // convert to unsigned long long
-        unsigned PY_LONG_LONG asUnsignedLongLong() const
-        {
-            return PyLong_AsUnsignedLongLong (ptr());
-        }
-#endif
-
-        // assign from an int
-        Int& operator= (int v)
-        {
-            set (PyInt_FromLong (long(v)), true);
-            return *this;
-        }
-
-        // assign from long
-        Int& operator= (long v)
-        {
-            set (PyInt_FromLong (v), true);
-            return *this;
-        }
-
-#ifdef HAVE_LONG_LONG
-        // assign from long long
-        Int& operator= (PY_LONG_LONG v)
-        {
-            set (PyLong_FromLongLong (v), true);
-            return *this;
-        }
-        // assign from unsigned long long
-        Int& operator= (unsigned PY_LONG_LONG v)
-        {
-            set (PyLong_FromUnsignedLongLong (v), true);
-            return *this;
-        }
-#endif
     };
 
     // ===============================================
@@ -705,91 +593,98 @@ namespace Py
     {
     public:
         // Constructor
-        explicit Long (PyObject *pyob, bool owned = false): Object (pyob, owned)
+        explicit Long( PyObject *pyob, bool owned = false )
+        : Object( pyob, owned )
         {
             validate();
         }
 
-        Long (const Long& ob): Object(ob.ptr())
+        Long( const Long& ob )
+        : Object( ob.ptr() )
         {
             validate();
         }
 
         // create from long
-        explicit Long (long v = 0L)
-            : Object(PyLong_FromLong(v), true)
+        explicit Long( long v = 0L )
+        : Object( PyLong_FromLong( v ), true )
         {
             validate();
         }
         // create from unsigned long
-        explicit Long (unsigned long v)
-            : Object(PyLong_FromUnsignedLong(v), true)
+        explicit Long( unsigned long v )
+        : Object( PyLong_FromUnsignedLong( v ), true )
         {
             validate();
         }
         // create from int
-        explicit Long (int v)
-            : Object(PyLong_FromLong(static_cast<long>(v)), true)
+        explicit Long( int v )
+        : Object( PyLong_FromLong( static_cast<long>( v ) ), true )
         {
             validate();
         }
 
         // try to create from any object
-        Long (const Object& ob)
-            : Object(PyNumber_Long(*ob), true)
+        Long( const Object& ob )
+        : Object( PyNumber_Long( *ob ), true )
         {
             validate();
         }
 
-        // Assignment acquires new ownership of pointer
-
-        Long& operator= (const Object& rhs)
+        // Membership
+        virtual bool accepts( PyObject *pyob ) const
         {
-            return (*this = *rhs);
+            return pyob && Py::_Long_Check( pyob );
         }
 
-        Long& operator= (PyObject* rhsp)
+        // Assignment acquires new ownership of pointer
+        Long& operator=( const Object& rhs )
         {
-            if(ptr() == rhsp) return *this;
-            set (PyNumber_Long(rhsp), true);
+            return( *this = *rhs );
+        }
+
+        Long& operator=( PyObject* rhsp )
+        {
+            if( ptr() == rhsp ) return *this;
+            set( PyNumber_Long( rhsp ), true );
             return *this;
         }
-        // Membership
-        virtual bool accepts (PyObject *pyob) const
+
+        // assign from an int
+        Long& operator=( int v )
         {
-            return pyob && Py::_Long_Check (pyob);
+            set( PyLong_FromLong( long( v ) ), true );
+            return *this;
         }
+
+        // assign from long
+        Long& operator=( long v )
+        {
+            set( PyLong_FromLong( v ), true );
+            return *this;
+        }
+
+        // assign from unsigned long
+        Long& operator=( unsigned long v )
+        {
+            set( PyLong_FromUnsignedLong( v ), true );
+            return *this;
+        }
+
         // convert to long
         operator long() const
         {
-            return PyLong_AsLong (ptr());
+            return PyLong_AsLong( ptr() );
         }
         // convert to unsigned
         operator unsigned long() const
         {
-            return PyLong_AsUnsignedLong (ptr());
+            return PyLong_AsUnsignedLong( ptr() );
         }
+
         operator double() const
         {
-            return PyLong_AsDouble (ptr());
-        }
-        // assign from an int
-        Long& operator= (int v)
-        {
-            set(PyLong_FromLong (long(v)), true);
-            return *this;
-        }
-        // assign from long
-        Long& operator= (long v)
-        {
-            set(PyLong_FromLong (v), true);
-            return *this;
-        }
-        // assign from unsigned long
-        Long& operator= (unsigned long v)
-        {
-            set(PyLong_FromUnsignedLong (v), true);
-            return *this;
+            return PyLong_AsDouble( ptr() );
         }
     };
 
@@ -800,123 +695,123 @@ namespace Py
     {
     public:
         // Constructor
-        explicit LongLong (PyObject *pyob, bool owned = false): Object (pyob, owned)
+        explicit LongLong( PyObject *pyob, bool owned = false ): Object( pyob, owned )
         {
             validate();
         }
 
-        LongLong (const LongLong& ob): Object(ob.ptr())
+        LongLong( const LongLong& ob ): Object( ob.ptr() )
         {
             validate();
         }
         // create from long long
-        explicit LongLong (PY_LONG_LONG v = 0L)
-            : Object(PyLong_FromLongLong(v), true)
+        explicit LongLong( PY_LONG_LONG v = 0L )
+        : Object( PyLong_FromLongLong( v ), true )
         {
             validate();
         }
         // create from unsigned long long
-        explicit LongLong (unsigned PY_LONG_LONG v)
-            : Object(PyLong_FromUnsignedLongLong(v), true)
+        explicit LongLong( unsigned PY_LONG_LONG v )
+        : Object( PyLong_FromUnsignedLongLong( v ), true )
         {
             validate();
         }
         // create from long
-        explicit LongLong (long v)
-            : Object(PyLong_FromLongLong(v), true)
+        explicit LongLong( long v )
+        : Object( PyLong_FromLongLong( v ), true )
         {
             validate();
         }
         // create from unsigned long
-        explicit LongLong (unsigned long v)
-            : Object(PyLong_FromUnsignedLongLong(v), true)
+        explicit LongLong( unsigned long v )
+        : Object( PyLong_FromUnsignedLongLong( v ), true )
         {
             validate();
         }
         // create from int
-        explicit LongLong (int v)
-            : Object(PyLong_FromLongLong(static_cast<PY_LONG_LONG>(v)), true)
+        explicit LongLong( int v )
+        : Object( PyLong_FromLongLong( static_cast<PY_LONG_LONG>( v ) ), true )
         {
             validate();
         }
 
         // try to create from any object
-        LongLong (const Object& ob)
-            : Object(PyNumber_Long(*ob), true)
+        LongLong( const Object& ob )
+        : Object( PyNumber_Long( *ob ), true )
         {
             validate();
         }
 
         // Assignment acquires new ownership of pointer
 
-        LongLong& operator= (const Object& rhs)
+        LongLong& operator=( const Object& rhs )
         {
-            return (*this = *rhs);
+            return( *this = *rhs );
         }
 
-        LongLong& operator= (PyObject* rhsp)
+        LongLong& operator=( PyObject* rhsp )
         {
-            if(ptr() == rhsp) return *this;
-            set (PyNumber_Long(rhsp), true);
+            if( ptr() == rhsp ) return *this;
+            set( PyNumber_Long( rhsp ), true );
             return *this;
         }
         // Membership
-        virtual bool accepts (PyObject *pyob) const
+        virtual bool accepts( PyObject *pyob ) const
         {
-            return pyob && Py::_Long_Check (pyob);
+            return pyob && Py::_Long_Check( pyob );
         }
         // convert to long long
         operator PY_LONG_LONG() const
         {
-            return PyLong_AsLongLong (ptr());
+            return PyLong_AsLongLong( ptr() );
         }
         // convert to unsigned long
         operator unsigned PY_LONG_LONG() const
         {
-            return PyLong_AsUnsignedLongLong (ptr());
+            return PyLong_AsUnsignedLongLong( ptr() );
         }
         // convert to long
         operator long() const
         {
-            return PyLong_AsLong (ptr());
+            return PyLong_AsLong( ptr() );
         }
         // convert to unsigned
         operator unsigned long() const
         {
-            return PyLong_AsUnsignedLong (ptr());
+            return PyLong_AsUnsignedLong( ptr() );
         }
         operator double() const
         {
-            return PyLong_AsDouble (ptr());
+            return PyLong_AsDouble( ptr() );
         }
         // assign from an int
-        LongLong& operator= (int v)
+        LongLong& operator=( int v )
         {
-            set(PyLong_FromLongLong (long(v)), true);
+            set( PyLong_FromLongLong( long( v ) ), true );
             return *this;
         }
         // assign from long long
-        LongLong& operator= (PY_LONG_LONG v)
+        LongLong& operator=( PY_LONG_LONG v )
         {
-            set(PyLong_FromLongLong (v), true);
+            set( PyLong_FromLongLong( v ), true );
             return *this;
         }
         // assign from unsigned long long
-        LongLong& operator= (unsigned PY_LONG_LONG v)
+        LongLong& operator=( unsigned PY_LONG_LONG v )
         {
-            set(PyLong_FromUnsignedLongLong (v), true);
+            set( PyLong_FromUnsignedLongLong( v ), true );
             return *this;
         }
         // assign from long
-        LongLong& operator= (long v)
+        LongLong& operator=( long v )
         {
-            set(PyLong_FromLongLong (v), true);
+            set( PyLong_FromLongLong( v ), true );
             return *this;
         }
         // assign from unsigned long
-        LongLong& operator= (unsigned long v)
+        LongLong& operator=( unsigned long v )
         {
-            set(PyLong_FromUnsignedLongLong (v), true);
+            set( PyLong_FromUnsignedLongLong( v ), true );
             return *this;
         }
     };
@@ -929,73 +824,73 @@ namespace Py
     {
     public:
         // Constructor
-        explicit Float (PyObject *pyob, bool owned = false): Object(pyob, owned)
+        explicit Float( PyObject *pyob, bool owned = false ): Object( pyob, owned )
         {
             validate();
         }
 
-        Float (const Float& f): Object(f)
+        Float( const Float& f ): Object( f )
         {
             validate();
         }
 
         // make from double
-        explicit Float (double v=0.0)
-            : Object(PyFloat_FromDouble (v), true)
+        explicit Float( double v=0.0 )
+        : Object( PyFloat_FromDouble( v ), true )
         {
             validate();
         }
 
         // try to make from any object
-        Float (const Object& ob)
-            : Object(PyNumber_Float(*ob), true)
+        Float( const Object& ob )
+        : Object( PyNumber_Float( *ob ), true )
         {
             validate();
         }
 
-        Float& operator= (const Object& rhs)
+        Float& operator=( const Object& rhs )
         {
-            return (*this = *rhs);
+            return( *this = *rhs );
         }
 
-        Float& operator= (PyObject* rhsp)
+        Float& operator=( PyObject* rhsp )
         {
-            if(ptr() == rhsp) return *this;
-            set (PyNumber_Float(rhsp), true);
+            if( ptr() == rhsp ) return *this;
+            set( PyNumber_Float( rhsp ), true );
             return *this;
         }
         // Membership
-        virtual bool accepts (PyObject *pyob) const
+        virtual bool accepts( PyObject *pyob ) const
         {
-            return pyob && Py::_Float_Check (pyob);
+            return pyob && Py::_Float_Check( pyob );
         }
         // convert to double
-        operator double () const
+        operator double() const
         {
-            return PyFloat_AsDouble (ptr());
+            return PyFloat_AsDouble( ptr() );
         }
         // assign from a double
-        Float& operator= (double v)
+        Float& operator=( double v )
         {
-            set(PyFloat_FromDouble (v), true);
+            set( PyFloat_FromDouble( v ), true );
             return *this;
         }
         // assign from an int
-        Float& operator= (int v)
+        Float& operator=( int v )
         {
-            set(PyFloat_FromDouble (double(v)), true);
+            set( PyFloat_FromDouble( double( v ) ), true );
             return *this;
         }
         // assign from long
-        Float& operator= (long v)
+        Float& operator=( long v )
         {
-            set(PyFloat_FromDouble (double(v)), true);
+            set( PyFloat_FromDouble( double( v ) ), true );
             return *this;
         }
-        // assign from an Int
-        Float& operator= (const Int& iob)
+        // assign from an Long
+        Float& operator=( const Long &iob )
         {
-            set(PyFloat_FromDouble (double(long(iob))), true);
+            set( PyFloat_FromDouble( double( long( iob ) ) ), true );
             return *this;
         }
     };
@@ -1006,83 +901,83 @@ namespace Py
     {
     public:
         // Constructor
-        explicit Complex (PyObject *pyob, bool owned = false): Object(pyob, owned)
+        explicit Complex( PyObject *pyob, bool owned = false ): Object( pyob, owned )
         {
             validate();
         }
 
-        Complex (const Complex& f): Object(f)
+        Complex( const Complex& f ): Object( f )
         {
             validate();
         }
 
         // make from double
-        explicit Complex (double v=0.0, double w=0.0)
-            :Object(PyComplex_FromDoubles (v, w), true)
+        explicit Complex( double v=0.0, double w=0.0 )
+        :Object( PyComplex_FromDoubles( v, w ), true )
         {
             validate();
         }
 
-        Complex& operator= (const Object& rhs)
+        Complex& operator=( const Object& rhs )
         {
-            return (*this = *rhs);
+            return( *this = *rhs );
         }
 
-        Complex& operator= (PyObject* rhsp)
+        Complex& operator=( PyObject* rhsp )
         {
-            if(ptr() == rhsp) return *this;
-            set (rhsp);
+            if( ptr() == rhsp ) return *this;
+            set( rhsp );
             return *this;
         }
         // Membership
-        virtual bool accepts (PyObject *pyob) const
+        virtual bool accepts( PyObject *pyob ) const
         {
-            return pyob && Py::_Complex_Check (pyob);
+            return pyob && Py::_Complex_Check( pyob );
         }
         // convert to Py_complex
-        operator Py_complex () const
+        operator Py_complex() const
         {
-            return PyComplex_AsCComplex (ptr());
+            return PyComplex_AsCComplex( ptr() );
         }
         // assign from a Py_complex
-        Complex& operator= (const Py_complex& v)
+        Complex& operator=( const Py_complex& v )
         {
-            set(PyComplex_FromCComplex (v), true);
+            set( PyComplex_FromCComplex( v ), true );
             return *this;
         }
         // assign from a double
-        Complex& operator= (double v)
+        Complex& operator=( double v )
         {
-            set(PyComplex_FromDoubles (v, 0.0), true);
+            set( PyComplex_FromDoubles( v, 0.0 ), true );
             return *this;
         }
         // assign from an int
-        Complex& operator= (int v)
+        Complex& operator=( int v )
         {
-            set(PyComplex_FromDoubles (double(v), 0.0), true);
+            set( PyComplex_FromDoubles( double( v ), 0.0 ), true );
             return *this;
         }
         // assign from long
-        Complex& operator= (long v)
+        Complex& operator=( long v )
         {
-            set(PyComplex_FromDoubles (double(v), 0.0), true);
+            set( PyComplex_FromDoubles( double( v ), 0.0 ), true );
             return *this;
         }
-        // assign from an Int
-        Complex& operator= (const Int& iob)
+        // assign from an Long
+        Complex& operator=( const Long& iob )
         {
-            set(PyComplex_FromDoubles (double(long(iob)), 0.0), true);
+            set( PyComplex_FromDoubles( double( long( iob ) ), 0.0 ), true );
             return *this;
         }
 
         double real() const
         {
-            return PyComplex_RealAsDouble(ptr());
+            return PyComplex_RealAsDouble( ptr() );
         }
 
         double imag() const
         {
-            return PyComplex_ImagAsDouble(ptr());
+            return PyComplex_ImagAsDouble( ptr() );
         }
     };
     // Sequences
@@ -1105,7 +1000,7 @@ namespace Py
     // work properly.
 
     // Still, once in a while a weird compiler message may occur using expressions like x[i]
-    // Changing them to Object(x[i]) helps the compiler to understand that the
+    // Changing them to Object( x[i] ) helps the compiler to understand that the
     // conversion of a seqref to an Object is wanted.
 
     template<TEMPLATE_TYPENAME T>
@@ -1115,22 +1010,23 @@ namespace Py
         SeqBase<T>& s; // the sequence
         int offset; // item number
         T the_item; // lvalue
-    public:
 
-        seqref (SeqBase<T>& seq, sequence_index_type j)
-            : s(seq), offset(j), the_item (s.getItem(j))
+    public:
+        seqref( SeqBase<T>& seq, sequence_index_type j )
+        : s( seq ), offset( j ), the_item( s.getItem( j ) )
         {}
 
-        seqref (const seqref<T>& range)
-            : s(range.s), offset(range.offset), the_item(range.the_item)
+        seqref( const seqref<T>& range )
+        : s( range.s ), offset( range.offset ), the_item( range.the_item )
         {}
 
         // TMM: added this seqref ctor for use with STL algorithms
-        seqref (Object& obj)
-            : s(dynamic_cast< SeqBase<T>&>(obj))
-            , offset( NULL )
-            , the_item(s.getItem(offset))
+        seqref( Object& obj )
+        : s( dynamic_cast< SeqBase<T>&>( obj ) )
+        , offset( NULL )
+        , the_item( s.getItem( offset ) )
         {}
+
         ~seqref()
         {}
 
@@ -1139,103 +1035,102 @@ namespace Py
             return the_item;
         }
 
-        seqref<T>& operator=(const seqref<T>& rhs)
+        seqref<T>& operator=( const seqref<T>& rhs )
         { //used as lvalue
             the_item = rhs.the_item;
-            s.setItem(offset, the_item);
+            s.setItem( offset, the_item );
             return *this;
         }
 
-        seqref<T>& operator=(const T& ob)
+        seqref<T>& operator=( const T& ob )
         { // used as lvalue
             the_item = ob;
-            s.setItem(offset, ob);
+            s.setItem( offset, ob );
             return *this;
         }
 
         // forward everything else to the item
-        PyObject* ptr () const
+        PyObject* ptr() const
         {
             return the_item.ptr();
         }
 
-        int reference_count () const
+        int reference_count() const
         { // the reference count
             return the_item.reference_count();
         }
 
-        Type type () const
+        Type type() const
         {
             return the_item.type();
         }
 
-        String str () const;
+        String str() const;
+        String repr() const;
 
-        String repr () const;
-
-        bool hasAttr (const std::string& attr_name) const
+        bool hasAttr( const std::string& attr_name ) const
         {
-            return the_item.hasAttr(attr_name);
+            return the_item.hasAttr( attr_name );
         }
 
-        Object getAttr (const std::string& attr_name) const
+        Object getAttr( const std::string& attr_name ) const
         {
-            return the_item.getAttr(attr_name);
+            return the_item.getAttr( attr_name );
         }
 
-        Object getItem (const Object& key) const
+        Object getItem( const Object& key ) const
         {
-            return the_item.getItem(key);
+            return the_item.getItem( key );
         }
 
-        long hashValue () const
+        long hashValue() const
         {
             return the_item.hashValue();
         }
 
-        bool isCallable () const
+        bool isCallable() const
         {
             return the_item.isCallable();
         }
 
-        bool isInstance () const
+        bool isInstance() const
         {
             return the_item.isInstance();
         }
 
-        bool isDict () const
+        bool isDict() const
         {
             return the_item.isDict();
         }
 
-        bool isList () const
+        bool isList() const
         {
             return the_item.isList();
         }
 
-        bool isMapping () const
+        bool isMapping() const
         {
             return the_item.isMapping();
         }
 
-        bool isNumeric () const
+        bool isNumeric() const
         {
             return the_item.isNumeric();
         }
 
-        bool isSequence () const
+        bool isSequence() const
         {
             return the_item.isSequence();
         }
 
-        bool isTrue () const
+        bool isTrue() const
         {
             return the_item.isTrue();
         }
 
-        bool isType (const Type& t) const
+        bool isType( const Type& t ) const
         {
-            return the_item.isType (t);
+            return the_item.isType( t );
         }
 
         bool isTuple() const
@@ -1248,47 +1143,47 @@ namespace Py
             return the_item.isString();
         }
         // Commands
-        void setAttr (const std::string& attr_name, const Object& value)
+        void setAttr( const std::string& attr_name, const Object& value )
         {
-            the_item.setAttr(attr_name, value);
+            the_item.setAttr( attr_name, value );
         }
 
-        void delAttr (const std::string& attr_name)
+        void delAttr( const std::string& attr_name )
         {
-            the_item.delAttr(attr_name);
+            the_item.delAttr( attr_name );
         }
 
-        void delItem (const Object& key)
+        void delItem( const Object& key )
         {
-            the_item.delItem(key);
+            the_item.delItem( key );
         }
 
-        bool operator==(const Object& o2) const
+        bool operator==( const Object& o2 ) const
         {
             return the_item == o2;
         }
 
-        bool operator!=(const Object& o2) const
+        bool operator!=( const Object& o2 ) const
         {
             return the_item != o2;
         }
 
-        bool operator>=(const Object& o2) const
+        bool operator>=( const Object& o2 ) const
         {
             return the_item >= o2;
         }
 
-        bool operator<=(const Object& o2) const
+        bool operator<=( const Object& o2 ) const
         {
             return the_item <= o2;
         }
 
-        bool operator<(const Object& o2) const
+        bool operator<( const Object& o2 ) const
         {
             return the_item < o2;
         }
 
-        bool operator>(const Object& o2) const
+        bool operator>( const Object& o2 ) const
         {
             return the_item > o2;
         }
@@ -1320,129 +1215,129 @@ namespace Py
             return size();
         }
 
-        virtual void swap(SeqBase<T>& c)
+        virtual void swap( SeqBase<T>& c )
         {
             SeqBase<T> temp = c;
             c = ptr();
-            set(temp.ptr());
+            set( temp.ptr() );
         }
 
-        virtual size_type size () const
+        virtual size_type size() const
         {
-            return PySequence_Length (ptr());
+            return PySequence_Length( ptr() );
         }
 
-        explicit SeqBase<T> ()
-            :Object(PyTuple_New(0), true)
-        {
-            validate();
-        }
-
-        explicit SeqBase<T> (PyObject* pyob, bool owned=false)
-            : Object(pyob, owned)
+        explicit SeqBase<T>()
+        :Object( PyTuple_New( 0 ), true )
         {
             validate();
         }
 
-        SeqBase<T> (const Object& ob): Object(ob)
+        explicit SeqBase<T>( PyObject* pyob, bool owned=false )
+        : Object( pyob, owned )
+        {
+            validate();
+        }
+
+        SeqBase<T>( const Object& ob ): Object( ob )
         {
             validate();
         }
 
         // Assignment acquires new ownership of pointer
 
-        SeqBase<T>& operator= (const Object& rhs)
+        SeqBase<T>& operator=( const Object& rhs )
         {
-            return (*this = *rhs);
+            return( *this = *rhs );
         }
 
-        SeqBase<T>& operator= (PyObject* rhsp)
+        SeqBase<T>& operator=( PyObject* rhsp )
         {
-            if(ptr() == rhsp) return *this;
-            set (rhsp);
+            if( ptr() == rhsp ) return *this;
+            set( rhsp );
             return *this;
         }
 
-        virtual bool accepts (PyObject *pyob) const
+        virtual bool accepts( PyObject *pyob ) const
         {
-            return pyob && PySequence_Check (pyob);
+            return pyob && PySequence_Check( pyob );
         }
 
-        size_type length () const
+        size_type length() const
         {
-            return PySequence_Length (ptr());
+            return PySequence_Length( ptr() );
         }
 
         // Element access
-        const T operator[](sequence_index_type index) const
+        const T operator[]( sequence_index_type index ) const
         {
-            return getItem(index);
+            return getItem( index );
         }
 
-        seqref<T> operator[](sequence_index_type index)
+        seqref<T> operator[]( sequence_index_type index )
         {
-            return seqref<T>(*this, index);
+            return seqref<T>( *this, index );
         }
 
-        virtual T getItem (sequence_index_type i) const
+        virtual T getItem( sequence_index_type i ) const
         {
-            return T(asObject(PySequence_GetItem (ptr(), i)));
+            return T( asObject( PySequence_GetItem( ptr(), i ) ) );
         }
 
-        virtual void setItem (sequence_index_type i, const T& ob)
+        virtual void setItem( sequence_index_type i, const T& ob )
         {
-            if (PySequence_SetItem (ptr(), i, *ob) == -1)
+            if( PySequence_SetItem( ptr(), i, *ob ) == -1 )
             {
                 throw Exception();
             }
         }
 
-        SeqBase<T> repeat (int count) const
+        SeqBase<T> repeat( int count ) const
         {
-            return SeqBase<T> (PySequence_Repeat (ptr(), count), true);
+            return SeqBase<T>( PySequence_Repeat( ptr(), count ), true );
         }
 
-        SeqBase<T> concat (const SeqBase<T>& other) const
+        SeqBase<T> concat( const SeqBase<T>& other ) const
         {
-            return SeqBase<T> (PySequence_Concat(ptr(), *other), true);
+            return SeqBase<T>( PySequence_Concat( ptr(), *other ), true );
         }
 
         // more STL compatability
-        const T front () const
+        const T front() const
         {
-            return getItem(0);
+            return getItem( 0 );
         }
 
         seqref<T> front()
         {
-            return seqref<T>(this, 0);
+            return seqref<T>( this, 0 );
         }
 
-        const T back () const
+        const T back() const
         {
-            return getItem(size()-1);
+            return getItem( size()-1 );
         }
 
         seqref<T> back()
         {
-            return seqref<T>(this, size()-1);
+            return seqref<T>( this, size()-1 );
         }
 
-        void verify_length(size_type required_size) const
+        void verify_length( size_type required_size ) const
         {
-            if (size() != required_size)
-            throw IndexError ("Unexpected SeqBase<T> length.");
+            if( size() != required_size )
+            throw IndexError( "Unexpected SeqBase<T> length." );
         }
 
-        void verify_length(size_type min_size, size_type max_size) const
+        void verify_length( size_type min_size, size_type max_size ) const
         {
             size_type n = size();
-            if (n < min_size || n > max_size)
-            throw IndexError ("Unexpected SeqBase<T> length.");
+            if( n < min_size || n > max_size )
+            throw IndexError( "Unexpected SeqBase<T> length." );
         }
 
         class iterator
-            : public random_access_iterator_parent(seqref<T>)
+        : public random_access_iterator_parent( seqref<T> )
         {
         protected:
             friend class SeqBase<T>;
@@ -1450,134 +1345,149 @@ namespace Py
             int count;
 
         public:
-            ~iterator ()
+            ~iterator()
             {}
 
-            iterator ()
-                : seq( 0 )
-                , count( 0 )
+            iterator()
+            : seq( 0 )
+            , count( 0 )
             {}
 
-            iterator (SeqBase<T>* s, int where)
-                : seq( s )
-                , count( where )
+            iterator( SeqBase<T>* s, int where )
+            : seq( s )
+            , count( where )
             {}
 
-            iterator (const iterator& other)
-                : seq( other.seq )
-                , count( other.count )
+            iterator( const iterator& other )
+            : seq( other.seq )
+            , count( other.count )
             {}
 
-            bool eql (const iterator& other) const
+            bool eql( const iterator& other ) const
             {
                 return (*seq == *other.seq) && (count == other.count);
             }
 
-            bool neq (const iterator& other) const
+            bool neq( const iterator& other ) const
             {
                 return (*seq != *other.seq) || (count != other.count);
             }
 
-            bool lss (const iterator& other) const
+            bool lss( const iterator& other ) const
             {
-                return (count < other.count);
+                return count < other.count;
             }
 
-            bool gtr (const iterator& other) const
+            bool gtr( const iterator& other ) const
             {
-                return (count > other.count);
+                return count > other.count;
             }
 
-            bool leq (const iterator& other) const
+            bool leq( const iterator& other ) const
             {
-                return (count <= other.count);
+                return count <= other.count;
             }
 
-            bool geq (const iterator& other) const
+            bool geq( const iterator& other ) const
             {
-                return (count >= other.count);
+                return count >= other.count;
             }
 
             seqref<T> operator*()
             {
-                return seqref<T>(*seq, count);
+                return seqref<T>( *seq, count );
             }
 
-            seqref<T> operator[] (sequence_index_type i)
+            seqref<T> operator[]( sequence_index_type i )
             {
-                return seqref<T>(*seq, count + i);
+                return seqref<T>( *seq, count + i );
             }
 
-            iterator& operator=(const iterator& other)
+            iterator& operator=( const iterator& other )
             {
-                if (this == &other) return *this;
+                if( this == &other )
+                    return *this;
                 seq = other.seq;
                 count = other.count;
                 return *this;
             }
 
-            iterator operator+(int n) const
+            iterator operator+( int n ) const
             {
-                return iterator(seq, count + n);
+                return iterator( seq, count + n );
             }
 
-            iterator operator-(int n) const
+            iterator operator-( int n ) const
             {
-                return iterator(seq, count - n);
+                return iterator( seq, count - n );
             }
 
-            iterator& operator+=(int n)
+            iterator& operator+=( int n )
             {
                 count = count + n;
                 return *this;
             }
 
-            iterator& operator-=(int n)
+            iterator& operator-=( int n )
             {
                 count = count - n;
                 return *this;
             }
 
-            int operator-(const iterator& other) const
+            int operator-( const iterator& other ) const
             {
-                if (*seq != *other.seq)
-                throw RuntimeError ("SeqBase<T>::iterator comparison error");
+                if( *seq != *other.seq )
+                throw RuntimeError( "SeqBase<T>::iterator comparison error" );
                 return count - other.count;
             }
 
             // prefix ++
-            iterator& operator++ ()
-            { count++; return *this;}
+            iterator& operator++()
+            {
+                count++;
+                return *this;
+            }
+
             // postfix ++
-            iterator operator++ (int)
-            { return iterator(seq, count++);}
+            iterator operator++( int )
+            {
+                return iterator( seq, count++ );
+            }
+
             // prefix --
-            iterator& operator-- ()
-            { count--; return *this;}
+            iterator& operator--()
+            {
+                count--;
+                return *this;
+            }
+
             // postfix --
-            iterator operator-- (int)
-            { return iterator(seq, count--);}
+            iterator operator--( int )
+            {
+                return iterator( seq, count-- );
+            }
 
             std::string diagnose() const
             {
                 std::OSTRSTREAM oss;
                 oss << "iterator diagnosis " << seq << ", " << count << std::ends;
-                return std::string(oss.str());
+                return std::string( oss.str() );
             }
+
         };    // end of class SeqBase<T>::iterator
 
-        iterator begin ()
+        iterator begin()
         {
-            return iterator(this, 0);
+            return iterator( this, 0 );
         }
 
-        iterator end ()
+        iterator end()
         {
-            return iterator(this, length());
+            return iterator( this, length() );
         }
 
         class const_iterator
-            : public random_access_iterator_parent(const Object)
+        : public random_access_iterator_parent( const Object )
         {
         protected:
             friend class SeqBase<T>;
@@ -1585,156 +1495,172 @@ namespace Py
             sequence_index_type count;
 
         public:
-            ~const_iterator ()
+            ~const_iterator()
             {}
 
-            const_iterator ()
-                : seq( 0 )
-                , count( 0 )
+            const_iterator()
+            : seq( 0 )
+            , count( 0 )
             {}
 
-            const_iterator (const SeqBase<T>* s, int where)
-                : seq( s )
-                , count( where )
+            const_iterator( const SeqBase<T>* s, int where )
+            : seq( s )
+            , count( where )
             {}
 
-            const_iterator(const const_iterator& other)
-                : seq( other.seq )
-                , count( other.count )
+            const_iterator( const const_iterator& other )
+            : seq( other.seq )
+            , count( other.count )
             {}
 
             const T operator*() const
             {
-                return seq->getItem(count);
+                return seq->getItem( count );
             }
 
-            const T operator[] (sequence_index_type i) const
+            const T operator[]( sequence_index_type i ) const
             {
-                return seq->getItem(count + i);
+                return seq->getItem( count + i );
             }
 
-            const_iterator& operator=(const const_iterator& other)
+            const_iterator& operator=( const const_iterator& other )
             {
-                if (this == &other) return *this;
+                if( this == &other )
+                    return *this;
                 seq = other.seq;
                 count = other.count;
                 return *this;
             }
 
-            const_iterator operator+(int n) const
+            const_iterator operator+( int n ) const
             {
-                return const_iterator(seq, count + n);
+                return const_iterator( seq, count + n );
             }
 
-            bool eql (const const_iterator& other) const
+            bool eql( const const_iterator& other ) const
             {
-                return (*seq == *other.seq) && (count == other.count);
+                return( *seq == *other.seq ) &&( count == other.count );
             }
 
-            bool neq (const const_iterator& other) const
+            bool neq( const const_iterator& other ) const
             {
-                return (*seq != *other.seq) || (count != other.count);
+                return( *seq != *other.seq ) ||( count != other.count );
             }
 
-            bool lss (const const_iterator& other) const
+            bool lss( const const_iterator& other ) const
             {
-                return (count < other.count);
+                return count < other.count;
             }
 
-            bool gtr (const const_iterator& other) const
+            bool gtr( const const_iterator& other ) const
             {
-                return (count > other.count);
+                return count > other.count;
             }
 
-            bool leq (const const_iterator& other) const
+            bool leq( const const_iterator& other ) const
             {
-                return (count <= other.count);
+                return count <= other.count;
             }
 
-            bool geq (const const_iterator& other) const
+            bool geq( const const_iterator& other ) const
             {
-                return (count >= other.count);
+                return count >= other.count;
             }
 
-            const_iterator operator-(int n)
+            const_iterator operator-( int n )
             {
-                return const_iterator(seq, count - n);
+                return const_iterator( seq, count - n );
             }
 
-            const_iterator& operator+=(int n)
+            const_iterator& operator+=( int n )
             {
                 count = count + n;
                 return *this;
             }
 
-            const_iterator& operator-=(int n)
+            const_iterator& operator-=( int n )
             {
                 count = count - n;
                 return *this;
             }
 
-            int operator-(const const_iterator& other) const
+            int operator-( const const_iterator& other ) const
             {
-                if (*seq != *other.seq)
-                throw RuntimeError ("SeqBase<T>::const_iterator::- error");
+                if( *seq != *other.seq )
+                    throw RuntimeError( "SeqBase<T>::const_iterator::- error" );
                 return count - other.count;
             }
+
             // prefix ++
-            const_iterator& operator++ ()
-            { count++; return *this;}
+            const_iterator& operator++()
+            {
+                count++;
+                return *this;
+            }
+
             // postfix ++
-            const_iterator operator++ (int)
-            { return const_iterator(seq, count++);}
+            const_iterator operator++( int )
+            {
+                return const_iterator( seq, count++ );
+            }
+
             // prefix --
-            const_iterator& operator-- ()
-            { count--; return *this;}
+            const_iterator& operator--()
+            {
+                count--;
+                return *this;
+            }
+
             // postfix --
-            const_iterator operator-- (int)
-            { return const_iterator(seq, count--);}
+            const_iterator operator--( int )
+            {
+                return const_iterator( seq, count-- );
+            }
+
         };    // end of class SeqBase<T>::const_iterator
 
-        const_iterator begin () const
+        const_iterator begin() const
         {
-            return const_iterator(this, 0);
+            return const_iterator( this, 0 );
         }
 
-        const_iterator end () const
+        const_iterator end() const
         {
-            return const_iterator(this, length());
+            return const_iterator( this, length() );
         }
     };
 
     // Here's an important typedef you might miss if reading too fast...
     typedef SeqBase<Object> Sequence;
 
-    template <TEMPLATE_TYPENAME T> bool operator==(const EXPLICIT_TYPENAME SeqBase<T>::iterator& left, const EXPLICIT_TYPENAME SeqBase<T>::iterator& right);
-    template <TEMPLATE_TYPENAME T> bool operator!=(const EXPLICIT_TYPENAME SeqBase<T>::iterator& left, const EXPLICIT_TYPENAME SeqBase<T>::iterator& right);
-    template <TEMPLATE_TYPENAME T> bool operator< (const EXPLICIT_TYPENAME SeqBase<T>::iterator& left, const EXPLICIT_TYPENAME SeqBase<T>::iterator& right);
-    template <TEMPLATE_TYPENAME T> bool operator> (const EXPLICIT_TYPENAME SeqBase<T>::iterator& left, const EXPLICIT_TYPENAME SeqBase<T>::iterator& right);
-    template <TEMPLATE_TYPENAME T> bool operator<=(const EXPLICIT_TYPENAME SeqBase<T>::iterator& left, const EXPLICIT_TYPENAME SeqBase<T>::iterator& right);
-    template <TEMPLATE_TYPENAME T> bool operator>=(const EXPLICIT_TYPENAME SeqBase<T>::iterator& left, const EXPLICIT_TYPENAME SeqBase<T>::iterator& right);
+    template <TEMPLATE_TYPENAME T> bool operator==( const EXPLICIT_TYPENAME SeqBase<T>::iterator& left, const EXPLICIT_TYPENAME SeqBase<T>::iterator& right );
+    template <TEMPLATE_TYPENAME T> bool operator!=( const EXPLICIT_TYPENAME SeqBase<T>::iterator& left, const EXPLICIT_TYPENAME SeqBase<T>::iterator& right );
+    template <TEMPLATE_TYPENAME T> bool operator< ( const EXPLICIT_TYPENAME SeqBase<T>::iterator& left, const EXPLICIT_TYPENAME SeqBase<T>::iterator& right );
+    template <TEMPLATE_TYPENAME T> bool operator> ( const EXPLICIT_TYPENAME SeqBase<T>::iterator& left, const EXPLICIT_TYPENAME SeqBase<T>::iterator& right );
+    template <TEMPLATE_TYPENAME T> bool operator<=( const EXPLICIT_TYPENAME SeqBase<T>::iterator& left, const EXPLICIT_TYPENAME SeqBase<T>::iterator& right );
+    template <TEMPLATE_TYPENAME T> bool operator>=( const EXPLICIT_TYPENAME SeqBase<T>::iterator& left, const EXPLICIT_TYPENAME SeqBase<T>::iterator& right );
 
-    template <TEMPLATE_TYPENAME T> bool operator==(const EXPLICIT_TYPENAME SeqBase<T>::const_iterator& left, const EXPLICIT_TYPENAME SeqBase<T>::const_iterator& right);
-    template <TEMPLATE_TYPENAME T> bool operator!=(const EXPLICIT_TYPENAME SeqBase<T>::const_iterator& left, const EXPLICIT_TYPENAME SeqBase<T>::const_iterator& right);
-    template <TEMPLATE_TYPENAME T> bool operator< (const EXPLICIT_TYPENAME SeqBase<T>::const_iterator& left, const EXPLICIT_TYPENAME SeqBase<T>::const_iterator& right);
-    template <TEMPLATE_TYPENAME T> bool operator> (const EXPLICIT_TYPENAME SeqBase<T>::const_iterator& left, const EXPLICIT_TYPENAME SeqBase<T>::const_iterator& right);
-    template <TEMPLATE_TYPENAME T> bool operator<=(const EXPLICIT_TYPENAME SeqBase<T>::const_iterator& left, const EXPLICIT_TYPENAME SeqBase<T>::const_iterator& right);
-    template <TEMPLATE_TYPENAME T> bool operator>=(const EXPLICIT_TYPENAME SeqBase<T>::const_iterator& left, const EXPLICIT_TYPENAME SeqBase<T>::const_iterator& right); 
+    template <TEMPLATE_TYPENAME T> bool operator==( const EXPLICIT_TYPENAME SeqBase<T>::const_iterator& left, const EXPLICIT_TYPENAME SeqBase<T>::const_iterator& right );
+    template <TEMPLATE_TYPENAME T> bool operator!=( const EXPLICIT_TYPENAME SeqBase<T>::const_iterator& left, const EXPLICIT_TYPENAME SeqBase<T>::const_iterator& right );
+    template <TEMPLATE_TYPENAME T> bool operator< ( const EXPLICIT_TYPENAME SeqBase<T>::const_iterator& left, const EXPLICIT_TYPENAME SeqBase<T>::const_iterator& right );
+    template <TEMPLATE_TYPENAME T> bool operator> ( const EXPLICIT_TYPENAME SeqBase<T>::const_iterator& left, const EXPLICIT_TYPENAME SeqBase<T>::const_iterator& right );
+    template <TEMPLATE_TYPENAME T> bool operator<=( const EXPLICIT_TYPENAME SeqBase<T>::const_iterator& left, const EXPLICIT_TYPENAME SeqBase<T>::const_iterator& right );
+    template <TEMPLATE_TYPENAME T> bool operator>=( const EXPLICIT_TYPENAME SeqBase<T>::const_iterator& left, const EXPLICIT_TYPENAME SeqBase<T>::const_iterator& right ); 
 
 
-    extern bool operator==(const Sequence::iterator& left, const Sequence::iterator& right);
-    extern bool operator!=(const Sequence::iterator& left, const Sequence::iterator& right);
-    extern bool operator< (const Sequence::iterator& left, const Sequence::iterator& right);
-    extern bool operator> (const Sequence::iterator& left, const Sequence::iterator& right);
-    extern bool operator<=(const Sequence::iterator& left, const Sequence::iterator& right);
-    extern bool operator>=(const Sequence::iterator& left, const Sequence::iterator& right);
+    extern bool operator==( const Sequence::iterator& left, const Sequence::iterator& right );
+    extern bool operator!=( const Sequence::iterator& left, const Sequence::iterator& right );
+    extern bool operator< ( const Sequence::iterator& left, const Sequence::iterator& right );
+    extern bool operator> ( const Sequence::iterator& left, const Sequence::iterator& right );
+    extern bool operator<=( const Sequence::iterator& left, const Sequence::iterator& right );
+    extern bool operator>=( const Sequence::iterator& left, const Sequence::iterator& right );
 
-    extern bool operator==(const Sequence::const_iterator& left, const Sequence::const_iterator& right);
-    extern bool operator!=(const Sequence::const_iterator& left, const Sequence::const_iterator& right);
-    extern bool operator< (const Sequence::const_iterator& left, const Sequence::const_iterator& right);
-    extern bool operator> (const Sequence::const_iterator& left, const Sequence::const_iterator& right);
-    extern bool operator<=(const Sequence::const_iterator& left, const Sequence::const_iterator& right);
-    extern bool operator>=(const Sequence::const_iterator& left, const Sequence::const_iterator& right); 
+    extern bool operator==( const Sequence::const_iterator& left, const Sequence::const_iterator& right );
+    extern bool operator!=( const Sequence::const_iterator& left, const Sequence::const_iterator& right );
+    extern bool operator< ( const Sequence::const_iterator& left, const Sequence::const_iterator& right );
+    extern bool operator> ( const Sequence::const_iterator& left, const Sequence::const_iterator& right );
+    extern bool operator<=( const Sequence::const_iterator& left, const Sequence::const_iterator& right );
+    extern bool operator>=( const Sequence::const_iterator& left, const Sequence::const_iterator& right ); 
 
     // ==================================================
     // class Char
@@ -1744,87 +1670,232 @@ namespace Py
     typedef std::basic_string<Py_UNICODE> unicodestring;
     extern Py_UNICODE unicode_null_string[1];
 
-    class Char: public Object
+    class Byte: public Object
     {
     public:
-        explicit Char (PyObject *pyob, bool owned = false): Object(pyob, owned)
+        explicit Byte( PyObject *pyob, bool owned = false )
+        : Object( pyob, owned )
         {
             validate();
         }
 
-        Char (const Object& ob): Object(ob)
+        Byte( const Object& ob )
+        : Object( ob )
         {
             validate();
         }
 
-        Char (const std::string& v = "")
-            :Object(PyString_FromStringAndSize (const_cast<char*>(v.c_str()),1), true)
+        Byte( const std::string& v = "" )
+        : Object( PyBytes_FromStringAndSize( const_cast<char*>( v.c_str() ), 1 ), true )
         {
             validate();
         }
 
-        Char (char v)
-            : Object(PyString_FromStringAndSize (&v, 1), true)
+        Byte( char v )
+        : Object( PyBytes_FromStringAndSize( &v, 1 ), true )
         {
             validate();
         }
 
-        Char (Py_UNICODE v)
-            : Object(PyUnicode_FromUnicode (&v, 1), true)
-        {
-            validate();
-        }
         // Assignment acquires new ownership of pointer
-        Char& operator= (const Object& rhs)
+        Byte& operator=( const Object& rhs )
         {
-            return (*this = *rhs);
+            return( *this = *rhs );
         }
 
-        Char& operator= (PyObject* rhsp)
+        Byte& operator=( PyObject* rhsp )
         {
-            if(ptr() == rhsp) return *this;
-            set (rhsp);
+            if( ptr() == rhsp )
+                return *this;
+            set( rhsp );
             return *this;
         }
 
         // Membership
-        virtual bool accepts (PyObject *pyob) const
+        virtual bool accepts( PyObject *pyob ) const
         {
-            return pyob && (Py::_String_Check(pyob) || Py::_Unicode_Check(pyob)) && PySequence_Length (pyob) == 1;
+            return pyob != NULL
+                && Py::_String_Check( pyob )
+                && PySequence_Length( pyob ) == 1;
         }
 
         // Assignment from C string
-        Char& operator= (const std::string& v)
+        Byte& operator=( const std::string& v )
         {
-            set(PyString_FromStringAndSize (const_cast<char*>(v.c_str()),1), true);
+            set( PyBytes_FromStringAndSize( const_cast<char*>( v.c_str() ),1 ), true );
             return *this;
         }
 
-        Char& operator= (char v)
+        Byte& operator=( char v )
         {
-            set(PyString_FromStringAndSize (&v, 1), true);
+            set( PyUnicode_FromStringAndSize( &v, 1 ), true );
             return *this;
         }
 
-        Char& operator= (const unicodestring& v)
+        // Conversion
+        operator Bytes() const;
+    };
+
+    class Bytes: public SeqBase<Byte>
+    {
+    public:
+        virtual size_type capacity() const
         {
-            set(PyUnicode_FromUnicode (const_cast<Py_UNICODE*>(v.data()),1), true);
+            return max_size();
+        }
+
+        explicit Bytes( PyObject *pyob, bool owned = false )
+        : SeqBase<Byte>( pyob, owned )
+        {
+            validate();
+        }
+
+        Bytes( const Object& ob )
+        : SeqBase<Byte>( ob )
+        {
+            validate();
+        }
+
+        Bytes()
+        : SeqBase<Byte>( PyBytes_FromStringAndSize( "", 0 ), true )
+        {
+            validate();
+        }
+
+        Bytes( const std::string& v )
+        : SeqBase<Byte>( PyBytes_FromStringAndSize( const_cast<char*>( v.data() ), static_cast<int>( v.length() ) ), true )
+        {
+            validate();
+        }
+
+        Bytes( const std::string& v, std::string::size_type vsize )
+        : SeqBase<Byte>( PyBytes_FromStringAndSize( const_cast<char*>( v.data() ), static_cast<int>( vsize ) ), true )
+        {
+            validate();
+        }
+
+        Bytes( const char *v, int vsize )
+        : SeqBase<Byte>( PyBytes_FromStringAndSize( const_cast<char*>( v ), vsize ), true )
+        {
+            validate();
+        }
+
+        Bytes( const char* v )
+        : SeqBase<Byte>( PyBytes_FromString( v ), true )
+        {
+            validate();
+        }
+
+        // Membership
+        virtual bool accepts( PyObject *pyob ) const
+        {
+            return pyob != NULL && Py::_Bytes_Check( pyob );
+        }
+
+        // Assignment acquires new ownership of pointer
+        Bytes& operator=( const Object& rhs )
+        {
+            return( *this = *rhs );
+        }
+
+        Bytes& operator=( PyObject* rhsp )
+        {
+            if( ptr() == rhsp )
+                return *this;
+            set( rhsp );
             return *this;
         }
 
-        Char& operator= (Py_UNICODE v)
+        // Assignment from C string
+        Bytes& operator=( const std::string& v )
         {
-            set(PyUnicode_FromUnicode (&v, 1), true);
+            set( PyBytes_FromStringAndSize( const_cast<char*>( v.data() ), static_cast<int>( v.length() ) ), true );
+            return *this;
+        }
+
+        String decode( const char *encoding, const char *error="strict" )
+        {
+            return Object( PyBytes_AsDecodedObject( ptr(), encoding, error ) );
+        }
+
+        // Queries
+        virtual size_type size() const
+        {
+            return static_cast<size_type>( PyBytes_Size( ptr() ) );
+        }
+
+        operator std::string() const
+        {
+            return as_std_string();
+        }
+
+        std::string as_std_string() const
+        {
+            return std::string( PyBytes_AsString( ptr() ), static_cast<size_type>( PyBytes_Size( ptr() ) ) );
+        }
+    };
+
+    class Char: public Object
+    {
+    public:
+        explicit Char( PyObject *pyob, bool owned = false )
+        : Object( pyob, owned )
+        {
+            validate();
+        }
+
+        Char( const Object& ob )
+        : Object( ob )
+        {
+            validate();
+        }
+
+        Char( int v )
+        : Object( PyUnicode_FromOrdinal( v ), true )
+        {
+            validate();
+        }
+
+        Char( Py_UNICODE v )
+        : Object( PyUnicode_FromOrdinal( v ), true )
+        {
+            validate();
+        }
+
+        // Assignment acquires new ownership of pointer
+        Char& operator=( const Object& rhs )
+        {
+            return( *this = *rhs );
+        }
+
+        Char& operator=( PyObject* rhsp )
+        {
+            if( ptr() == rhsp )
+                return *this;
+            set( rhsp );
+            return *this;
+        }
+
+        // Membership
+        virtual bool accepts( PyObject *pyob ) const
+        {
+            return pyob != 0 &&( Py::_String_Check( pyob ) ) && PySequence_Length( pyob ) == 1;
+        }
+
+        Char& operator=( const unicodestring& v )
+        {
+            set( PyUnicode_FromUnicode( const_cast<Py_UNICODE*>( v.data() ),1 ), true );
+            return *this;
+        }
+
+        Char& operator=( Py_UNICODE v )
+        {
+            set( PyUnicode_FromUnicode( &v, 1 ), true );
             return *this;
         }
 
         // Conversion
         operator String() const;
-
-        operator std::string () const
-        {
-            return std::string(PyString_AsString (ptr()));
-        }
     };
 
     class String: public SeqBase<Char>
@@ -1835,211 +1906,173 @@ namespace Py
             return max_size();
         }
 
-        explicit String (PyObject *pyob, bool owned = false): SeqBase<Char>(pyob, owned)
+        explicit String( PyObject *pyob, bool owned = false )
+        : SeqBase<Char>( pyob, owned )
         {
             validate();
         }
 
-        String (const Object& ob): SeqBase<Char>(ob)
+        String( const Object& ob )
+        : SeqBase<Char>( ob )
         {
             validate();
         }
 
         String()
-            : SeqBase<Char>( PyString_FromStringAndSize( "", 0 ), true )
+        : SeqBase<Char>( PyUnicode_FromString( "" ), true )
         {
             validate();
         }
 
-        String( const std::string& v )
-            : SeqBase<Char>( PyString_FromStringAndSize( const_cast<char*>(v.data()),
-                static_cast<int>( v.length() ) ), true )
+        String( const char *latin1 )
+        : SeqBase<Char>( PyUnicode_FromString( latin1 ) )
         {
             validate();
         }
 
-        String( const char *s, const char *encoding, const char *error="strict" )
-            : SeqBase<Char>( PyUnicode_Decode( s, strlen( s ), encoding, error ), true )
+        String( const char *latin1, Py_ssize_t size )
+        : SeqBase<Char>( PyUnicode_FromStringAndSize( latin1, size ) )
         {
             validate();
         }
 
-        String( const char *s, int len, const char *encoding, const char *error="strict" )
-            : SeqBase<Char>( PyUnicode_Decode( s, len, encoding, error ), true )
+        /* [Taken from Pythons's unicode.h]
+
+           Many of these APIs take two arguments encoding and errors. These
+           parameters encoding and errors have the same semantics as the ones
+           of the builtin unicode() API. 
+
+           Setting encoding to NULL causes the default encoding to be used.
+
+           Error handling is set by errors which may also be set to NULL
+           meaning to use the default handling defined for the codec. Default
+           error handling for all builtin codecs is "strict" (ValueErrors are
+           raised).
+
+           The codecs all use a similar interface. Only deviation from the
+           generic ones are documented.
+
+        */
+        String( const char *s, const char *encoding, const char *errors=NULL )
+        : SeqBase<Char>( PyUnicode_Decode( s, strlen(s), encoding, errors ) )
         {
             validate();
         }
 
-        String( const std::string &s, const char *encoding, const char *error="strict" )
-            : SeqBase<Char>( PyUnicode_Decode( s.c_str(), s.length(), encoding, error ), true )
-        {
-            validate();
-        }
-
-        String( const std::string& v, std::string::size_type vsize )
-            : SeqBase<Char>(PyString_FromStringAndSize( const_cast<char*>(v.data()),
-                    static_cast<int>( vsize ) ), true)
-        {
-            validate();
-        }
-
-        String( const char *v, int vsize )
-            : SeqBase<Char>(PyString_FromStringAndSize( const_cast<char*>(v), vsize ), true )
-        {
-            validate();
-        }
-
-        String( const char* v )
-            : SeqBase<Char>( PyString_FromString( v ), true )
+        String( const char *s, Py_ssize_t size, const char *encoding, const char *errors=NULL )
+        : SeqBase<Char>( PyUnicode_Decode( s, size, encoding, errors ) )
         {
             validate();
         }
 
         // Assignment acquires new ownership of pointer
-        String& operator= ( const Object& rhs )
+        String& operator=( const Object &rhs )
         {
-            return *this = *rhs;
+            return( *this = *rhs );
         }
 
-        String& operator= (PyObject* rhsp)
+        String& operator=( PyObject *rhsp )
         {
             if( ptr() == rhsp )
                 return *this;
-            set (rhsp);
+            set( rhsp );
             return *this;
-        }
-        // Membership
-        virtual bool accepts (PyObject *pyob) const
-        {
-            return pyob && (Py::_String_Check(pyob) || Py::_Unicode_Check(pyob));
         }
 
-        // Assignment from C string
-        String& operator= (const std::string& v)
+        // Membership
+        virtual bool accepts( PyObject *pyob ) const
         {
-            set( PyString_FromStringAndSize( const_cast<char*>( v.data() ),
-                    static_cast<int>( v.length() ) ), true );
-            return *this;
+            return pyob != 0 && Py::_String_Check( pyob );
         }
-        String& operator= (const unicodestring& v)
+
+        String& operator=( const unicodestring& v )
         {
             set( PyUnicode_FromUnicode( const_cast<Py_UNICODE*>( v.data() ),
                     static_cast<int>( v.length() ) ), true );
             return *this;
         }
 
-
         // Encode
-        String encode( const char *encoding, const char *error="strict" )
+        Bytes encode( const char *encoding, const char *error="strict" ) const
         {
-            if( isUnicode() )
-        {
-                return String( PyUnicode_AsEncodedString( ptr(), encoding, error ) );
-        }
-            else
-        {
-                return String( PyString_AsEncodedObject( ptr(), encoding, error ) );
-        }
-        }
-
-        String decode( const char *encoding, const char *error="strict" )
-        {
-            return Object( PyString_AsDecodedObject( ptr(), encoding, error ) );
+            return Bytes( PyUnicode_AsEncodedString( ptr(), encoding, error ) );
         }
 
         // Queries
-        virtual size_type size () const
+        virtual size_type size() const
         {
-            if( isUnicode() )
-        {
-                return static_cast<size_type>( PyUnicode_GET_SIZE (ptr()) );
-        }
-            else
-        {
-                return static_cast<size_type>( PyString_Size (ptr()) );
-        }
-        }
-
-        operator std::string () const
-        {
-            return as_std_string();
-        }
-
-        std::string as_std_string() const
-        {
-            if( isUnicode() )
-        {
-                throw TypeError("cannot return std::string from Unicode object");
-        }
-            else
-        {
-                return std::string( PyString_AsString( ptr() ), static_cast<size_type>( PyString_Size( ptr() ) ) );
-        }
+            return static_cast<size_type>( PyUnicode_GET_SIZE( ptr() ) );
         }
 
         unicodestring as_unicodestring() const
         {
-            if( isUnicode() )
+            return unicodestring( PyUnicode_AS_UNICODE( ptr() ), static_cast<size_type>( PyUnicode_GET_SIZE( ptr() ) ) );
+        }
+
+        operator std::string() const
         {
-                return unicodestring( PyUnicode_AS_UNICODE( ptr() ),
-                    static_cast<size_type>( PyUnicode_GET_SIZE( ptr() ) ) );
+            // use the default encoding
+            return as_std_string( NULL );
         }
-            else
+
+        std::string as_std_string( const char *encoding, const char *error="strict" ) const
         {
-                throw TypeError("can only return unicodestring from Unicode object");
+            Bytes b( encode( encoding, error ) );
+            return b.as_std_string();
         }
-        }
+
     };
+
 
     // ==================================================
     // class Tuple
     class Tuple: public Sequence
     {
     public:
-        virtual void setItem (sequence_index_type offset, const Object&ob)
+        virtual void setItem( sequence_index_type offset, const Object&ob )
         {
             // note PyTuple_SetItem is a thief...
-            if(PyTuple_SetItem (ptr(), offset, new_reference_to(ob)) == -1)
+            if( PyTuple_SetItem( ptr(), offset, new_reference_to( ob ) ) == -1 )
             {
                 throw Exception();
             }
         }
 
         // Constructor
-        explicit Tuple (PyObject *pyob, bool owned = false): Sequence (pyob, owned)
+        explicit Tuple( PyObject *pyob, bool owned = false ): Sequence( pyob, owned )
         {
             validate();
         }
 
-        Tuple (const Object& ob): Sequence(ob)
+        Tuple( const Object& ob ): Sequence( ob )
         {
             validate();
         }
 
         // New tuple of a given size
-        explicit Tuple (int size = 0)
+        explicit Tuple( int size = 0 )
         {
-            set(PyTuple_New (size), true);
-            validate ();
-            for (sequence_index_type i=0; i < size; i++)
+            set( PyTuple_New( size ), true );
+            validate();
+            for( sequence_index_type i=0; i < size; i++ )
             {
-                if(PyTuple_SetItem (ptr(), i, new_reference_to(Py::_None())) == -1)
+                if( PyTuple_SetItem( ptr(), i, new_reference_to( Py::_None() ) ) == -1 )
                 {
                     throw Exception();
                 }
             }
         }
         // Tuple from any sequence
-        explicit Tuple (const Sequence& s)
+        explicit Tuple( const Sequence& s )
         {
             sequence_index_type limit( sequence_index_type( s.length() ) );
 
-            set(PyTuple_New (limit), true);
+            set( PyTuple_New( limit ), true );
             validate();
             
-            for(sequence_index_type i=0; i < limit; i++)
+            for( sequence_index_type i=0; i < limit; i++ )
             {
-                if(PyTuple_SetItem (ptr(), i, new_reference_to(s[i])) == -1)
+                if( PyTuple_SetItem( ptr(), i, new_reference_to( s[i] ) ) == -1 )
                 {
                     throw Exception();
                 }
@@ -2047,26 +2080,26 @@ namespace Py
         }
         // Assignment acquires new ownership of pointer
 
-        Tuple& operator= (const Object& rhs)
+        Tuple& operator=( const Object& rhs )
         {
-            return (*this = *rhs);
+            return( *this = *rhs );
         }
 
-        Tuple& operator= (PyObject* rhsp)
+        Tuple& operator=( PyObject* rhsp )
         {
-            if(ptr() == rhsp) return *this;
-            set (rhsp);
+            if( ptr() == rhsp ) return *this;
+            set( rhsp );
             return *this;
         }
         // Membership
-        virtual bool accepts (PyObject *pyob) const
+        virtual bool accepts( PyObject *pyob ) const
         {
-            return pyob && Py::_Tuple_Check (pyob);
+            return pyob && Py::_Tuple_Check( pyob );
         }
 
-        Tuple getSlice (int i, int j) const
+        Tuple getSlice( int i, int j ) const
         {
-            return Tuple (PySequence_GetSlice (ptr(), i, j), true);
+            return Tuple( PySequence_GetSlice( ptr(), i, j ), true );
         }
 
     };
@@ -2078,22 +2111,22 @@ namespace Py
     {
     public:
         // Constructor
-        explicit List (PyObject *pyob, bool owned = false): Sequence(pyob, owned)
+        explicit List( PyObject *pyob, bool owned = false ): Sequence( pyob, owned )
         {
             validate();
         }
-        List (const Object& ob): Sequence(ob)
+        List( const Object& ob ): Sequence( ob )
         {
             validate();
         }
         // Creation at a fixed size
-        List (int size = 0)
+        List( int size = 0 )
         {
-            set(PyList_New (size), true);
+            set( PyList_New( size ), true );
             validate();
-            for (sequence_index_type i=0; i < size; i++)
+            for( sequence_index_type i=0; i < size; i++ )
             {
-                if(PyList_SetItem (ptr(), i, new_reference_to(Py::_None())) == -1)
+                if( PyList_SetItem( ptr(), i, new_reference_to( Py::_None() ) ) == -1 )
                 {
                     throw Exception();
                 }
@@ -2101,14 +2134,14 @@ namespace Py
         }
 
         // List from a sequence
-        List (const Sequence& s): Sequence()
+        List( const Sequence& s ): Sequence()
         {
-            int n = (int)s.length();
-            set(PyList_New (n), true);
+            int n =( int )s.length();
+            set( PyList_New( n ), true );
             validate();
-            for (sequence_index_type i=0; i < n; i++)
+            for( sequence_index_type i=0; i < n; i++ )
             {
-                if(PyList_SetItem (ptr(), i, new_reference_to(s[i])) == -1)
+                if( PyList_SetItem( ptr(), i, new_reference_to( s[i] ) ) == -1 )
                 {
                     throw Exception();
                 }
@@ -2121,63 +2154,63 @@ namespace Py
         }
         // Assignment acquires new ownership of pointer
 
-        List& operator= (const Object& rhs)
+        List& operator=( const Object& rhs )
         {
-            return (*this = *rhs);
+            return( *this = *rhs );
         }
 
-        List& operator= (PyObject* rhsp)
+        List& operator=( PyObject* rhsp )
         {
-            if(ptr() == rhsp) return *this;
-            set (rhsp);
+            if( ptr() == rhsp ) return *this;
+            set( rhsp );
             return *this;
         }
         // Membership
-        virtual bool accepts (PyObject *pyob) const
+        virtual bool accepts( PyObject *pyob ) const
         {
-            return pyob && Py::_List_Check (pyob);
+            return pyob && Py::_List_Check( pyob );
         }
 
-        List getSlice (int i, int j) const
+        List getSlice( int i, int j ) const
         {
-            return List (PyList_GetSlice (ptr(), i, j), true);
+            return List( PyList_GetSlice( ptr(), i, j ), true );
         }
 
-        void setSlice (int i, int j, const Object& v)
+        void setSlice( int i, int j, const Object& v )
         {
-            if(PyList_SetSlice (ptr(), i, j, *v) == -1)
+            if( PyList_SetSlice( ptr(), i, j, *v ) == -1 )
             {
                 throw Exception();
             }
         }
 
-        void append (const Object& ob)
+        void append( const Object& ob )
         {
-            if(PyList_Append (ptr(), *ob) == -1)
+            if( PyList_Append( ptr(), *ob ) == -1 )
             {
                 throw Exception();
             }
         }
 
-        void insert (int i, const Object& ob)
+        void insert( int i, const Object& ob )
         {
-            if(PyList_Insert (ptr(), i, *ob) == -1)
+            if( PyList_Insert( ptr(), i, *ob ) == -1 )
             {
                 throw Exception();
             }
         }
 
-        void sort ()
+        void sort()
         {
-            if(PyList_Sort(ptr()) == -1)
+            if( PyList_Sort( ptr() ) == -1 )
             {
                 throw Exception();
             }
         }
 
-        void reverse ()
+        void reverse()
         {
-            if(PyList_Reverse(ptr()) == -1)
+            if( PyList_Reverse( ptr() ) == -1 )
             {
                 throw Exception();
             }
@@ -2196,17 +2229,17 @@ namespace Py
         T the_item;
 
     public:
-        mapref<T> (MapBase<T>& map, const std::string& k)
-            : s(map), the_item()
+        mapref<T>( MapBase<T>& map, const std::string& k )
+        : s( map ), the_item()
         {
-            key = String(k);
-            if(map.hasKey(key)) the_item = map.getItem(key);
+            key = String( k );
+            if( map.hasKey( key ) ) the_item = map.getItem( key );
         }
 
-        mapref<T> (MapBase<T>& map, const Object& k)
-            : s(map), key(k), the_item()
+        mapref<T>( MapBase<T>& map, const Object& k )
+        : s( map ), key( k ), the_item()
         {
-            if(map.hasKey(key)) the_item = map.getItem(key);
+            if( map.hasKey( key ) ) the_item = map.getItem( key );
         }
 
         virtual ~mapref<T>()
@@ -2214,18 +2247,18 @@ namespace Py
 
         // MapBase<T> stuff
         // lvalue
-        mapref<T>& operator=(const mapref<T>& other)
+        mapref<T>& operator=( const mapref<T>& other )
         {
-            if(this == &other) return *this;
+            if( this == &other ) return *this;
             the_item = other.the_item;
-            s.setItem(key, other.the_item);
+            s.setItem( key, other.the_item );
             return *this;
         }
 
-        mapref<T>& operator= (const T& ob)
+        mapref<T>& operator=( const T& ob )
         {
             the_item = ob;
-            s.setItem (key, ob);
+            s.setItem( key, ob );
             return *this;
         }
 
@@ -2236,89 +2269,89 @@ namespace Py
         }
 
         // forward everything else to the_item
-        PyObject* ptr () const
+        PyObject* ptr() const
         {
             return the_item.ptr();
         }
 
-        int reference_count () const
+        int reference_count() const
         { // the mapref count
             return the_item.reference_count();
         }
 
-        Type type () const
+        Type type() const
         {
             return the_item.type();
         }
 
-        String str () const
+        String str() const
         {
             return the_item.str();
         }
 
-        String repr () const
+        String repr() const
         {
             return the_item.repr();
         }
 
-        bool hasAttr (const std::string& attr_name) const
+        bool hasAttr( const std::string& attr_name ) const
         {
-            return the_item.hasAttr(attr_name);
+            return the_item.hasAttr( attr_name );
         }
 
-        Object getAttr (const std::string& attr_name) const
+        Object getAttr( const std::string& attr_name ) const
         {
-            return the_item.getAttr(attr_name);
+            return the_item.getAttr( attr_name );
         }
 
-        Object getItem (const Object& k) const
+        Object getItem( const Object& k ) const
         {
-            return the_item.getItem(k);
+            return the_item.getItem( k );
         }
 
-        long hashValue () const
+        long hashValue() const
         {
             return the_item.hashValue();
         }
 
-        bool isCallable () const
+        bool isCallable() const
         {
             return the_item.isCallable();
         }
 
-        bool isInstance () const
+        bool isInstance() const
         {
             return the_item.isInstance();
         }
 
-        bool isList () const
+        bool isList() const
         {
             return the_item.isList();
         }
 
-        bool isMapping () const
+        bool isMapping() const
         {
             return the_item.isMapping();
         }
 
-        bool isNumeric () const
+        bool isNumeric() const
         {
             return the_item.isNumeric();
         }
 
-        bool isSequence () const
+        bool isSequence() const
         {
             return the_item.isSequence();
         }
 
-        bool isTrue () const
+        bool isTrue() const
         {
             return the_item.isTrue();
         }
 
-        bool isType (const Type& t) const
+        bool isType( const Type& t ) const
         {
-            return the_item.isType (t);
+            return the_item.isType( t );
         }
 
         bool isTuple() const
@@ -2332,31 +2365,31 @@ namespace Py
         }
 
         // Commands
-        void setAttr (const std::string& attr_name, const Object& value)
+        void setAttr( const std::string& attr_name, const Object& value )
         {
-            the_item.setAttr(attr_name, value);
+            the_item.setAttr( attr_name, value );
         }
 
-        void delAttr (const std::string& attr_name)
+        void delAttr( const std::string& attr_name )
         {
-            the_item.delAttr(attr_name);
+            the_item.delAttr( attr_name );
         }
 
-        void delItem (const Object& k)
+        void delItem( const Object& k )
         {
-            the_item.delItem(k);
+            the_item.delItem( k );
         }
     }; // end of mapref
 
     // TMM: now for mapref<T>
     template< class T >
-    bool operator==(const mapref<T>& left, const mapref<T>& right)
+    bool operator==( const mapref<T>& left, const mapref<T>& right )
     {
         return true;    // NOT completed.
     }
 
     template< class T >
-    bool operator!=(const mapref<T>& left, const mapref<T>& right)
+    bool operator!=( const mapref<T>& left, const mapref<T>& right )
     {
         return true;    // not completed.
     }
@@ -2372,7 +2405,7 @@ namespace Py
         // TMM: 26Jun'01 - the types
         // If you assume that Python mapping is a hash_map...
         // hash_map::value_type is not assignable, but
-        // (*it).second = data must be a valid expression
+        //( *it ).second = data must be a valid expression
         typedef size_t size_type;
         typedef Object key_type;
         typedef mapref<T> data_type;
@@ -2382,155 +2415,155 @@ namespace Py
         typedef std::pair< const T, mapref<T> > pointer;
 
         // Constructor
-        explicit MapBase<T> (PyObject *pyob, bool owned = false): Object(pyob, owned)
+        explicit MapBase<T>( PyObject *pyob, bool owned = false ): Object( pyob, owned )
         {
             validate();
         }
 
         // TMM: 02Jul'01 - changed MapBase<T> to Object in next line
-        MapBase<T> (const Object& ob): Object(ob)
+        MapBase<T>( const Object& ob ): Object( ob )
         {
             validate();
         }
 
         // Assignment acquires new ownership of pointer
-        MapBase<T>& operator= (const Object& rhs)
+        MapBase<T>& operator=( const Object& rhs )
         {
-            return (*this = *rhs);
+            return( *this = *rhs );
         }
 
-        MapBase<T>& operator= (PyObject* rhsp)
+        MapBase<T>& operator=( PyObject* rhsp )
         {
-            if(ptr() == rhsp) return *this;
-            set (rhsp);
+            if( ptr() == rhsp ) return *this;
+            set( rhsp );
             return *this;
         }
         // Membership
-        virtual bool accepts (PyObject *pyob) const
+        virtual bool accepts( PyObject *pyob ) const
         {
-            return pyob && PyMapping_Check(pyob);
+            return pyob && PyMapping_Check( pyob );
         }
 
         // Clear -- PyMapping Clear is missing
         //
 
-        void clear ()
+        void clear()
         {
             List k = keys();
-            for(List::iterator i = k.begin(); i != k.end(); i++)
+            for( List::iterator i = k.begin(); i != k.end(); i++ )
             {
-                delItem(*i);
+                delItem( *i );
             }
         }
 
         virtual size_type size() const
         {
-            return PyMapping_Length (ptr());
+            return PyMapping_Length( ptr() );
         }
 
         // Element Access
-        T operator[](const std::string& key) const
+        T operator[]( const std::string& key ) const
         {
-            return getItem(key);
+            return getItem( key );
         }
 
-        T operator[](const Object& key) const
+        T operator[]( const Object& key ) const
         {
-            return getItem(key);
+            return getItem( key );
         }
 
-        mapref<T> operator[](const std::string& key)
+        mapref<T> operator[]( const std::string& key )
         {
-            return mapref<T>(*this, key);
+            return mapref<T>( *this, key );
         }
 
-        mapref<T> operator[](const Object& key)
+        mapref<T> operator[]( const Object& key )
         {
-            return mapref<T>(*this, key);
+            return mapref<T>( *this, key );
         }
 
-        int length () const
+        int length() const
         {
-            return PyMapping_Length (ptr());
+            return PyMapping_Length( ptr() );
         }
 
-        bool hasKey (const std::string& s) const
+        bool hasKey( const std::string& s ) const
         {
-            return PyMapping_HasKeyString (ptr(),const_cast<char*>(s.c_str())) != 0;
+            return PyMapping_HasKeyString( ptr(),const_cast<char*>( s.c_str() ) ) != 0;
         }
 
-        bool hasKey (const Object& s) const
+        bool hasKey( const Object& s ) const
         {
-            return PyMapping_HasKey (ptr(), s.ptr()) != 0;
+            return PyMapping_HasKey( ptr(), s.ptr() ) != 0;
         }
 
-        T getItem (const std::string& s) const
+        T getItem( const std::string& s ) const
         {
-            return T(
-            asObject(PyMapping_GetItemString (ptr(),const_cast<char*>(s.c_str())))
-            );
+            return T( 
+            asObject( PyMapping_GetItemString( ptr(),const_cast<char*>( s.c_str() ) ) )
+ );
         }
 
-        T getItem (const Object& s) const
+        T getItem( const Object& s ) const
         {
-            return T(
-            asObject(PyObject_GetItem (ptr(), s.ptr()))
-            );
+            return T( 
+            asObject( PyObject_GetItem( ptr(), s.ptr() ) )
+ );
         }
 
-        virtual void setItem (const char *s, const Object& ob)
+        virtual void setItem( const char *s, const Object& ob )
         {
-            if (PyMapping_SetItemString (ptr(), const_cast<char*>(s), *ob) == -1)
+            if( PyMapping_SetItemString( ptr(), const_cast<char*>( s ), *ob ) == -1 )
             {
                 throw Exception();
             }
         }
 
-        virtual void setItem (const std::string& s, const Object& ob)
+        virtual void setItem( const std::string& s, const Object& ob )
         {
-            if (PyMapping_SetItemString (ptr(), const_cast<char*>(s.c_str()), *ob) == -1)
+            if( PyMapping_SetItemString( ptr(), const_cast<char*>( s.c_str() ), *ob ) == -1 )
             {
                 throw Exception();
             }
         }
 
-        virtual void setItem (const Object& s, const Object& ob)
+        virtual void setItem( const Object& s, const Object& ob )
         {
-            if (PyObject_SetItem (ptr(), s.ptr(), ob.ptr()) == -1)
+            if( PyObject_SetItem( ptr(), s.ptr(), ob.ptr() ) == -1 )
             {
                 throw Exception();
             }
         }
 
-        void delItem (const std::string& s)
+        void delItem( const std::string& s )
         {
-            if (PyMapping_DelItemString (ptr(), const_cast<char*>(s.c_str())) == -1)
+            if( PyMapping_DelItemString( ptr(), const_cast<char*>( s.c_str() ) ) == -1 )
             {
                 throw Exception();
             }
         }
 
-        void delItem (const Object& s)
+        void delItem( const Object& s )
         {
-            if (PyMapping_DelItem (ptr(), *s) == -1)
+            if( PyMapping_DelItem( ptr(), *s ) == -1 )
             {
                 throw Exception();
             }
         }
         // Queries
-        List keys () const
+        List keys() const
         {
-            return List(PyMapping_Keys(ptr()), true);
+            return List( PyMapping_Keys( ptr() ), true );
         }
 
-        List values () const
-        { // each returned item is a (key, value) pair
-            return List(PyMapping_Values(ptr()), true);
+        List values() const
+        { // each returned item is a( key, value ) pair
+            return List( PyMapping_Values( ptr() ), true );
         }
 
-        List items () const
+        List items() const
         {
-            return List(PyMapping_Items(ptr()), true);
+            return List( PyMapping_Items( ptr() ), true );
         }
 
         // iterators for MapBase<T>
@@ -2544,18 +2577,18 @@ namespace Py
         // how the sequence iterator is implemented and it works.  But it does seem
         // odd to me - we are iterating over the map object, not the reference.
 
-#if 0    // here is the test code with which I found the (still existing) bug
+#if 0    // here is the test code with which I found the( still existing ) bug
         typedef cxx::Dict    d_t;
         d_t    d;
-        cxx::String    s1("blah");
-        cxx::String    s2("gorf");
+        cxx::String    s1( "blah" );
+        cxx::String    s2( "gorf" );
         d[ "one" ] = s1;
         d[ "two" ] = s1;
         d[ "three" ] = s2;
         d[ "four" ] = s2;
 
         d_t::iterator    it;
-        it = d.begin();        // this (using the assignment operator) is causing
+        it = d.begin();        // this( using the assignment operator ) is causing
         // a problem; if I just use the copy ctor it works fine.
         for( ; it != d.end(); ++it )
         {
@@ -2583,36 +2616,36 @@ namespace Py
             List::iterator    pos;        // index into the keys
 
         public:
-            ~iterator ()
+            ~iterator()
             {}
 
-            iterator ()
-                : map( 0 )
-                , keys()
-                , pos()
+            iterator()
+            : map( 0 )
+            , keys()
+            , pos()
             {}
 
-            iterator (MapBase<T>* m, bool end = false )
-                : map( m )
-                , keys( m->keys() )
-                , pos( end ? keys.end() : keys.begin() )
+            iterator( MapBase<T>* m, bool end = false )
+            : map( m )
+            , keys( m->keys() )
+            , pos( end ? keys.end() : keys.begin() )
             {}
 
-            iterator (const iterator& other)
-                : map( other.map )
-                , keys( other.keys )
-                , pos( other.pos )
+            iterator( const iterator& other )
+            : map( other.map )
+            , keys( other.keys )
+            , pos( other.pos )
             {}
 
             reference operator*()
             {
                 Object key = *pos;
-                return std::make_pair(key, mapref<T>(*map,key));
+                return std::make_pair( key, mapref<T>( *map,key ) );
             }
 
-            iterator& operator=(const iterator& other)
+            iterator& operator=( const iterator& other )
             {
-                if (this == &other)
+                if( this == &other )
                     return *this;
                 map = other.map;
                 keys = other.keys;
@@ -2620,7 +2653,7 @@ namespace Py
                 return *this;
             }
 
-            bool eql(const iterator& right) const
+            bool eql( const iterator& right ) const
             {
                 return *map == *right.map && pos == right.pos;
             }
@@ -2634,34 +2667,34 @@ namespace Py
             // }
 
             // prefix ++
-            iterator& operator++ ()
+            iterator& operator++()
             { pos++; return *this;}
             // postfix ++
-            iterator operator++ (int)
-            { return iterator(map, keys, pos++);}
+            iterator operator++( int )
+            { return iterator( map, keys, pos++ );}
             // prefix --
-            iterator& operator-- ()
+            iterator& operator--()
             { pos--; return *this;}
             // postfix --
-            iterator operator-- (int)
-            { return iterator(map, keys, pos--);}
+            iterator operator--( int )
+            { return iterator( map, keys, pos-- );}
 
             std::string diagnose() const
             {
                 std::OSTRSTREAM oss;
                 oss << "iterator diagnosis " << map << ", " << pos << std::ends;
-                return std::string(oss.str());
+                return std::string( oss.str() );
             }
         };    // end of class MapBase<T>::iterator
 
-        iterator begin ()
+        iterator begin()
         {
-            return iterator(this);
+            return iterator( this );
         }
 
-        iterator end ()
+        iterator end()
         {
-            return iterator(this, true);
+            return iterator( this, true );
         }
 
         class const_iterator
@@ -2679,28 +2712,28 @@ namespace Py
             List::iterator    pos;        // index into the keys
 
         public:
-            ~const_iterator ()
+            ~const_iterator()
             {}
 
-            const_iterator ()
-                : map( 0 )
-                , keys()
-                , pos()
+            const_iterator()
+            : map( 0 )
+            , keys()
+            , pos()
             {}
 
-            const_iterator (const MapBase<T>* m, List k, List::iterator p )
-                : map( m )
-                , keys( k )
-                , pos( p )
+            const_iterator( const MapBase<T>* m, List k, List::iterator p )
+            : map( m )
+            , keys( k )
+            , pos( p )
             {}
 
-            const_iterator(const const_iterator& other)
-                : map( other.map )
-                , keys( other.keys )
-                , pos( other.pos )
+            const_iterator( const const_iterator& other )
+            : map( other.map )
+            , keys( other.keys )
+            , pos( other.pos )
             {}
 
-            bool eql(const const_iterator& right) const
+            bool eql( const const_iterator& right ) const
             {
                 return *map == *right.map && pos == right.pos;
             }
@@ -2716,9 +2749,9 @@ namespace Py
             // GCC < 3 barfes on this line at the '['.
             //         }
 
-            const_iterator& operator=(const const_iterator& other)
+            const_iterator& operator=( const const_iterator& other )
             {
-                if (this == &other) return *this;
+                if( this == &other ) return *this;
                 map = other.map;
                 keys = other.keys;
                 pos = other.pos;
@@ -2726,42 +2759,42 @@ namespace Py
             }
 
             // prefix ++
-            const_iterator& operator++ ()
+            const_iterator& operator++()
             { pos++; return *this;}
             // postfix ++
-            const_iterator operator++ (int)
-            { return const_iterator(map, keys, pos++);}
+            const_iterator operator++( int )
+            { return const_iterator( map, keys, pos++ );}
             // prefix --
-            const_iterator& operator-- ()
+            const_iterator& operator--()
             { pos--; return *this;}
             // postfix --
-            const_iterator operator-- (int)
-            { return const_iterator(map, keys, pos--);}
+            const_iterator operator--( int )
+            { return const_iterator( map, keys, pos-- );}
         };    // end of class MapBase<T>::const_iterator
 
-        const_iterator begin () const
+        const_iterator begin() const
         {
-            return const_iterator(this, 0);
+            return const_iterator( this, 0 );
         }
 
-        const_iterator end () const
+        const_iterator end() const
         {
-            return const_iterator(this, length());
+            return const_iterator( this, length() );
         }
 
     };    // end of MapBase<T>
 
     typedef MapBase<Object> Mapping;
 
-    template <TEMPLATE_TYPENAME T> bool operator==(const EXPLICIT_TYPENAME MapBase<T>::iterator& left, const EXPLICIT_TYPENAME MapBase<T>::iterator& right);
-    template <TEMPLATE_TYPENAME T> bool operator!=(const EXPLICIT_TYPENAME MapBase<T>::iterator& left, const EXPLICIT_TYPENAME MapBase<T>::iterator& right);
-    template <TEMPLATE_TYPENAME T> bool operator==(const EXPLICIT_TYPENAME MapBase<T>::const_iterator& left, const EXPLICIT_TYPENAME MapBase<T>::const_iterator& right);
-    template <TEMPLATE_TYPENAME T> bool operator!=(const EXPLICIT_TYPENAME MapBase<T>::const_iterator& left, const EXPLICIT_TYPENAME MapBase<T>::const_iterator& right);
+    template <TEMPLATE_TYPENAME T> bool operator==( const EXPLICIT_TYPENAME MapBase<T>::iterator& left, const EXPLICIT_TYPENAME MapBase<T>::iterator& right );
+    template <TEMPLATE_TYPENAME T> bool operator!=( const EXPLICIT_TYPENAME MapBase<T>::iterator& left, const EXPLICIT_TYPENAME MapBase<T>::iterator& right );
+    template <TEMPLATE_TYPENAME T> bool operator==( const EXPLICIT_TYPENAME MapBase<T>::const_iterator& left, const EXPLICIT_TYPENAME MapBase<T>::const_iterator& right );
+    template <TEMPLATE_TYPENAME T> bool operator!=( const EXPLICIT_TYPENAME MapBase<T>::const_iterator& left, const EXPLICIT_TYPENAME MapBase<T>::const_iterator& right );
 
-    extern bool operator==(const Mapping::iterator& left, const Mapping::iterator& right);
-    extern bool operator!=(const Mapping::iterator& left, const Mapping::iterator& right);
-    extern bool operator==(const Mapping::const_iterator& left, const Mapping::const_iterator& right);
-    extern bool operator!=(const Mapping::const_iterator& left, const Mapping::const_iterator& right);
+    extern bool operator==( const Mapping::iterator& left, const Mapping::iterator& right );
+    extern bool operator!=( const Mapping::iterator& left, const Mapping::iterator& right );
+    extern bool operator==( const Mapping::const_iterator& left, const Mapping::const_iterator& right );
+    extern bool operator!=( const Mapping::const_iterator& left, const Mapping::const_iterator& right );
 
 
     // ==================================================
@@ -2770,37 +2803,37 @@ namespace Py
     {
     public:
         // Constructor
-        explicit Dict (PyObject *pyob, bool owned=false): Mapping (pyob, owned)
+        explicit Dict( PyObject *pyob, bool owned=false ): Mapping( pyob, owned )
         {
             validate();
         }
-        Dict (const Object& ob): Mapping(ob)
+        Dict( const Object& ob ): Mapping( ob )
         {
             validate();
         }
         // Creation
-        Dict ()
+        Dict()
         {
-            set(PyDict_New (), true);
+            set( PyDict_New(), true );
             validate();
         }
         // Assignment acquires new ownership of pointer
 
-        Dict& operator= (const Object& rhs)
+        Dict& operator=( const Object& rhs )
         {
-            return (*this = *rhs);
+            return( *this = *rhs );
         }
 
-        Dict& operator= (PyObject* rhsp)
+        Dict& operator=( PyObject* rhsp )
         {
-            if(ptr() == rhsp) return *this;
-            set(rhsp);
+            if( ptr() == rhsp ) return *this;
+            set( rhsp );
             return *this;
         }
         // Membership
-        virtual bool accepts (PyObject *pyob) const
+        virtual bool accepts( PyObject *pyob ) const
         {
-            return pyob && Py::_Dict_Check (pyob);
+            return pyob && Py::_Dict_Check( pyob );
         }
     };
 
@@ -2808,269 +2841,270 @@ namespace Py
     {
     public:
         // Constructor
-        explicit Callable (): Object()  {}
-        explicit Callable (PyObject *pyob, bool owned = false): Object (pyob, owned)
+        explicit Callable(): Object()  {}
+        explicit Callable( PyObject *pyob, bool owned = false ): Object( pyob, owned )
         {
             validate();
         }
 
-        Callable (const Object& ob): Object(ob)
+        Callable( const Object& ob ): Object( ob )
         {
             validate();
         }
 
         // Assignment acquires new ownership of pointer
 
-        Callable& operator= (const Object& rhs)
+        Callable& operator=( const Object& rhs )
         {
-            return (*this = *rhs);
+            return( *this = *rhs );
         }
 
-        Callable& operator= (PyObject* rhsp)
+        Callable& operator=( PyObject* rhsp )
         {
-            if(ptr() == rhsp) return *this;
-            set (rhsp);
+            if( ptr() == rhsp ) return *this;
+            set( rhsp );
             return *this;
         }
 
         // Membership
-        virtual bool accepts (PyObject *pyob) const
+        virtual bool accepts( PyObject *pyob ) const
         {
-            return pyob && PyCallable_Check (pyob);
+            return pyob && PyCallable_Check( pyob );
         }
 
         // Call
-        Object apply(const Tuple& args) const
+        Object apply( const Tuple& args ) const
         {
-            return asObject(PyObject_CallObject(ptr(), args.ptr()));
+            return asObject( PyObject_CallObject( ptr(), args.ptr() ) );
         }
 
         // Call with keywords
-        Object apply(const Tuple& args, const Dict& kw) const
+        Object apply( const Tuple& args, const Dict& kw ) const
         {
             return asObject( PyEval_CallObjectWithKeywords( ptr(), args.ptr(), kw.ptr() ) );
         }
 
-        Object apply(PyObject* pargs = 0) const
+        Object apply( PyObject* pargs = 0 ) const
         {
-            return apply (Tuple(pargs));
+            return apply( Tuple( pargs ) );
         }
     };
 
     class Module: public Object
     {
     public:
-        explicit Module (PyObject* pyob, bool owned = false): Object (pyob, owned)
+        explicit Module( PyObject* pyob, bool owned = false ): Object( pyob, owned )
         {
             validate();
         }
 
         // Construct from module name
-        explicit Module (const std::string&s): Object()
+        explicit Module( const std::string&s ): Object()
         {
-            PyObject *m = PyImport_AddModule( const_cast<char *>(s.c_str()) );
+            PyObject *m = PyImport_AddModule( const_cast<char *>( s.c_str() ) );
             set( m, false );
-            validate ();
+            validate();
         }
 
         // Copy constructor acquires new ownership of pointer
-        Module (const Module& ob): Object(*ob)
+        Module( const Module& ob ): Object( *ob )
         {
             validate();
         }
 
-        Module& operator= (const Object& rhs)
+        Module& operator=( const Object& rhs )
         {
-            return (*this = *rhs);
+            return( *this = *rhs );
         }
 
-        Module& operator= (PyObject* rhsp)
+        Module& operator=( PyObject* rhsp )
         {
-            if(ptr() == rhsp) return *this;
-            set(rhsp);
+            if( ptr() == rhsp ) return *this;
+            set( rhsp );
             return *this;
         }
 
         Dict getDict()
         {
-            return Dict(PyModule_GetDict(ptr()));
+            return Dict( PyModule_GetDict( ptr() ) );
             // Caution -- PyModule_GetDict returns borrowed reference!
         }
     };
 
     // Numeric interface
-    inline Object operator+ (const Object& a)
+    inline Object operator+( const Object& a )
     {
-        return asObject(PyNumber_Positive(*a));
+        return asObject( PyNumber_Positive( *a ) );
     }
-    inline Object operator- (const Object& a)
+    inline Object operator-( const Object& a )
     {
-        return asObject(PyNumber_Negative(*a));
-    }
-
-    inline Object abs(const Object& a)
-    {
-        return asObject(PyNumber_Absolute(*a));
+        return asObject( PyNumber_Negative( *a ) );
     }
 
-    inline std::pair<Object,Object> coerce(const Object& a, const Object& b)
+    inline Object abs( const Object& a )
     {
-        PyObject *p1, *p2;
-        p1 = *a;
-        p2 = *b;
-        if(PyNumber_Coerce(&p1,&p2) == -1)
-        {
-            throw Exception();
-        }
-        return std::pair<Object,Object>(asObject(p1), asObject(p2));
+        return asObject( PyNumber_Absolute( *a ) );
     }
 
-    inline Object operator+ (const Object& a, const Object& b)
+    //------------------------------------------------------------
+    // operator +
+    inline Object operator+( const Object& a, const Object& b )
     {
-        return asObject(PyNumber_Add(*a, *b));
+        return asObject( PyNumber_Add( *a, *b ) );
     }
-    inline Object operator+ (const Object& a, int j)
+    inline Object operator+( const Object& a, int j )
     {
-        return asObject(PyNumber_Add(*a, *Int(j)));
+        return asObject( PyNumber_Add( *a, *Long( j ) ) );
     }
-    inline Object operator+ (const Object& a, double v)
+    inline Object operator+( const Object& a, long j )
     {
-        return asObject(PyNumber_Add(*a, *Float(v)));
+        return asObject( PyNumber_Add( *a, *Long( j ) ) );
     }
-    inline Object operator+ (int j, const Object& b)
+    inline Object operator+( const Object& a, double v )
     {
-        return asObject(PyNumber_Add(*Int(j), *b));
+        return asObject( PyNumber_Add( *a, *Float( v ) ) );
     }
-    inline Object operator+ (double v, const Object& b)
+    inline Object operator+( int j, const Object& b )
     {
-        return asObject(PyNumber_Add(*Float(v), *b));
+        return asObject( PyNumber_Add( *Long( j ), *b ) );
     }
-
-    inline Object operator- (const Object& a, const Object& b)
+    inline Object operator+( long j, const Object& b )
     {
-        return asObject(PyNumber_Subtract(*a, *b));
+        return asObject( PyNumber_Add( *Long( j ), *b ) );
     }
-    inline Object operator- (const Object& a, int j)
+    inline Object operator+( double v, const Object& b )
     {
-        return asObject(PyNumber_Subtract(*a, *Int(j)));
-    }
-    inline Object operator- (const Object& a, double v)
-    {
-        return asObject(PyNumber_Subtract(*a, *Float(v)));
-    }
-    inline Object operator- (int j, const Object& b)
-    {
-        return asObject(PyNumber_Subtract(*Int(j), *b));
-    }
-    inline Object operator- (double v, const Object& b)
-    {
-        return asObject(PyNumber_Subtract(*Float(v), *b));
+        return asObject( PyNumber_Add( *Float( v ), *b ) );
     }
 
-    inline Object operator* (const Object& a, const Object& b)
+    //------------------------------------------------------------
+    // operator -
+    inline Object operator-( const Object& a, const Object& b )
     {
-        return asObject(PyNumber_Multiply(*a, *b));
+        return asObject( PyNumber_Subtract( *a, *b ) );
     }
-    inline Object operator* (const Object& a, int j)
+    inline Object operator-( const Object& a, int j )
     {
-        return asObject(PyNumber_Multiply(*a, *Int(j)));
+        return asObject( PyNumber_Subtract( *a, *Long( j ) ) );
     }
-    inline Object operator* (const Object& a, double v)
+    inline Object operator-( const Object& a, double v )
     {
-        return asObject(PyNumber_Multiply(*a, *Float(v)));
+        return asObject( PyNumber_Subtract( *a, *Float( v ) ) );
     }
-    inline Object operator* (int j, const Object& b)
+    inline Object operator-( int j, const Object& b )
     {
-        return asObject(PyNumber_Multiply(*Int(j), *b));
+        return asObject( PyNumber_Subtract( *Long( j ), *b ) );
     }
-    inline Object operator* (double v, const Object& b)
+    inline Object operator-( double v, const Object& b )
     {
-        return asObject(PyNumber_Multiply(*Float(v), *b));
-    }
-
-    inline Object operator/ (const Object& a, const Object& b)
-    {
-        return asObject(PyNumber_Divide(*a, *b));
-    }
-    inline Object operator/ (const Object& a, int j)
-    {
-        return asObject(PyNumber_Divide(*a, *Int(j)));
-    }
-    inline Object operator/ (const Object& a, double v)
-    {
-        return asObject(PyNumber_Divide(*a, *Float(v)));
-    }
-    inline Object operator/ (int j, const Object& b)
-    {
-        return asObject(PyNumber_Divide(*Int(j), *b));
-    }
-    inline Object operator/ (double v, const Object& b)
-    {
-        return asObject(PyNumber_Divide(*Float(v), *b));
+        return asObject( PyNumber_Subtract( *Float( v ), *b ) );
     }
 
-    inline Object operator% (const Object& a, const Object& b)
+    inline Object operator*( const Object& a, const Object& b )
     {
-        return asObject(PyNumber_Remainder(*a, *b));
+        return asObject( PyNumber_Multiply( *a, *b ) );
     }
-    inline Object operator% (const Object& a, int j)
+    inline Object operator*( const Object& a, int j )
     {
-        return asObject(PyNumber_Remainder(*a, *Int(j)));
+        return asObject( PyNumber_Multiply( *a, *Long( j ) ) );
     }
-    inline Object operator% (const Object& a, double v)
+    inline Object operator*( const Object& a, double v )
     {
-        return asObject(PyNumber_Remainder(*a, *Float(v)));
+        return asObject( PyNumber_Multiply( *a, *Float( v ) ) );
     }
-    inline Object operator% (int j, const Object& b)
+    inline Object operator*( int j, const Object& b )
     {
-        return asObject(PyNumber_Remainder(*Int(j), *b));
+        return asObject( PyNumber_Multiply( *Long( j ), *b ) );
     }
-    inline Object operator% (double v, const Object& b)
+    inline Object operator*( double v, const Object& b )
     {
-        return asObject(PyNumber_Remainder(*Float(v), *b));
+        return asObject( PyNumber_Multiply( *Float( v ), *b ) );
     }
 
-    inline Object type(const Exception&) // return the type of the error
+    inline Object operator/( const Object& a, const Object& b )
+    {
+        return asObject( PyNumber_Divide( *a, *b ) );
+    }
+    inline Object operator/( const Object& a, int j )
+    {
+        return asObject( PyNumber_Divide( *a, *Long( j ) ) );
+    }
+    inline Object operator/( const Object& a, double v )
+    {
+        return asObject( PyNumber_Divide( *a, *Float( v ) ) );
+    }
+    inline Object operator/( int j, const Object& b )
+    {
+        return asObject( PyNumber_Divide( *Long( j ), *b ) );
+    }
+    inline Object operator/( double v, const Object& b )
+    {
+        return asObject( PyNumber_Divide( *Float( v ), *b ) );
+    }
+
+    inline Object operator%( const Object& a, const Object& b )
+    {
+        return asObject( PyNumber_Remainder( *a, *b ) );
+    }
+    inline Object operator%( const Object& a, int j )
+    {
+        return asObject( PyNumber_Remainder( *a, *Long( j ) ) );
+    }
+    inline Object operator%( const Object& a, double v )
+    {
+        return asObject( PyNumber_Remainder( *a, *Float( v ) ) );
+    }
+    inline Object operator%( int j, const Object& b )
+    {
+        return asObject( PyNumber_Remainder( *Long( j ), *b ) );
+    }
+    inline Object operator%( double v, const Object& b )
+    {
+        return asObject( PyNumber_Remainder( *Float( v ), *b ) );
+    }
+
+    inline Object type( const Exception& ) // return the type of the error
     {
         PyObject *ptype, *pvalue, *ptrace;
-        PyErr_Fetch(&ptype, &pvalue, &ptrace);
+        PyErr_Fetch( &ptype, &pvalue, &ptrace );
         Object result;
-        if(ptype) result = ptype;
-        PyErr_Restore(ptype, pvalue, ptrace);
+        if( ptype ) result = ptype;
+        PyErr_Restore( ptype, pvalue, ptrace );
         return result;
     }
 
-    inline Object value(const Exception&) // return the value of the error
+    inline Object value( const Exception& ) // return the value of the error
     {
         PyObject *ptype, *pvalue, *ptrace;
-        PyErr_Fetch(&ptype, &pvalue, &ptrace);
+        PyErr_Fetch( &ptype, &pvalue, &ptrace );
         Object result;
-        if(pvalue) result = pvalue;
-        PyErr_Restore(ptype, pvalue, ptrace);
+        if( pvalue ) result = pvalue;
+        PyErr_Restore( ptype, pvalue, ptrace );
         return result;
     }
 
-    inline Object trace(const Exception&) // return the traceback of the error
+    inline Object trace( const Exception& ) // return the traceback of the error
     {
         PyObject *ptype, *pvalue, *ptrace;
-        PyErr_Fetch(&ptype, &pvalue, &ptrace);
+        PyErr_Fetch( &ptype, &pvalue, &ptrace );
         Object result;
-        if(ptrace) result = ptrace;
-        PyErr_Restore(ptype, pvalue, ptrace);
+        if( ptrace ) result = ptrace;
+        PyErr_Restore( ptype, pvalue, ptrace );
         return result;
     }
 
 template<TEMPLATE_TYPENAME T>
-String seqref<T>::str () const
+String seqref<T>::str() const
 {
     return the_item.str();
 }
 
 template<TEMPLATE_TYPENAME T>
-String seqref<T>::repr () const
+String seqref<T>::repr() const
 {
     return the_item.repr();
 }
+
 
 } // namespace Py
 #endif    // __CXX_Objects__h
