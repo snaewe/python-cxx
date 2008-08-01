@@ -112,7 +112,7 @@ public:
     Py::Object assign (const Py::Tuple& args); 
     Py::Object reference_count (const Py::Tuple& args) 
     {
-        return Py::Int(this->ob_refcnt);
+        return Py::Long(this->ob_refcnt);
     }
 
     Py::Object c_value(const Py::Tuple&) const
@@ -120,7 +120,7 @@ public:
         Py::List result;
         for(int i = start; i <= stop; i += step)
         {
-            result.append(Py::Int(i));
+            result.append(Py::Long(i));
         }
         return result;
     }
@@ -129,17 +129,17 @@ public:
     {
         Py::Tuple w(rhs);
         w.verify_length(3);
-        start = long(Py::Int(w[0]));
-        stop = long(Py::Int(w[1]));
-        step = long(Py::Int(w[2]));
+        start = long(Py::Long(w[0]));
+        stop = long(Py::Long(w[1]));
+        step = long(Py::Long(w[2]));
     }
 };
 
-class RangeSequence: public Py::SeqBase<Py::Int>
+class RangeSequence: public Py::SeqBase<Py::Long>
 {
 public:
 
-    explicit RangeSequence (PyObject *pyob, bool owned = false): Py::SeqBase<Py::Int>(pyob, owned)
+    explicit RangeSequence (PyObject *pyob, bool owned = false): Py::SeqBase<Py::Long>(pyob, owned)
     {
         validate();
     }
@@ -149,7 +149,7 @@ public:
         set (new range(start, stop, step), true);
     }
 
-    RangeSequence(const RangeSequence& other): Py::SeqBase<Py::Int>(*other)
+    RangeSequence(const RangeSequence& other): Py::SeqBase<Py::Long>(*other)
     {
         validate();
     }
