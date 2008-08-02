@@ -161,7 +161,13 @@ test_numbers()
 {
     // test the basic numerical classes
     Py::Long i;
+
+
+
     Py::Long j(2);
+
+
+
     Py::Long k = Py::Long(3);
 
     if( ! (j < k) )  return "failed (1)";
@@ -200,7 +206,7 @@ static std::string test_List_iterators( const Py::List& x, Py::List& y )
         }
     }
 
-    if( k!=1 )
+    if( k != 1 )
         return "failed List iterators (1)";
 
     k = 0;
@@ -221,7 +227,7 @@ static std::string test_List_iterators( const Py::List& x, Py::List& y )
     }
     Py::String o1( "Howdy" );
     Py::Long o2( 1 );
-    Py::Long caught_it = 0;
+    Py::Long caught_it( 0 );
     try
     {
         o2 = o1;

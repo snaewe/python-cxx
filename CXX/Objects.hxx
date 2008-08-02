@@ -126,14 +126,13 @@ namespace Py
     /*
     MyType& operator=( const Object& rhs )
     {
-        return( *this = *rhs );
+        return *this = *rhs;
     }
 
     Mytype& operator=( PyObject* rhsp )
     {
-        if( ptr() == rhsp )
-            return *this;
-        set( rhsp );
+        if( ptr() != rhsp )
+            set( rhsp );
         return *this;
     }
     */
@@ -197,7 +196,8 @@ namespace Py
 
     public:
         // Constructor acquires new ownership of pointer unless explicitly told not to.
-        explicit Object( PyObject* pyob=Py::_None(), bool owned = false ): p( pyob )
+        explicit Object( PyObject* pyob=Py::_None(), bool owned = false )
+        : p( pyob )
         {
             if( !owned )
             {
@@ -207,7 +207,8 @@ namespace Py
         }
 
         // Copy constructor acquires new ownership of pointer
-        Object( const Object& ob ): p( ob.p )
+        Object( const Object& ob )
+        : p( ob.p )
         {
             Py::_XINCREF( p );
             validate();
@@ -222,8 +223,9 @@ namespace Py
 
         Object& operator=( PyObject* rhsp )
         {
-            if( ptr() == rhsp ) return *this;
-            set( rhsp );
+            if( ptr() != rhsp )
+                set( rhsp );
+
             return *this;
         }
 
@@ -252,6 +254,7 @@ namespace Py
             throw RuntimeError( "Object::decrement_reference_count error." );
             Py::_XDECREF( p );
         }
+
         // Would like to call this pointer() but messes up STL in SeqBase<T>
         PyObject* ptr() const
         {
@@ -275,11 +278,11 @@ namespace Py
 
         Type type() const; // the type object associated with this one
 
-        Bytes str() const; // the str() representation
+        String str() const; // the str() representation
 
         std::string as_string() const;
 
-        Bytes repr() const; // the repr() representation
+        String repr() const; // the repr() representation
 
         List dir() const; // the dir() list
 
@@ -301,6 +304,12 @@ namespace Py
         long hashValue() const
         {
             return PyObject_Hash( p );
+        }
+
+        // convert to bool
+        operator bool() const
+        {
+            return PyObject_IsTrue( ptr() ) != 0;
         }
 
         //
@@ -400,50 +409,60 @@ namespace Py
         }
         // Equality and comparison use PyObject_Compare
 
-        bool operator==( const Object& o2 ) const
-        {
-            int k = PyObject_Compare( p, *o2 );
-            if( PyErr_Occurred() ) throw Exception();
-            return k == 0;
-        }
-
-        bool operator!=( const Object& o2 ) const
-        {
-            int k = PyObject_Compare( p, *o2 );
-            if( PyErr_Occurred() ) throw Exception();
-            return k != 0;
-
-        }
-
-        bool operator>=( const Object& o2 ) const
-        {
-            int k = PyObject_Compare( p, *o2 );
-            if( PyErr_Occurred() ) throw Exception();
-            return k >= 0;
-        }
-
-        bool operator<=( const Object& o2 ) const
-        {
-            int k = PyObject_Compare( p, *o2 );
-            if( PyErr_Occurred() ) throw Exception();
-            return k <= 0;
-        }
-
-        bool operator<( const Object& o2 ) const
-        {
-            int k = PyObject_Compare( p, *o2 );
-            if( PyErr_Occurred() ) throw Exception();
-            return k < 0;
-        }
-
-        bool operator>( const Object& o2 ) const
-        {
-            int k = PyObject_Compare( p, *o2 );
-            if( PyErr_Occurred() ) throw Exception();
-            return k > 0;
-        }
     };
     // End of class Object
+
+    //------------------------------------------------------------
+    bool operator==( const Object& o1, const Object& o2 )
+    {
+        int k = PyObject_Compare( *o1, *o2 );
+        if( PyErr_Occurred() )
+            throw Exception();
+        return k == 0;
+    }
+
+    bool operator!=( const Object& o1, const Object& o2 )
+    {
+        int k = PyObject_Compare( *o1, *o2 );
+        if( PyErr_Occurred() )
+            throw Exception();
+        return k != 0;
+
+    }
+
+    bool operator>=( const Object& o1, const Object& o2 )
+    {
+        int k = PyObject_Compare( *o1, *o2 );
+        if( PyErr_Occurred() )
+            throw Exception();
+        return k >= 0;
+    }
+
+    bool operator<=( const Object& o1, const Object& o2 )
+    {
+        int k = PyObject_Compare( *o1, *o2 );
+        if( PyErr_Occurred() )
+            throw Exception();
+        return k <= 0;
+    }
+
+    bool operator<( const Object& o1, const Object& o2 )
+    {
+        int k = PyObject_Compare( *o1, *o2 );
+        if( PyErr_Occurred() )
+            throw Exception();
+        return k < 0;
+    }
+
+    bool operator>( const Object& o1, const Object& o2 )
+    {
+        int k = PyObject_Compare( *o1, *o2 );
+        if( PyErr_Occurred() )
+            throw Exception();
+        return k > 0;
+    }
+    //------------------------------------------------------------
+
     inline PyObject* new_reference_to( const Object& g )
     {
         PyObject* p = g.ptr();
@@ -501,15 +520,16 @@ namespace Py
 
         Type& operator=( const Object& rhs )
         {
-            return( *this = *rhs );
+            return *this = *rhs;
         }
 
         Type& operator=( PyObject* rhsp )
         {
-            if( ptr() == rhsp ) return *this;
-            set( rhsp );
+            if( ptr() != rhsp )
+                set( rhsp );
             return *this;
         }
+
         virtual bool accepts( PyObject *pyob ) const
         {
             return pyob && Py::_Type_Check( pyob );
@@ -558,13 +578,13 @@ namespace Py
 
         Boolean& operator=( const Object& rhs )
         {
-            return( *this = *rhs );
+            return *this = *rhs;
         }
 
         Boolean& operator=( PyObject* rhsp )
         {
-            if( ptr() == rhsp ) return *this;
-            set( rhsp, true );
+            if( ptr() != rhsp )
+                set( rhsp, true );
             return *this;
         }
 
@@ -572,12 +592,6 @@ namespace Py
         virtual bool accepts( PyObject *pyob ) const
         {
             return pyob && Py::_Boolean_Check( pyob );
-        }
-
-        // convert to long
-        operator bool() const
-        {
-            return PyObject_IsTrue( ptr() ) != 0;
         }
 
         Boolean& operator=( bool v )
@@ -598,9 +612,15 @@ namespace Py
         {
             validate();
         }
-
         Long( const Long& ob )
         : Object( ob.ptr() )
+        {
+            validate();
+        }
+
+        // try to create from any object
+        explicit Long( const Object& ob )
+        : Object( PyNumber_Long( *ob ), true )
         {
             validate();
         }
@@ -624,12 +644,20 @@ namespace Py
             validate();
         }
 
-        // try to create from any object
-        Long( const Object& ob )
-        : Object( PyNumber_Long( *ob ), true )
+#ifdef HAVE_LONG_LONG
+        // create from long long
+        explicit Long( PY_LONG_LONG v )
+        : Object( PyLong_FromLongLong( v ), true )
         {
             validate();
         }
+        // create from unsigned long long
+        explicit Long( unsigned PY_LONG_LONG v )
+        : Object( PyLong_FromUnsignedLongLong( v ), true )
+        {
+            validate();
+        }
+#endif
 
         // Membership
         virtual bool accepts( PyObject *pyob ) const
@@ -640,13 +668,13 @@ namespace Py
         // Assignment acquires new ownership of pointer
         Long& operator=( const Object& rhs )
         {
-            return( *this = *rhs );
+            return *this = *rhs;
         }
 
         Long& operator=( PyObject* rhsp )
         {
-            if( ptr() == rhsp ) return *this;
-            set( PyNumber_Long( rhsp ), true );
+            if( ptr() != rhsp )
+                set( PyNumber_Long( rhsp ), true );
             return *this;
         }
 
@@ -671,150 +699,240 @@ namespace Py
             return *this;
         }
 
+#ifdef HAVE_LONG_LONG
+        Long& operator=( PY_LONG_LONG v )
+        {
+            set( PyLong_FromLongLong( v ), true );
+            return *this;
+        }
+
+        Long& operator=( unsigned PY_LONG_LONG v )
+        {
+            set( PyLong_FromUnsignedLongLong( v ), true );
+            return *this;
+        }
+#endif
+
         // convert to long
-        operator long() const
+        long as_long() const
         {
             return PyLong_AsLong( ptr() );
         }
+
+//        operator long() const
+//        {
+//            return as_long();
+//        }
+
         // convert to unsigned
-        operator unsigned long() const
+        long as_unsigned_long() const
         {
             return PyLong_AsUnsignedLong( ptr() );
         }
 
-        operator double() const
+//        operator unsigned long() const
+//        {
+//            return as_unsigned_long();
+//        }
+
+        long as_double() const
         {
             return PyLong_AsDouble( ptr() );
         }
-    };
+
+//        operator double() const
+//        {
+//            return as_double();
+//        }
 
 #ifdef HAVE_LONG_LONG
-    // ===============================================
-    // class LongLong
-    class LongLong: public Object
-    {
-    public:
-        // Constructor
-        explicit LongLong( PyObject *pyob, bool owned = false ): Object( pyob, owned )
-        {
-            validate();
-        }
-
-        LongLong( const LongLong& ob ): Object( ob.ptr() )
-        {
-            validate();
-        }
-        // create from long long
-        explicit LongLong( PY_LONG_LONG v = 0L )
-        : Object( PyLong_FromLongLong( v ), true )
-        {
-            validate();
-        }
-        // create from unsigned long long
-        explicit LongLong( unsigned PY_LONG_LONG v )
-        : Object( PyLong_FromUnsignedLongLong( v ), true )
-        {
-            validate();
-        }
-        // create from long
-        explicit LongLong( long v )
-        : Object( PyLong_FromLongLong( v ), true )
-        {
-            validate();
-        }
-        // create from unsigned long
-        explicit LongLong( unsigned long v )
-        : Object( PyLong_FromUnsignedLongLong( v ), true )
-        {
-            validate();
-        }
-        // create from int
-        explicit LongLong( int v )
-        : Object( PyLong_FromLongLong( static_cast<PY_LONG_LONG>( v ) ), true )
-        {
-            validate();
-        }
-
-        // try to create from any object
-        LongLong( const Object& ob )
-        : Object( PyNumber_Long( *ob ), true )
-        {
-            validate();
-        }
-
-        // Assignment acquires new ownership of pointer
-
-        LongLong& operator=( const Object& rhs )
-        {
-            return( *this = *rhs );
-        }
-
-        LongLong& operator=( PyObject* rhsp )
-        {
-            if( ptr() == rhsp ) return *this;
-            set( PyNumber_Long( rhsp ), true );
-            return *this;
-        }
-        // Membership
-        virtual bool accepts( PyObject *pyob ) const
-        {
-            return pyob && Py::_Long_Check( pyob );
-        }
-        // convert to long long
-        operator PY_LONG_LONG() const
+        PY_LONG_LONG as_long_long() const
         {
             return PyLong_AsLongLong( ptr() );
         }
-        // convert to unsigned long
-        operator unsigned PY_LONG_LONG() const
+
+//        operator PY_LONG_LONG() const
+//        {
+//           return as_long_long();
+//        }
+
+        unsigned PY_LONG_LONG as_unsigned_long_long() const
         {
             return PyLong_AsUnsignedLongLong( ptr() );
         }
-        // convert to long
-        operator long() const
+
+//        operator unsigned PY_LONG_LONG() const
+//        {
+//            return as_unsigned_long_long();
+//        }
+#endif
+
+        // prefix ++
+        Long operator++()
         {
-            return PyLong_AsLong( ptr() );
+            Long a = *this;
+            set( PyNumber_Add( ptr(), *Long( 1 ) ) );
+            return a;
         }
-        // convert to unsigned
-        operator unsigned long() const
+
+        // postfix ++
+        Long operator++( int )
         {
-            return PyLong_AsUnsignedLong( ptr() );
-        }
-        operator double() const
-        {
-            return PyLong_AsDouble( ptr() );
-        }
-        // assign from an int
-        LongLong& operator=( int v )
-        {
-            set( PyLong_FromLongLong( long( v ) ), true );
+            set( PyNumber_Add( ptr(), *Long( 1 ) ) );
             return *this;
         }
-        // assign from long long
-        LongLong& operator=( PY_LONG_LONG v )
+
+        // prefix --
+        Long operator--()
         {
-            set( PyLong_FromLongLong( v ), true );
-            return *this;
+            Long a = *this;
+            set( PyNumber_Subtract( ptr(), *Long( 1 ) ) );
+            return a;
         }
-        // assign from unsigned long long
-        LongLong& operator=( unsigned PY_LONG_LONG v )
+
+        // postfix --
+        Long operator--( int )
         {
-            set( PyLong_FromUnsignedLongLong( v ), true );
-            return *this;
-        }
-        // assign from long
-        LongLong& operator=( long v )
-        {
-            set( PyLong_FromLongLong( v ), true );
-            return *this;
-        }
-        // assign from unsigned long
-        LongLong& operator=( unsigned long v )
-        {
-            set( PyLong_FromUnsignedLongLong( v ), true );
+            set( PyNumber_Subtract( ptr(), *Long( 1 ) ) );
             return *this;
         }
     };
+
+#if 0
+    //------------------------------------------------------------
+    // compare operators
+    bool operator!=( const Long &a, long b )
+    {
+        return a.as_long() != b;
+    }
+
+    bool operator!=( long a, const Long &b )
+    {
+        return a != b.as_long();
+    }
+
+    //------------------------------
+    bool operator==( const Long &a, long b )
+    {
+        return a.as_long() == b;
+    }
+
+    bool operator==( long a, const Long &b )
+    {
+        return a == b.as_long();
+    }
+
+    //------------------------------
+    bool operator>( const Long &a, long b )
+    {
+        return a.as_long() > b;
+    }
+
+    bool operator>( long a, const Long &b )
+    {
+        return a > b.as_long();
+    }
+
+    //------------------------------
+    bool operator>=( const Long &a, long b )
+    {
+        return a.as_long() >= b;
+    }
+
+    bool operator>=( long a, const Long &b )
+    {
+        return a >= b.as_long();
+    }
+
+    //------------------------------
+    bool operator<( const Long &a, long b )
+    {
+        return a.as_long() < b;
+    }
+
+    bool operator<( long a, const Long &b )
+    {
+        return a < b.as_long();
+    }
+
+    //------------------------------
+    bool operator<=( const Long &a, long b )
+    {
+        return a.as_long() <= b;
+    }
+
+    bool operator<=( long a, const Long &b )
+    {
+        return a <= b.as_long();
+    }
+
+#ifdef HAVE_LONG_LONG
+    //------------------------------
+    bool operator!=( const Long &a, PY_LONG_LONG b )
+    {
+        return a.as_long_long() != b;
+    }
+
+    bool operator!=( PY_LONG_LONG a, const Long &b )
+    {
+        return a != b.as_long_long();
+    }
+
+    //------------------------------
+    bool operator==( const Long &a, PY_LONG_LONG b )
+    {
+        return a.as_long_long() == b;
+    }
+
+    bool operator==( PY_LONG_LONG a, const Long &b )
+    {
+        return a == b.as_long_long();
+    }
+
+    //------------------------------
+    bool operator>( const Long &a, PY_LONG_LONG b )
+    {
+        return a.as_long_long() > b;
+    }
+
+    bool operator>( PY_LONG_LONG a, const Long &b )
+    {
+        return a > b.as_long_long();
+    }
+
+    //------------------------------
+    bool operator>=( const Long &a, PY_LONG_LONG b )
+    {
+        return a.as_long_long() >= b;
+    }
+
+    bool operator>=( PY_LONG_LONG a, const Long &b )
+    {
+        return a >= b.as_long_long();
+    }
+
+    //------------------------------
+    bool operator<( const Long &a, PY_LONG_LONG b )
+    {
+        return a.as_long_long() < b;
+    }
+
+    bool operator<( PY_LONG_LONG a, const Long &b )
+    {
+        return a < b.as_long_long();
+    }
+
+    //------------------------------
+    bool operator<=( const Long &a, PY_LONG_LONG b )
+    {
+        return a.as_long_long() <= b;
+    }
+
+    bool operator<=( PY_LONG_LONG a, const Long &b )
+    {
+        return a <= b.as_long_long();
+    }
+#endif
 #endif
 
     // ===============================================
@@ -850,13 +968,13 @@ namespace Py
 
         Float& operator=( const Object& rhs )
         {
-            return( *this = *rhs );
+            return *this = *rhs;
         }
 
         Float& operator=( PyObject* rhsp )
         {
-            if( ptr() == rhsp ) return *this;
-            set( PyNumber_Float( rhsp ), true );
+            if( ptr() != rhsp )
+                set( PyNumber_Float( rhsp ), true );
             return *this;
         }
         // Membership
@@ -920,13 +1038,13 @@ namespace Py
 
         Complex& operator=( const Object& rhs )
         {
-            return( *this = *rhs );
+            return *this = *rhs;
         }
 
         Complex& operator=( PyObject* rhsp )
         {
-            if( ptr() == rhsp ) return *this;
-            set( rhsp );
+            if( ptr() != rhsp )
+                set( rhsp );
             return *this;
         }
         // Membership
@@ -1248,13 +1366,13 @@ namespace Py
 
         SeqBase<T>& operator=( const Object& rhs )
         {
-            return( *this = *rhs );
+            return *this = *rhs;
         }
 
         SeqBase<T>& operator=( PyObject* rhsp )
         {
-            if( ptr() == rhsp ) return *this;
-            set( rhsp );
+            if( ptr() != rhsp )
+                set( rhsp );
             return *this;
         }
 
@@ -1405,10 +1523,11 @@ namespace Py
 
             iterator& operator=( const iterator& other )
             {
-                if( this == &other )
-                    return *this;
-                seq = other.seq;
-                count = other.count;
+                if( this != &other )
+                {
+                    seq = other.seq;
+                    count = other.count;
+                }
                 return *this;
             }
 
@@ -1525,10 +1644,11 @@ namespace Py
 
             const_iterator& operator=( const const_iterator& other )
             {
-                if( this == &other )
-                    return *this;
-                seq = other.seq;
-                count = other.count;
+                if( this != &other )
+                {
+                    seq = other.seq;
+                    count = other.count;
+                }
                 return *this;
             }
 
@@ -1700,14 +1820,13 @@ namespace Py
         // Assignment acquires new ownership of pointer
         Byte& operator=( const Object& rhs )
         {
-            return( *this = *rhs );
+            return *this = *rhs;
         }
 
         Byte& operator=( PyObject* rhsp )
         {
-            if( ptr() == rhsp )
-                return *this;
-            set( rhsp );
+            if( ptr() != rhsp )
+                set( rhsp );
             return *this;
         }
 
@@ -1795,14 +1914,13 @@ namespace Py
         // Assignment acquires new ownership of pointer
         Bytes& operator=( const Object& rhs )
         {
-            return( *this = *rhs );
+            return *this = *rhs;
         }
 
         Bytes& operator=( PyObject* rhsp )
         {
-            if( ptr() == rhsp )
-                return *this;
-            set( rhsp );
+            if( ptr() != rhsp )
+                set( rhsp );
             return *this;
         }
 
@@ -1813,10 +1931,7 @@ namespace Py
             return *this;
         }
 
-        String decode( const char *encoding, const char *error="strict" )
-        {
-            return Object( PyBytes_AsDecodedObject( ptr(), encoding, error ) );
-        }
+        String decode( const char *encoding, const char *error="strict" );
 
         // Queries
         virtual size_type size() const
@@ -1865,14 +1980,13 @@ namespace Py
         // Assignment acquires new ownership of pointer
         Char& operator=( const Object& rhs )
         {
-            return( *this = *rhs );
+            return *this = *rhs;
         }
 
         Char& operator=( PyObject* rhsp )
         {
-            if( ptr() == rhsp )
-                return *this;
-            set( rhsp );
+            if( ptr() != rhsp )
+                set( rhsp );
             return *this;
         }
 
@@ -1930,6 +2044,12 @@ namespace Py
             validate();
         }
 
+        String( const std::string &latin1 )
+        : SeqBase<Char>( PyUnicode_FromStringAndSize( latin1.c_str(), latin1.size() ) )
+        {
+            validate();
+        }
+
         String( const char *latin1, Py_ssize_t size )
         : SeqBase<Char>( PyUnicode_FromStringAndSize( latin1, size ) )
         {
@@ -1953,6 +2073,12 @@ namespace Py
            generic ones are documented.
 
         */
+        String( const std::string &s, const char *encoding, const char *errors=NULL )
+        : SeqBase<Char>( PyUnicode_Decode( s.c_str(), s.size(), encoding, errors ) )
+        {
+            validate();
+        }
+
         String( const char *s, const char *encoding, const char *errors=NULL )
         : SeqBase<Char>( PyUnicode_Decode( s, strlen(s), encoding, errors ) )
         {
@@ -1968,14 +2094,13 @@ namespace Py
         // Assignment acquires new ownership of pointer
         String& operator=( const Object &rhs )
         {
-            return( *this = *rhs );
+            return *this = *rhs;
         }
 
         String& operator=( PyObject *rhsp )
         {
-            if( ptr() == rhsp )
-                return *this;
-            set( rhsp );
+            if( ptr() != rhsp )
+                set( rhsp );
             return *this;
         }
 
@@ -2023,6 +2148,10 @@ namespace Py
 
     };
 
+    String Bytes::decode( const char *encoding, const char *error )
+    {
+        return String( PyUnicode_FromEncodedObject( ptr(), encoding, error ), true );
+    }
 
     // ==================================================
     // class Tuple
@@ -2082,13 +2211,13 @@ namespace Py
 
         Tuple& operator=( const Object& rhs )
         {
-            return( *this = *rhs );
+            return *this = *rhs;
         }
 
         Tuple& operator=( PyObject* rhsp )
         {
-            if( ptr() == rhsp ) return *this;
-            set( rhsp );
+            if( ptr() != rhsp )
+                set( rhsp );
             return *this;
         }
         // Membership
@@ -2156,13 +2285,13 @@ namespace Py
 
         List& operator=( const Object& rhs )
         {
-            return( *this = *rhs );
+            return *this = *rhs;
         }
 
         List& operator=( PyObject* rhsp )
         {
-            if( ptr() == rhsp ) return *this;
-            set( rhsp );
+            if( ptr() == rhsp )
+                set( rhsp );
             return *this;
         }
         // Membership
@@ -2249,9 +2378,11 @@ namespace Py
         // lvalue
         mapref<T>& operator=( const mapref<T>& other )
         {
-            if( this == &other ) return *this;
-            the_item = other.the_item;
-            s.setItem( key, other.the_item );
+            if( this != &other )
+            {
+                the_item = other.the_item;
+                s.setItem( key, other.the_item );
+            }
             return *this;
         }
 
@@ -2429,13 +2560,13 @@ namespace Py
         // Assignment acquires new ownership of pointer
         MapBase<T>& operator=( const Object& rhs )
         {
-            return( *this = *rhs );
+            return *this = *rhs;
         }
 
         MapBase<T>& operator=( PyObject* rhsp )
         {
-            if( ptr() == rhsp ) return *this;
-            set( rhsp );
+            if( ptr() != rhsp )
+                set( rhsp );
             return *this;
         }
         // Membership
@@ -2472,6 +2603,11 @@ namespace Py
             return getItem( key );
         }
 
+        mapref<T> operator[]( const char *key )
+        {
+            return mapref<T>( *this, key );
+        }
+
         mapref<T> operator[]( const std::string& key )
         {
             return mapref<T>( *this, key );
@@ -2499,16 +2635,12 @@ namespace Py
 
         T getItem( const std::string& s ) const
         {
-            return T( 
-            asObject( PyMapping_GetItemString( ptr(),const_cast<char*>( s.c_str() ) ) )
- );
+            return T( asObject( PyMapping_GetItemString( ptr(),const_cast<char*>( s.c_str() ) ) ) );
         }
 
         T getItem( const Object& s ) const
         {
-            return T( 
-            asObject( PyObject_GetItem( ptr(), s.ptr() ) )
- );
+            return T( asObject( PyObject_GetItem( ptr(), s.ptr() ) ) );
         }
 
         virtual void setItem( const char *s, const Object& ob )
@@ -2550,6 +2682,7 @@ namespace Py
                 throw Exception();
             }
         }
+
         // Queries
         List keys() const
         {
@@ -2557,7 +2690,8 @@ namespace Py
         }
 
         List values() const
-        { // each returned item is a( key, value ) pair
+        {
+            // each returned item is a (key, value) pair
             return List( PyMapping_Values( ptr() ), true );
         }
 
@@ -2645,11 +2779,12 @@ namespace Py
 
             iterator& operator=( const iterator& other )
             {
-                if( this == &other )
-                    return *this;
-                map = other.map;
-                keys = other.keys;
-                pos = other.pos;
+                if( this != &other )
+                {
+                    map = other.map;
+                    keys = other.keys;
+                    pos = other.pos;
+                }
                 return *this;
             }
 
@@ -2668,16 +2803,29 @@ namespace Py
 
             // prefix ++
             iterator& operator++()
-            { pos++; return *this;}
+            {
+                pos++;
+                return *this;
+            }
+
             // postfix ++
             iterator operator++( int )
-            { return iterator( map, keys, pos++ );}
+            {
+                return iterator( map, keys, pos++ );
+            }
+
             // prefix --
             iterator& operator--()
-            { pos--; return *this;}
+            {
+                pos--;
+                return *this;
+            }
+
             // postfix --
             iterator operator--( int )
-            { return iterator( map, keys, pos-- );}
+            { 
+                return iterator( map, keys, pos-- );
+            }
 
             std::string diagnose() const
             {
@@ -2751,25 +2899,40 @@ namespace Py
 
             const_iterator& operator=( const const_iterator& other )
             {
-                if( this == &other ) return *this;
-                map = other.map;
-                keys = other.keys;
-                pos = other.pos;
+                if( this != &other )
+                {
+                    map = other.map;
+                    keys = other.keys;
+                    pos = other.pos;
+                }
                 return *this;
             }
 
             // prefix ++
             const_iterator& operator++()
-            { pos++; return *this;}
+            {
+                pos++;
+                return *this;
+            }
+
             // postfix ++
             const_iterator operator++( int )
-            { return const_iterator( map, keys, pos++ );}
+            {
+                return const_iterator( map, keys, pos++ );
+            }
+
             // prefix --
             const_iterator& operator--()
-            { pos--; return *this;}
+            {
+                pos--;
+                return *this;
+            }
+
             // postfix --
             const_iterator operator--( int )
-            { return const_iterator( map, keys, pos-- );}
+            {
+                return const_iterator( map, keys, pos-- );
+            }
         };    // end of class MapBase<T>::const_iterator
 
         const_iterator begin() const
@@ -2803,14 +2966,18 @@ namespace Py
     {
     public:
         // Constructor
-        explicit Dict( PyObject *pyob, bool owned=false ): Mapping( pyob, owned )
+        explicit Dict( PyObject *pyob, bool owned=false )
+        : Mapping( pyob, owned )
         {
             validate();
         }
-        Dict( const Object& ob ): Mapping( ob )
+
+        Dict( const Object& ob )
+        : Mapping( ob )
         {
             validate();
         }
+
         // Creation
         Dict()
         {
@@ -2821,13 +2988,13 @@ namespace Py
 
         Dict& operator=( const Object& rhs )
         {
-            return( *this = *rhs );
+            return *this = *rhs;
         }
 
         Dict& operator=( PyObject* rhsp )
         {
-            if( ptr() == rhsp ) return *this;
-            set( rhsp );
+            if( ptr() != rhsp )
+                set( rhsp );
             return *this;
         }
         // Membership
@@ -2841,28 +3008,32 @@ namespace Py
     {
     public:
         // Constructor
-        explicit Callable(): Object()  {}
-        explicit Callable( PyObject *pyob, bool owned = false ): Object( pyob, owned )
+        explicit Callable()
+        : Object()
+        {}
+
+        explicit Callable( PyObject *pyob, bool owned = false )
+        : Object( pyob, owned )
         {
             validate();
         }
 
-        Callable( const Object& ob ): Object( ob )
+        Callable( const Object& ob )
+        : Object( ob )
         {
             validate();
         }
 
         // Assignment acquires new ownership of pointer
-
         Callable& operator=( const Object& rhs )
         {
-            return( *this = *rhs );
+            return *this = *rhs;
         }
 
         Callable& operator=( PyObject* rhsp )
         {
-            if( ptr() == rhsp ) return *this;
-            set( rhsp );
+            if( ptr() != rhsp )
+                set( rhsp );
             return *this;
         }
 
@@ -2893,13 +3064,15 @@ namespace Py
     class Module: public Object
     {
     public:
-        explicit Module( PyObject* pyob, bool owned = false ): Object( pyob, owned )
+        explicit Module( PyObject* pyob, bool owned = false )
+        : Object( pyob, owned )
         {
             validate();
         }
 
         // Construct from module name
-        explicit Module( const std::string&s ): Object()
+        explicit Module( const std::string&s )
+        : Object()
         {
             PyObject *m = PyImport_AddModule( const_cast<char *>( s.c_str() ) );
             set( m, false );
@@ -2907,20 +3080,21 @@ namespace Py
         }
 
         // Copy constructor acquires new ownership of pointer
-        Module( const Module& ob ): Object( *ob )
+        Module( const Module& ob )
+        : Object( *ob )
         {
             validate();
         }
 
         Module& operator=( const Object& rhs )
         {
-            return( *this = *rhs );
+            return *this = *rhs;
         }
 
         Module& operator=( PyObject* rhsp )
         {
-            if( ptr() == rhsp ) return *this;
-            set( rhsp );
+            if( ptr() != rhsp )
+                set( rhsp );
             return *this;
         }
 
@@ -2936,6 +3110,7 @@ namespace Py
     {
         return asObject( PyNumber_Positive( *a ) );
     }
+
     inline Object operator-( const Object& a )
     {
         return asObject( PyNumber_Negative( *a ) );
@@ -2952,26 +3127,32 @@ namespace Py
     {
         return asObject( PyNumber_Add( *a, *b ) );
     }
+
     inline Object operator+( const Object& a, int j )
     {
         return asObject( PyNumber_Add( *a, *Long( j ) ) );
     }
+
     inline Object operator+( const Object& a, long j )
     {
         return asObject( PyNumber_Add( *a, *Long( j ) ) );
     }
+
     inline Object operator+( const Object& a, double v )
     {
         return asObject( PyNumber_Add( *a, *Float( v ) ) );
     }
+
     inline Object operator+( int j, const Object& b )
     {
         return asObject( PyNumber_Add( *Long( j ), *b ) );
     }
+
     inline Object operator+( long j, const Object& b )
     {
         return asObject( PyNumber_Add( *Long( j ), *b ) );
     }
+
     inline Object operator+( double v, const Object& b )
     {
         return asObject( PyNumber_Add( *Float( v ), *b ) );
@@ -2983,92 +3164,117 @@ namespace Py
     {
         return asObject( PyNumber_Subtract( *a, *b ) );
     }
+
     inline Object operator-( const Object& a, int j )
     {
         return asObject( PyNumber_Subtract( *a, *Long( j ) ) );
     }
+
     inline Object operator-( const Object& a, double v )
     {
         return asObject( PyNumber_Subtract( *a, *Float( v ) ) );
     }
+
     inline Object operator-( int j, const Object& b )
     {
         return asObject( PyNumber_Subtract( *Long( j ), *b ) );
     }
+
     inline Object operator-( double v, const Object& b )
     {
         return asObject( PyNumber_Subtract( *Float( v ), *b ) );
     }
 
+    //------------------------------------------------------------
+    // operator *
     inline Object operator*( const Object& a, const Object& b )
     {
         return asObject( PyNumber_Multiply( *a, *b ) );
     }
+
     inline Object operator*( const Object& a, int j )
     {
         return asObject( PyNumber_Multiply( *a, *Long( j ) ) );
     }
+
     inline Object operator*( const Object& a, double v )
     {
         return asObject( PyNumber_Multiply( *a, *Float( v ) ) );
     }
+
     inline Object operator*( int j, const Object& b )
     {
         return asObject( PyNumber_Multiply( *Long( j ), *b ) );
     }
+
     inline Object operator*( double v, const Object& b )
     {
         return asObject( PyNumber_Multiply( *Float( v ), *b ) );
     }
 
+    //------------------------------------------------------------
+    // operator /
     inline Object operator/( const Object& a, const Object& b )
     {
         return asObject( PyNumber_Divide( *a, *b ) );
     }
+
     inline Object operator/( const Object& a, int j )
     {
         return asObject( PyNumber_Divide( *a, *Long( j ) ) );
     }
+
     inline Object operator/( const Object& a, double v )
     {
         return asObject( PyNumber_Divide( *a, *Float( v ) ) );
     }
+
     inline Object operator/( int j, const Object& b )
     {
         return asObject( PyNumber_Divide( *Long( j ), *b ) );
     }
+
     inline Object operator/( double v, const Object& b )
     {
         return asObject( PyNumber_Divide( *Float( v ), *b ) );
     }
 
+    //------------------------------------------------------------
+    // operator %
     inline Object operator%( const Object& a, const Object& b )
     {
         return asObject( PyNumber_Remainder( *a, *b ) );
     }
+
     inline Object operator%( const Object& a, int j )
     {
         return asObject( PyNumber_Remainder( *a, *Long( j ) ) );
     }
+
     inline Object operator%( const Object& a, double v )
     {
         return asObject( PyNumber_Remainder( *a, *Float( v ) ) );
     }
+
     inline Object operator%( int j, const Object& b )
     {
         return asObject( PyNumber_Remainder( *Long( j ), *b ) );
     }
+
     inline Object operator%( double v, const Object& b )
     {
         return asObject( PyNumber_Remainder( *Float( v ), *b ) );
     }
 
+    //------------------------------------------------------------
+    // type
     inline Object type( const Exception& ) // return the type of the error
     {
         PyObject *ptype, *pvalue, *ptrace;
         PyErr_Fetch( &ptype, &pvalue, &ptrace );
         Object result;
-        if( ptype ) result = ptype;
+        if( ptype )
+            result = ptype;
         PyErr_Restore( ptype, pvalue, ptrace );
         return result;
     }
@@ -3078,7 +3284,8 @@ namespace Py
         PyObject *ptype, *pvalue, *ptrace;
         PyErr_Fetch( &ptype, &pvalue, &ptrace );
         Object result;
-        if( pvalue ) result = pvalue;
+        if( pvalue )
+            result = pvalue;
         PyErr_Restore( ptype, pvalue, ptrace );
         return result;
     }
@@ -3088,23 +3295,23 @@ namespace Py
         PyObject *ptype, *pvalue, *ptrace;
         PyErr_Fetch( &ptype, &pvalue, &ptrace );
         Object result;
-        if( ptrace ) result = ptrace;
+        if( ptrace )
+            result = ptrace;
         PyErr_Restore( ptype, pvalue, ptrace );
         return result;
     }
 
-template<TEMPLATE_TYPENAME T>
-String seqref<T>::str() const
-{
-    return the_item.str();
-}
+    template<TEMPLATE_TYPENAME T>
+    String seqref<T>::str() const
+    {
+        return the_item.str();
+    }
 
-template<TEMPLATE_TYPENAME T>
-String seqref<T>::repr() const
-{
-    return the_item.repr();
-}
-
+    template<TEMPLATE_TYPENAME T>
+    String seqref<T>::repr() const
+    {
+        return the_item.repr();
+    }
 
 } // namespace Py
 #endif    // __CXX_Objects__h
