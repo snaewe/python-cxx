@@ -610,7 +610,7 @@ private:
     }
 };
 
-extern "C" void initexample()
+extern "C" void PyInit_example()
 {
 #if defined(PY_WIN32_DELAYLOAD_PYTHON_DLL)
     Py::InitialisePythonIndirectPy::Interface();
@@ -620,5 +620,5 @@ extern "C" void initexample()
 }
 
 // symbol required for the debug version
-extern "C" void initexample_d()
-{ initexample(); }
+extern "C" void PyInit_example_d()
+{ PyInit_example(); }
