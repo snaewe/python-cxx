@@ -36,7 +36,8 @@
 //-----------------------------------------------------------------------------
 
 #include "CXX/Objects.hxx"
-namespace Py {
+namespace Py 
+{
 
 Py_UNICODE unicode_null_string[1] = { 0 };
 
@@ -74,6 +75,61 @@ Char::operator String() const
 {
     return String( ptr() );
 }
+
+String Bytes::decode( const char *encoding, const char *error )
+{
+    return String( PyUnicode_FromEncodedObject( ptr(), encoding, error ), true );
+}
+
+bool operator==( const Object& o1, const Object& o2 )
+{
+    int k = PyObject_Compare( *o1, *o2 );
+    if( PyErr_Occurred() )
+        throw Exception();
+    return k == 0;
+}
+
+bool operator!=( const Object& o1, const Object& o2 )
+{
+    int k = PyObject_Compare( *o1, *o2 );
+    if( PyErr_Occurred() )
+        throw Exception();
+    return k != 0;
+
+}
+
+bool operator>=( const Object& o1, const Object& o2 )
+{
+    int k = PyObject_Compare( *o1, *o2 );
+    if( PyErr_Occurred() )
+        throw Exception();
+    return k >= 0;
+}
+
+bool operator<=( const Object& o1, const Object& o2 )
+{
+    int k = PyObject_Compare( *o1, *o2 );
+    if( PyErr_Occurred() )
+        throw Exception();
+    return k <= 0;
+}
+
+bool operator<( const Object& o1, const Object& o2 )
+{
+    int k = PyObject_Compare( *o1, *o2 );
+    if( PyErr_Occurred() )
+        throw Exception();
+    return k < 0;
+}
+
+bool operator>( const Object& o1, const Object& o2 )
+{
+    int k = PyObject_Compare( *o1, *o2 );
+    if( PyErr_Occurred() )
+        throw Exception();
+    return k > 0;
+}
+
 
 // TMM: non-member operaters for iterators - see above
 // I've also made a bug fix in respect to the cxx code

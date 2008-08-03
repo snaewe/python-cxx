@@ -377,7 +377,7 @@ namespace Py
 
         bool isString() const
         {
-            return Py::_String_Check( p );
+            return Py::_Unicode_Check( p );
         }
 
         bool isBytes() const
@@ -413,54 +413,13 @@ namespace Py
     // End of class Object
 
     //------------------------------------------------------------
-    bool operator==( const Object& o1, const Object& o2 )
-    {
-        int k = PyObject_Compare( *o1, *o2 );
-        if( PyErr_Occurred() )
-            throw Exception();
-        return k == 0;
-    }
+    bool operator==( const Object& o1, const Object& o2 );
+    bool operator!=( const Object& o1, const Object& o2 );
+    bool operator>=( const Object& o1, const Object& o2 );
+    bool operator<=( const Object& o1, const Object& o2 );
+    bool operator<( const Object& o1, const Object& o2 );
+    bool operator>( const Object& o1, const Object& o2 );
 
-    bool operator!=( const Object& o1, const Object& o2 )
-    {
-        int k = PyObject_Compare( *o1, *o2 );
-        if( PyErr_Occurred() )
-            throw Exception();
-        return k != 0;
-
-    }
-
-    bool operator>=( const Object& o1, const Object& o2 )
-    {
-        int k = PyObject_Compare( *o1, *o2 );
-        if( PyErr_Occurred() )
-            throw Exception();
-        return k >= 0;
-    }
-
-    bool operator<=( const Object& o1, const Object& o2 )
-    {
-        int k = PyObject_Compare( *o1, *o2 );
-        if( PyErr_Occurred() )
-            throw Exception();
-        return k <= 0;
-    }
-
-    bool operator<( const Object& o1, const Object& o2 )
-    {
-        int k = PyObject_Compare( *o1, *o2 );
-        if( PyErr_Occurred() )
-            throw Exception();
-        return k < 0;
-    }
-
-    bool operator>( const Object& o1, const Object& o2 )
-    {
-        int k = PyObject_Compare( *o1, *o2 );
-        if( PyErr_Occurred() )
-            throw Exception();
-        return k > 0;
-    }
     //------------------------------------------------------------
 
     inline PyObject* new_reference_to( const Object& g )
@@ -1834,7 +1793,7 @@ namespace Py
         virtual bool accepts( PyObject *pyob ) const
         {
             return pyob != NULL
-                && Py::_String_Check( pyob )
+                && Py::_Unicode_Check( pyob )
                 && PySequence_Length( pyob ) == 1;
         }
 
@@ -1993,7 +1952,7 @@ namespace Py
         // Membership
         virtual bool accepts( PyObject *pyob ) const
         {
-            return pyob != 0 &&( Py::_String_Check( pyob ) ) && PySequence_Length( pyob ) == 1;
+            return pyob != 0 &&( Py::_Unicode_Check( pyob ) ) && PySequence_Length( pyob ) == 1;
         }
 
         Char& operator=( const unicodestring& v )
@@ -2107,7 +2066,7 @@ namespace Py
         // Membership
         virtual bool accepts( PyObject *pyob ) const
         {
-            return pyob != 0 && Py::_String_Check( pyob );
+            return pyob != 0 && Py::_Unicode_Check( pyob );
         }
 
         String& operator=( const unicodestring& v )
@@ -2147,11 +2106,6 @@ namespace Py
         }
 
     };
-
-    String Bytes::decode( const char *encoding, const char *error )
-    {
-        return String( PyUnicode_FromEncodedObject( ptr(), encoding, error ), true );
-    }
 
     // ==================================================
     // class Tuple
@@ -3216,27 +3170,27 @@ namespace Py
     // operator /
     inline Object operator/( const Object& a, const Object& b )
     {
-        return asObject( PyNumber_Divide( *a, *b ) );
+        return asObject( PyNumber_TrueDivide( *a, *b ) );
     }
 
     inline Object operator/( const Object& a, int j )
     {
-        return asObject( PyNumber_Divide( *a, *Long( j ) ) );
+        return asObject( PyNumber_TrueDivide( *a, *Long( j ) ) );
     }
 
     inline Object operator/( const Object& a, double v )
     {
-        return asObject( PyNumber_Divide( *a, *Float( v ) ) );
+        return asObject( PyNumber_TrueDivide( *a, *Float( v ) ) );
     }
 
     inline Object operator/( int j, const Object& b )
     {
-        return asObject( PyNumber_Divide( *Long( j ), *b ) );
+        return asObject( PyNumber_TrueDivide( *Long( j ), *b ) );
     }
 
     inline Object operator/( double v, const Object& b )
     {
-        return asObject( PyNumber_Divide( *Float( v ), *b ) );
+        return asObject( PyNumber_TrueDivide( *Float( v ), *b ) );
     }
 
     //------------------------------------------------------------

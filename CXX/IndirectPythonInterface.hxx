@@ -159,8 +159,8 @@ bool _Range_Check( PyObject *op );
 PyTypeObject * _Slice_Type();
 bool _Slice_Check( PyObject *op );
 
-PyTypeObject * _String_Type();
-bool _String_Check( PyObject *op );
+PyTypeObject * _Unicode_Type();
+bool _Unicode_Check( PyObject *op );
 
 PyTypeObject * _Bytes_Type();
 bool _Bytes_Check( PyObject *op );
