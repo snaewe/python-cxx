@@ -3025,7 +3025,7 @@ namespace Py
         }
 
         // Construct from module name
-        explicit Module( const std::string&s )
+        explicit Module( const std::string &s )
         : Object()
         {
             PyObject *m = PyImport_AddModule( const_cast<char *>( s.c_str() ) );
@@ -3034,25 +3034,25 @@ namespace Py
         }
 
         // Copy constructor acquires new ownership of pointer
-        Module( const Module& ob )
+        Module( const Module &ob )
         : Object( *ob )
         {
             validate();
         }
 
-        Module& operator=( const Object& rhs )
+        Module& operator=( const Object &rhs )
         {
             return *this = *rhs;
         }
 
-        Module& operator=( PyObject* rhsp )
+        Module& operator=( PyObject *rhsp )
         {
             if( ptr() != rhsp )
                 set( rhsp );
             return *this;
         }
 
-        Dict getDict()
+        Dict getDict() const
         {
             return Dict( PyModule_GetDict( ptr() ) );
             // Caution -- PyModule_GetDict returns borrowed reference!
