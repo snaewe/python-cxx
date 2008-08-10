@@ -269,23 +269,25 @@ namespace Py
         const std::string &name() const;
         const std::string &fullName() const;
 
+        // what is returned from PyInit_<module> function
+        Object moduleObject( void ) const;
+
     protected:
         // Initialize the module
         void initialize( const char *module_doc );
 
-        const std::string module_name;
-        const std::string full_module_name;
-        MethodTable method_table;
-
+        const std::string m_module_name;
+        const std::string m_full_module_name;
+        MethodTable m_method_table;
         PyModuleDef m_module_def;
+        PyObject *m_module;
 
     private:
         //
         // prevent the compiler generating these unwanted functions
         //
-        ExtensionModuleBase( const ExtensionModuleBase & );    //unimplemented
-        void operator=( const ExtensionModuleBase & );        //unimplemented
-
+        ExtensionModuleBase( const ExtensionModuleBase & );     //unimplemented
+        void operator=( const ExtensionModuleBase & );          //unimplemented
     };
 
     extern "C" PyObject *method_keyword_call_handler( PyObject *_self_and_name_tuple, PyObject *_args, PyObject *_keywords );
@@ -611,7 +613,7 @@ namespace Py
         : PythonExtensionBase()
         {
             #ifdef PyObject_INIT
-            (void)PyObject_INIT( this, type_object() );
+            ( void )PyObject_INIT( this, type_object() );
             #else
             ob_refcnt = 1;
             ob_type = type_object();

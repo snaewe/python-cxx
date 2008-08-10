@@ -610,15 +610,19 @@ private:
     }
 };
 
-extern "C" void PyInit_example()
+extern "C" PyObject *PyInit_example()
 {
 #if defined(PY_WIN32_DELAYLOAD_PYTHON_DLL)
     Py::InitialisePythonIndirectPy::Interface();
 #endif
 
-    static example_module* example = new example_module;
+    static example_module *example = new example_module;
+
+    return example->module().ptr();
 }
 
 // symbol required for the debug version
-extern "C" void PyInit_example_d()
-{ PyInit_example(); }
+extern "C" PyObject *PyInit_example_d()
+{ 
+    return PyInit_example();
+}

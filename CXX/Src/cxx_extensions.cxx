@@ -101,9 +101,11 @@ PyMethodDef* MethodTable::table()
 //
 //================================================================================
 ExtensionModuleBase::ExtensionModuleBase( const char *name )
-: module_name( name )
-, full_module_name( __Py_PackageContext() != NULL ? std::string( __Py_PackageContext() ) : module_name )
-, method_table()
+: m_module_name( name )
+, m_full_module_name( __Py_PackageContext() != NULL ? std::string( __Py_PackageContext() ) : m_module_name )
+, m_method_table()
+//m_module_def
+, m_module( NULL )
 {}
 
 ExtensionModuleBase::~ExtensionModuleBase()
@@ -111,12 +113,12 @@ ExtensionModuleBase::~ExtensionModuleBase()
 
 const std::string &ExtensionModuleBase::name() const
 {
-    return module_name;
+    return m_module_name;
 }
 
 const std::string &ExtensionModuleBase::fullName() const
 {
-    return full_module_name;
+    return m_full_module_name;
 }
 
 class ExtensionModuleBasePtr : public PythonExtension<ExtensionModuleBasePtr>
@@ -132,26 +134,26 @@ public:
     ExtensionModuleBase *module;
 };
 
-
 void ExtensionModuleBase::initialize( const char *module_doc )
 {
     // PyObject *module_ptr = new ExtensionModuleBasePtr( this );
 
     memset( &m_module_def, 0, sizeof( m_module_def ) );
 
-    m_module_def.m_name = const_cast<char *>( module_name.c_str() );
+    m_module_def.m_name = const_cast<char *>( m_module_name.c_str() );
     m_module_def.m_doc = const_cast<char *>( module_doc );
-    m_module_def.m_methods = method_table.table();
+    m_module_def.m_methods = m_method_table.table();
     // where does module_ptr get passed in?
-    PyModule_Create( &m_module_def );
+
+    m_module = PyModule_Create( &m_module_def );
 }
 
-Py::Module ExtensionModuleBase::module(void) const
+Py::Module ExtensionModuleBase::module( void ) const
 {
-    return Module( full_module_name );
+    return Module( m_module );
 }
 
-Py::Dict ExtensionModuleBase::moduleDictionary(void) const
+Py::Dict ExtensionModuleBase::moduleDictionary( void ) const
 {
     return module().getDict();
 }
