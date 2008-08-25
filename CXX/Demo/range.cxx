@@ -180,7 +180,7 @@ Py::Object range::assign( const Py::Tuple &t )
     Py::Object o2( t[1] ); // rhs;
     c_assign ( t1, o2 );
 
-    return Py::Nothing();
+    return Py::None();
 }
 
 void range::init_type()
