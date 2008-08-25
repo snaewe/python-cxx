@@ -28,11 +28,11 @@ public:
 private:
     Py::Object new_IterT(const Py::Tuple& args)
     {
-        if (args.length() != 2)
+        if( args.length() != 2 )
         {
-            throw Py::RuntimeError("Incorrect # of args to IterT(from,to).");
+            throw Py::RuntimeError( "Incorrect # of args to IterT(from,to)." );
         }
-        return Py::asObject(new IterT(Py::Int(args[0]),Py::Int(args[1])));
+        return Py::asObject( new IterT( Py::Long( args[0] ).as_long(), Py::Long( args[1] ).as_long() ) );
     }
 };
 

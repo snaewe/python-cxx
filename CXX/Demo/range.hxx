@@ -46,56 +46,15 @@
 class range: public Py::PythonExtension<range>
 {
 public:
-    long    start;
-    long    stop;
-    long    step;
-
-    range(long start_, long stop_, long step_ = 1L) 
-    {
-        start = start_;
-        stop = stop_;
-        step = step_;
-        std::cout << "range object created " << this << std::endl;
-    }
-
-    virtual ~range()
-    {
-        std::cout << "range object destroyed " << this << std::endl;
-    }
-
+    range( long start, long stop, long step = 1L );
+    virtual ~range();
     static void init_type(void);
 
-    long length() const
-    {
-        return (stop - start + 1)/step;
-    }
-
-    long item(int i) const
-    {
-        if( i >= length() )
-            // this exception stops a Python for loop over range.
-            throw Py::IndexError("index too large");
-        return start + i * step;
-    }
-
-    range* slice(int i, int j) const
-    {
-        int first = start + i * step;
-        int last = start + j * step;
-        return new range(first, last, step);
-    }
-
-    range* extend(int k) const
-    {
-        return new range(start, stop + k, step);      
-    }
-
-    std::string asString() const
-    {
-        std::OSTRSTREAM s;
-        s << "range(" << start << ", " << stop << ", " << step << ")" << std::ends;
-        return std::string(s.str());
-    }
+    long length() const;
+    long item( int i ) const;
+    range *slice( int i, int j ) const;
+    range *extend( int k ) const;
+    std::string asString() const;
 
     // override functions from PythonExtension
     virtual Py::Object repr();
@@ -109,30 +68,15 @@ public:
     // define python methods of this object
     Py::Object amethod (const Py::Tuple& args);
     Py::Object value (const Py::Tuple& args);
-    Py::Object assign (const Py::Tuple& args); 
-    Py::Object reference_count (const Py::Tuple& args) 
-    {
-        return Py::Long(this->ob_refcnt);
-    }
+    Py::Object assign( const Py::Tuple &args );
+    Py::Object reference_count( const Py::Tuple &args );
+    Py::Object c_value( const Py::Tuple & ) const;
+    void c_assign( const Py::Tuple &, const Py::Object &rhs );
 
-    Py::Object c_value(const Py::Tuple&) const
-    {
-        Py::List result;
-        for(int i = start; i <= stop; i += step)
-        {
-            result.append(Py::Long(i));
-        }
-        return result;
-    }
-
-    void c_assign(const Py::Tuple&, const Py::Object& rhs)
-    {
-        Py::Tuple w(rhs);
-        w.verify_length(3);
-        start = long(Py::Long(w[0]));
-        stop = long(Py::Long(w[1]));
-        step = long(Py::Long(w[2]));
-    }
+private:
+    long    m_start;
+    long    m_stop;
+    long    m_step;
 };
 
 class RangeSequence: public Py::SeqBase<Py::Long>

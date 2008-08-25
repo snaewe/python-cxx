@@ -73,7 +73,7 @@ public:
         else
             return NULL;    // signal StopIteration
 
-        Py::Int Result(ct);
+        Py::Long Result(ct);
         Result.increment_reference_count();
         return Result.ptr();
     }

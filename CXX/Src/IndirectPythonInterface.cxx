@@ -378,6 +378,19 @@ int &_Py_OptimizeFlag()                 { return *ptr_Py_OptimizeFlag; }
 int &_Py_NoSiteFlag()                   { return *ptr_Py_NoSiteFlag; }
 int &_Py_VerboseFlag()                  { return *ptr_Py_VerboseFlag; }
 
+#if 0
+#define Py_INCREF(op) (				\
+	_Py_INC_REFTOTAL  _Py_REF_DEBUG_COMMA	\
+	((PyObject*)(op))->ob_refcnt++)
+
+#define Py_DECREF(op)					\
+	if (_Py_DEC_REFTOTAL  _Py_REF_DEBUG_COMMA	\
+	    --((PyObject*)(op))->ob_refcnt != 0)		\
+		_Py_CHECK_REFCNT(op)			\
+	else						\
+		_Py_Dealloc((PyObject *)(op))
+#endif
+
 void _XINCREF( PyObject *op )
 {
     // This function must match the contents of Py_XINCREF(op)
