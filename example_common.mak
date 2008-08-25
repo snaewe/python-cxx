@@ -59,6 +59,16 @@ clean:
 #
 #	test rule
 #
-test: example.so pycxx_iter.so
+test: test_example test_iter test_ad_hoc
+
+test_example: example.so
+	echo Demo/test_example.py
 	PYTHONPATH=. $(PYTHON) Demo/test_example.py
+
+test_iter: pycxx_iter.so 
+	echo Demo/test_pycxx_iter.py
 	PYTHONPATH=. $(PYTHON) Demo/test_pycxx_iter.py
+
+test_ad_hoc: example.so test_ad_hoc.py
+	echo Ad hoc test
+	PYTHONPATH=. $(PYTHON) test_ad_hoc.py

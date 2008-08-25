@@ -44,6 +44,79 @@
 #include "range.hxx"
 // Connect range objects to Python
 
+range::range( long start, long stop, long step )
+: Py::PythonExtension<range>()
+, m_start( start )
+, m_stop( stop )
+, m_step( step )
+{
+    std::cout   << "range object created " << this
+                << " " << asString() << std::endl;
+}
+
+range::~range()
+{
+    std::cout << "range object destroyed " << this << std::endl;
+}
+
+long range::length() const
+{
+    return (m_stop - m_start + 1)/m_step;
+}
+
+long range::item( int i ) const
+{
+    if( i >= length() )
+        // this exception stops a Python for loop over range.
+        throw Py::IndexError("index too large");
+
+    return m_start + i * m_step;
+}
+
+range *range::slice( int i, int j ) const
+{
+    int first = m_start + i * m_step;
+    int last = m_start + j * m_step;
+    return new range( first, last, m_step );
+}
+
+range *range::extend( int k ) const
+{
+    return new range( m_start, m_stop + k, m_step);      
+}
+
+std::string range::asString() const
+{
+    std::OSTRSTREAM s;
+    s << "range(" << m_start << ", " << m_stop << ", " << m_step << ")" << std::ends;
+
+    return std::string( s.str() );
+}
+
+Py::Object range::reference_count( const Py::Tuple &args )
+{
+    return Py::Long( ob_refcnt );
+}
+
+Py::Object range::c_value(const Py::Tuple&) const
+{
+    Py::List result;
+    for( int i = m_start; i <= m_stop; i += m_step )
+    {
+        result.append( Py::Long(i) );
+    }
+
+    return result;
+}
+
+void range::c_assign( const Py::Tuple &, const Py::Object &rhs )
+{
+    Py::Tuple w( rhs );
+    w.verify_length( 3 );
+    m_start = Py::Long( w[0] ).as_long();
+    m_stop = Py::Long( w[1] ).as_long();
+    m_step = Py::Long( w[2] ).as_long();
+}
 
 Py::Object range::repr()
 {
@@ -63,12 +136,12 @@ Py::Object range::sequence_item( Py_ssize_t i )
 Py::Object range::sequence_concat( const Py::Object &j )
 {
     Py::Long k( j );
-    return Py::asObject( extend( int( k ) ) );
+    return Py::asObject( extend( k.as_long() ) );
 }
 
 Py::Object range::sequence_slice( Py_ssize_t i, Py_ssize_t j )
 {
-    return Py::asObject( slice( i,j ) );
+    return Py::asObject( slice( i, j ) );
 }
 
 
@@ -78,7 +151,7 @@ Py::Object range::getattr( const char *name )
         return Py::Float( 300.0 );
 
     if( std::string( name ) == "start" )
-        return Py::Long( start );
+        return Py::Long( m_start );
 
     return getattr_methods( name );
 }

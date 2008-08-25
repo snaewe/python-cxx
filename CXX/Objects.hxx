@@ -286,17 +286,17 @@ namespace Py
 
         List dir() const; // the dir() list
 
-        bool hasAttr( const std::string& s ) const
+        bool hasAttr( const std::string &s ) const
         {
             return PyObject_HasAttrString( p, const_cast<char*>( s.c_str() ) ) ? true: false;
         }
 
-        Object getAttr( const std::string& s ) const
+        Object getAttr( const std::string &s ) const
         {
             return Object( PyObject_GetAttrString( p, const_cast<char*>( s.c_str() ) ), true );
         }
 
-        Object getItem( const Object& key ) const
+        Object getItem( const Object &key ) const
         {
             return Object( PyObject_GetItem( p, *key ), true );
         }
@@ -307,23 +307,27 @@ namespace Py
         }
 
         // convert to bool
-        operator bool() const
+        bool as_bool() const
         {
             return PyObject_IsTrue( ptr() ) != 0;
         }
 
-        //
+        //operator bool() const
+        //{
+        //    return as_bool();
+        //}
+
         // int print( FILE* fp, int flags=Py_Print_RAW )
         //{
         //    return PyObject_Print( p, fp, flags );
         //}
-        //
+
         bool is( PyObject *pother ) const
         {  // identity test
             return p == pother;
         }
 
-        bool is( const Object& other ) const
+        bool is( const Object &other ) const
         { // identity test
             return p == other.p;
         }
@@ -534,7 +538,6 @@ namespace Py
         }
 
         // Assignment acquires new ownership of pointer
-
         Boolean& operator=( const Object& rhs )
         {
             return *this = *rhs;
@@ -558,6 +561,11 @@ namespace Py
             set( PyBool_FromLong( v ? 1 : 0 ), true );
             return *this;
         }
+
+        operator bool() const
+        {
+            return as_bool();
+        }
     };
 
     // ===============================================
@@ -571,6 +579,7 @@ namespace Py
         {
             validate();
         }
+
         Long( const Long& ob )
         : Object( ob.ptr() )
         {
@@ -672,16 +681,26 @@ namespace Py
         }
 #endif
 
+        //operator bool() const
+        //{
+        //    return as_bool();
+        //}
+
         // convert to long
         long as_long() const
         {
             return PyLong_AsLong( ptr() );
         }
 
-//        operator long() const
-//        {
-//            return as_long();
-//        }
+        //operator long() const
+        //{
+        //    return as_long();
+        //}
+
+        //operator int() const
+        //{
+        //    return static_cast<int>( as_long() );
+        //}
 
         // convert to unsigned
         long as_unsigned_long() const
@@ -689,12 +708,12 @@ namespace Py
             return PyLong_AsUnsignedLong( ptr() );
         }
 
-//        operator unsigned long() const
-//        {
-//            return as_unsigned_long();
-//        }
+        //operator unsigned long() const
+        //{
+        //    return as_unsigned_long();
+        //}
 
-        long as_double() const
+        double as_double() const
         {
             return PyLong_AsDouble( ptr() );
         }
@@ -729,31 +748,31 @@ namespace Py
         // prefix ++
         Long operator++()
         {
-            Long a = *this;
             set( PyNumber_Add( ptr(), *Long( 1 ) ) );
-            return a;
+            return *this;
         }
 
         // postfix ++
         Long operator++( int )
         {
+            Long a = *this;
             set( PyNumber_Add( ptr(), *Long( 1 ) ) );
-            return *this;
+            return a;
         }
 
         // prefix --
         Long operator--()
         {
-            Long a = *this;
             set( PyNumber_Subtract( ptr(), *Long( 1 ) ) );
-            return a;
+            return *this;
         }
 
         // postfix --
         Long operator--( int )
         {
+            Long a = *this;
             set( PyNumber_Subtract( ptr(), *Long( 1 ) ) );
-            return *this;
+            return a;
         }
     };
 
@@ -901,12 +920,14 @@ namespace Py
     {
     public:
         // Constructor
-        explicit Float( PyObject *pyob, bool owned = false ): Object( pyob, owned )
+        explicit Float( PyObject *pyob, bool owned = false )
+        : Object( pyob, owned )
         {
             validate();
         }
 
-        Float( const Float& f ): Object( f )
+        Float( const Float &f )
+        : Object( f )
         {
             validate();
         }
@@ -919,55 +940,63 @@ namespace Py
         }
 
         // try to make from any object
-        Float( const Object& ob )
+        Float( const Object &ob )
         : Object( PyNumber_Float( *ob ), true )
         {
             validate();
         }
 
-        Float& operator=( const Object& rhs )
+        Float &operator=( const Object &rhs )
         {
             return *this = *rhs;
         }
 
-        Float& operator=( PyObject* rhsp )
+        Float &operator=( PyObject *rhsp )
         {
             if( ptr() != rhsp )
                 set( PyNumber_Float( rhsp ), true );
             return *this;
         }
+
         // Membership
         virtual bool accepts( PyObject *pyob ) const
         {
             return pyob && Py::_Float_Check( pyob );
         }
-        // convert to double
-        operator double() const
+
+        double as_double() const
         {
             return PyFloat_AsDouble( ptr() );
         }
+
+        // convert to double
+        operator double() const
+        {
+            return as_double();
+        }
+
         // assign from a double
-        Float& operator=( double v )
+        Float &operator=( double v )
         {
             set( PyFloat_FromDouble( v ), true );
             return *this;
         }
         // assign from an int
-        Float& operator=( int v )
+        Float &operator=( int v )
         {
             set( PyFloat_FromDouble( double( v ) ), true );
             return *this;
         }
         // assign from long
-        Float& operator=( long v )
+        Float &operator=( long v )
         {
             set( PyFloat_FromDouble( double( v ) ), true );
             return *this;
         }
         // assign from an Long
-        Float& operator=( const Long &iob )
+        Float &operator=( const Long &iob )
         {
-            set( PyFloat_FromDouble( double( long( iob ) ) ), true );
+            set( PyFloat_FromDouble( double( iob.as_long() ) ), true );
             return *this;
         }
     };
@@ -1017,33 +1046,33 @@ namespace Py
             return PyComplex_AsCComplex( ptr() );
         }
         // assign from a Py_complex
-        Complex& operator=( const Py_complex& v )
+        Complex &operator=( const Py_complex& v )
         {
             set( PyComplex_FromCComplex( v ), true );
             return *this;
         }
         // assign from a double
-        Complex& operator=( double v )
+        Complex &operator=( double v )
         {
             set( PyComplex_FromDoubles( v, 0.0 ), true );
             return *this;
         }
         // assign from an int
-        Complex& operator=( int v )
+        Complex &operator=( int v )
         {
             set( PyComplex_FromDoubles( double( v ), 0.0 ), true );
             return *this;
         }
         // assign from long
-        Complex& operator=( long v )
+        Complex &operator=( long v )
         {
             set( PyComplex_FromDoubles( double( v ), 0.0 ), true );
             return *this;
         }
         // assign from an Long
-        Complex& operator=( const Long& iob )
+        Complex &operator=( const Long& iob )
         {
-            set( PyComplex_FromDoubles( double( long( iob ) ), 0.0 ), true );
+            set( PyComplex_FromDoubles( double( iob.as_long() ), 0.0 ), true );
             return *this;
         }
 
@@ -2237,17 +2266,18 @@ namespace Py
         }
         // Assignment acquires new ownership of pointer
 
-        List& operator=( const Object& rhs )
+        List &operator=( const Object &rhs )
         {
             return *this = *rhs;
         }
 
-        List& operator=( PyObject* rhsp )
+        List &operator=( PyObject *rhsp )
         {
-            if( ptr() == rhsp )
+            if( ptr() != rhsp )
                 set( rhsp );
             return *this;
         }
+
         // Membership
         virtual bool accepts( PyObject *pyob ) const
         {

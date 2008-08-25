@@ -60,21 +60,21 @@ static std::string test_String()
     s = s * 2;
     if( std::string(s) != "hello worldhello world" )
     {
-        return "failed (1) '" + std::string( s ) + "'";
+        return "failed string (1) '" + std::string( s ) + "'";
     }
     // test conversion
     std::string w = static_cast<std::string>( s );
     std::string w2 = s;
     if( w != w2 )
     {
-        return "failed (2)";
+        return "failed string (2)";
     }
     Py::String r2( "12345 789" );
     Py::Char c6 = r2[5];
     if( c6 != blank )
     {
         std::cout << "|" << c6 << "|" << std::endl;
-        return "failed (3)";
+        return "failed string (3)";
     }
     return "ok";
 }
@@ -153,48 +153,185 @@ test_boolean()
     if( passed )
         return "ok";
     else
-        return "failed";
+        return "failed (4)";
 }
 
-static std::string
-test_numbers()
+class TestError
 {
+public:
+    TestError( const std::string &description )
+    : m_description( description )
+    {}
+
+    ~TestError()
+    {}
+
+    std::string m_description;
+};
+
+template <TEMPLATE_TYPENAME T> static void test_assert_scaler( char *description, char *type, T benchmark, T value )
+{
+    std::ostringstream full_description;
+    full_description << description << ": " << type << " benchmark=" << benchmark << " " << type << " value=" << value << std::ends;
+
+    if( benchmark != value )
+    {
+        throw TestError( full_description.str() );
+    }
+    else
+    {
+        std::cout << "PASSED: " << full_description.str() << std::endl;
+    }
+}
+
+static void test_assert( char *description, bool benchmark, bool value )
+{
+    test_assert_scaler( description, "bool", benchmark, value );
+}
+
+static void test_assert( char *description, long benchmark, long value )
+{
+    test_assert_scaler( description, "long", benchmark, value );
+}
+
+static void test_assert( char *description, double benchmark, double value )
+{
+    test_assert_scaler( description, "float", benchmark, value );
+}
+
+static void test_long()
+{
+    long cxx_long1( 100 );
+    long cxx_long2( 0 );
+    long cxx_long3( 0 );
+    Py::Long py_long1( 100 );
+    Py::Long py_long2( 0 );
+    Py::Long py_long3( 0 );
+
+    test_assert( "long constructor", cxx_long1, py_long1.as_long() );
+
+    cxx_long2 = cxx_long1++;
+    py_long2 = py_long1++;
+    test_assert( "long num++", cxx_long2, py_long2.as_long() );
+
+    cxx_long2 = ++cxx_long1;
+    py_long2 = ++py_long1;
+    test_assert( "long ++num", cxx_long2, py_long2.as_long() );
+
+    cxx_long2 = cxx_long1--;
+    py_long2 = py_long1--;
+    test_assert( "long num--", cxx_long2, py_long2.as_long() );
+
+    cxx_long2 = --cxx_long1;
+    py_long2 = --py_long1;
+    test_assert( "long --num", cxx_long2, py_long2.as_long() );
+
+    cxx_long1 = 1000;
+    py_long1 = 1000;
+    test_assert( "long num =", cxx_long1, py_long1.as_long() );
+
+    // comparison tests
+    cxx_long1 = 2;
+    cxx_long2 = 3;
+    cxx_long3 = 3;
+    py_long1 = cxx_long1;
+    py_long2 = cxx_long2;
+    py_long3 = cxx_long3;
+   
+
+    test_assert( "long operator < ", cxx_long1 <  cxx_long2, py_long1.as_long() <  py_long2.as_long() );
+    test_assert( "long operator < ", cxx_long2 <  cxx_long1, py_long2.as_long() <  py_long1.as_long() );
+
+    test_assert( "long operator ==", cxx_long2 == cxx_long3, py_long2.as_long() == py_long3.as_long() );
+    test_assert( "long operator ==", cxx_long1 == cxx_long3, py_long1.as_long() == py_long3.as_long() );
+
+    test_assert( "long operator !=", cxx_long1 != cxx_long2, py_long1.as_long() != py_long2.as_long() );
+    test_assert( "long operator !=", cxx_long2 != cxx_long3, py_long2.as_long() != py_long3.as_long() );
+
+    test_assert( "long operator <=", cxx_long1 <= cxx_long2, py_long1.as_long() <= py_long2.as_long() );
+    test_assert( "long operator <=", cxx_long2 <= cxx_long3, py_long2.as_long() <= py_long3.as_long() );
+    test_assert( "long operator <=", cxx_long2 <= cxx_long1, py_long2.as_long() <= py_long1.as_long() );
+
+    test_assert( "long operator >=", cxx_long2 >= cxx_long1, py_long2.as_long() >= py_long1.as_long() );
+    test_assert( "long operator >=", cxx_long2 >= cxx_long3, py_long2.as_long() >= py_long3.as_long() );
+    test_assert( "long operator >=", cxx_long1 >= cxx_long2, py_long1.as_long() >= py_long2.as_long() );
+
+    test_assert( "long operator > ", cxx_long2 >  cxx_long1, py_long2.as_long() >  py_long1.as_long() );
+    test_assert( "long operator > ", cxx_long1 >  cxx_long2, py_long1.as_long() >  py_long2.as_long() );
+}
+
+static void test_float()
+{
+    double cxx_float1( 100 );
+    double cxx_float2( 0 );
+    double cxx_float3( 0 );
+    Py::Float py_float1( 100.0 );
+    Py::Float py_float2( 0.0 );
+    Py::Float py_float3( 0.0 );
+
+    test_assert( "float constructor", cxx_float1, py_float1.as_double() );
+
+    cxx_float1 = 1000;
+    py_float1 = 1000;
+    test_assert( "float num =", cxx_float1, py_float1.as_double() );
+
+    // comparison tests
+    cxx_float1 = 2;
+    cxx_float2 = 3;
+    cxx_float3 = 3;
+    py_float1 = cxx_float1;
+    py_float2 = cxx_float2;
+    py_float3 = cxx_float3;
+   
+
+    test_assert( "float operator < ", cxx_float1 <  cxx_float2, py_float1.as_double() <  py_float2.as_double() );
+    test_assert( "float operator < ", cxx_float2 <  cxx_float1, py_float2.as_double() <  py_float1.as_double() );
+
+    test_assert( "float operator ==", cxx_float2 == cxx_float3, py_float2.as_double() == py_float3.as_double() );
+    test_assert( "float operator ==", cxx_float1 == cxx_float3, py_float1.as_double() == py_float3.as_double() );
+
+    test_assert( "float operator !=", cxx_float1 != cxx_float2, py_float1.as_double() != py_float2.as_double() );
+    test_assert( "float operator !=", cxx_float2 != cxx_float3, py_float2.as_double() != py_float3.as_double() );
+
+    test_assert( "float operator <=", cxx_float1 <= cxx_float2, py_float1.as_double() <= py_float2.as_double() );
+    test_assert( "float operator <=", cxx_float2 <= cxx_float3, py_float2.as_double() <= py_float3.as_double() );
+    test_assert( "float operator <=", cxx_float2 <= cxx_float1, py_float2.as_double() <= py_float1.as_double() );
+
+    test_assert( "float operator >=", cxx_float2 >= cxx_float1, py_float2.as_double() >= py_float1.as_double() );
+    test_assert( "float operator >=", cxx_float2 >= cxx_float3, py_float2.as_double() >= py_float3.as_double() );
+    test_assert( "float operator >=", cxx_float1 >= cxx_float2, py_float1.as_double() >= py_float2.as_double() );
+
+    test_assert( "float operator > ", cxx_float2 >  cxx_float1, py_float2.as_double() >  py_float1.as_double() );
+    test_assert( "float operator > ", cxx_float1 >  cxx_float2, py_float1.as_double() >  py_float2.as_double() );
+}
+
+static std::string test_numbers()
+{
+    test_long();
+    test_float();
+
     // test the basic numerical classes
     Py::Long i;
-
-
-
     Py::Long j(2);
-
-
-
     Py::Long k = Py::Long(3);
 
-    if( ! (j < k) )  return "failed (1)";
-    if( ! (j == j) ) return "failed (2)" ;
-    if( ! (j != k) ) return "failed (3)";
-    if( ! (j <= k) ) return "failed (4)";
-    if( ! (k >= j) ) return "failed (5)";
-    if( ! (k > j) )  return "failed (6)";
-    if( ! (j <= j) ) return "failed (7)";
-    if( ! (j >= Py::Long( 2 )) ) return "failed (8)";
-
     i = 2;
+
     Py::Float a;
     a = 3 + i; //5.0
-    Py::Float b(4.0);
+    Py::Float b( 4.0 );
     a = (1.0 + 2*a + (b*3.0)/2.0 + k)/Py::Float(5); // 4.0
     i = a - 1.0; // 3
-    if(i != k)
-    {
-        return "failed 9";
-    }
+
+    test_assert( "number calculation", i.as_long(), k.as_long() );
 
     return "ok";
 }
 
-static std::string test_List_iterators( const Py::List& x, Py::List& y )
+static std::string test_List_iterators( const Py::List &x, Py::List &y )
 {
+
+    std::cout << "test_List_iterators" << std::endl;
     std::vector<Py::Object> v;
     Py::Sequence::iterator j;
     Py::Long k( 0 );    // qqq k = 0 does not compile
@@ -206,53 +343,68 @@ static std::string test_List_iterators( const Py::List& x, Py::List& y )
         }
     }
 
-    if( k != 1 )
+    if( k.as_long() != 1 )
         return "failed List iterators (1)";
 
     k = 0;
     for( j = y.begin(); j != y.end(); ++j )
     {
         *j = Py::Long( k++ );
+        std::cout << "test_List_iterators v.push_back( " << (*j).repr().as_string() << " )" << std::endl;
         v.push_back( *j );
     }
 
     k = 0;
-    for( j = y.begin(); j != y.end(); j++ )
+    for( j = y.begin(); j != y.end(); ++j )
     {
-        if( *j != Py::Long( k ) )
+        std::cout   << "test_List_iterators"
+                    << " k=" << k.repr().as_string()
+                    << " *j=" << (*j).repr().as_string()
+                    << std::endl;
+        if( *j != k )
             return "failed List iterators (2)";
-        if( v[k] != Py::Long( k ) )
+
+        if( v[ k.as_long() ] != k )
             return "failed List iterators (3)";
+
         ++k;
     }
     Py::String o1( "Howdy" );
     Py::Long o2( 1 );
-    Py::Long caught_it( 0 );
+    Py::Boolean caught_it( false );
     try
     {
         o2 = o1;
     } 
     catch( Py::Exception& e )
     {
-        caught_it = 1;
+        caught_it = true;
         e.clear();
     }
     if( !caught_it )
-        return "failed exception catch (4).";
+        return "failed lis iterators (4).";
+
     return "ok";
 }
 
-static Py::List
-test_List_references( Py::List &x )
+static Py::List test_List_references( Py::List &x )
 {
     Py::List y;
     for( Py::List::size_type i=0; i < x.length(); ++i )
     {
+        std::cout   << "test_List_references"
+                    << " isList()=" << x[i].isList()
+                    << " x[" << i << "]=" << x[i].repr().as_string()
+                    << std::endl;
         if( x[i].isList() )
         {
             y = x[i];
         }
     }
+    std::cout   << "test_List_references"
+                << " y=" << y.repr().as_string()
+                << std::endl;
+
     return y;
 }
 
@@ -260,9 +412,11 @@ static std::string test_List()
 {
     // test the Py::List class
     Py::List a;
-    Py::List ans, aux;
+    Py::List ans;
+    Py::List aux;
+
     aux.append( Py::Long( 3 ) );
-    aux.append(Py::Float(6.0));
+    aux.append( Py::Float( 6.0 ) );
 
     Py::Object b;
     Py::Long i( 3 );
@@ -286,15 +440,20 @@ static std::string test_List()
     Py::List::iterator l1, l2;
     for( l1= a.begin(), l2 = ans.begin();
             l1 != a.end() && l2 != ans.end();
-            ++l1, ++l2 )
+                ++l1, ++l2 )
     {
         if( *l1 != *l2 )
-            return "failed 1" + a.as_string();
+            return "failed list (1)" + a.as_string();
+    }
+
+    if( a != ans )
+    {
+        return "failed list (2)";
     }
 
     if( test_List_references( a ) != aux )
     {
-        return "failed 2" + test_List_references(a).as_string();
+        return "failed list (3) " + test_List_references(a).as_string();
     }
 
     return test_List_iterators( ans, a );
@@ -310,9 +469,9 @@ static std::string test_Dict()
     a[s] = Py::Long( 2 );
     a["three"] = Py::Long( 3 );
     if( Py::Long( a["one"] ) != Py::Long( 1 ) )
-        return "failed 1a " + a.as_string();
+        return "failed dict (1) " + a.as_string();
     if( Py::Long( a[s] ) != Py::Long( 2 ) )
-        return "failed 1b " + a.as_string();
+        return "failed dict (2) " + a.as_string();
 
     v = a.values();
 #if 0
@@ -321,7 +480,7 @@ static std::string test_Dict()
     for( Py::Long k = 1; k < 4; ++k )
     {
         if( v[k-1] != Py::Long( k ) )
-            return "failed 2 " + v.as_string();
+            return "failed dict (3) " + v.as_string();
     }
 #endif
 
@@ -329,7 +488,7 @@ static std::string test_Dict()
     b.clear();
     if( b.keys().length() != 0 )
     {
-        return "failed 3 " + b.as_string();
+        return "failed dict (4) " + b.as_string();
     }
     return "ok";
 }
@@ -348,14 +507,14 @@ static std::string test_Tuple()
     for( Py::Tuple::iterator i = b.begin(); i != b.end(); ++i )
     {
         if( *i != Py::Float( ++k ) )
-            return "failed 1 " + b.as_string();
+            return "failed tuple (1) " + b.as_string();
     }
 
     t1 = a;
     try
     {
         t1[0] = Py::Long( 1 ); // should fail, tuple has multiple references
-        return "failed 2";
+        return "failed tuple (2)";
     }
     catch( Py::Exception& e )
     {
@@ -382,15 +541,15 @@ static std::string test_STL()
     w.append( Py::Long(3) );
     w.append( Py::Long(1) );
     ans1 = std::count( w.begin(), w.end(), Py::Float(1.0) );
-    if( ans1 != 2 )
+    if( ans1.as_long() != 2 )
     {
-        return "failed count test";
+        return "failed STL (1)";
     }
 #if 0
     std::sort( w.begin(), w.end() );
     if( w != wans )
     {
-        return "failed sort test";
+        return "failed STKL (2)";
     }
 #endif
 
@@ -430,7 +589,6 @@ void debug_check_ref_queue()
         assert( p_slow->_ob_next->_ob_prev == p_slow );
         assert( p_slow->_ob_prev->_ob_next == p_slow );
 
-
         p_slow = p_slow->_ob_next;
         p_fast = p_slow->_ob_next->_ob_next;
 
@@ -446,23 +604,24 @@ class example_module : public Py::ExtensionModule<example_module>
 {
 public:
     example_module()
-        : Py::ExtensionModule<example_module>( "example" )
+    : Py::ExtensionModule<example_module>( "example" )
     {
         range::init_type();
 
-        add_varargs_method("string", &example_module::ex_string, "string( s ) = return string");
-        add_varargs_method("sum", &example_module::ex_sum, "sum(arglist) = sum of arguments");
-        add_varargs_method("test", &example_module::ex_test, "test(arglist) runs a test suite");
-        add_varargs_method("range", &example_module::new_r, "range(start,stop,stride)");
-        add_keyword_method("kw", &example_module::ex_keyword, "kw()");
+        add_varargs_method( "string", &example_module::ex_string, "string( s ) = return string" );
+        add_varargs_method( "sum", &example_module::ex_sum, "sum( arglist ) = sum of arguments" );
+        add_varargs_method( "test", &example_module::ex_test, "test( arglist ) runs a test suite" );
+        add_varargs_method( "range", &example_module::new_r, "range( start, stop, step )" );
+        add_keyword_method( "kw", &example_module::ex_keyword, "kw()" );
 
         initialize( "documentation for the example module" );
 
         Py::Dict d( moduleDictionary() );
 
-        Py::Object b(Py::asObject(new range(1,10,2)));
+        Py::Object b( Py::asObject( new range( 1, 10, 2 ) ) );
 
         d["a_constant"] = b.getAttr("c");
+        d["a_range"] = b;
     }
 
     virtual ~example_module()
@@ -490,21 +649,27 @@ private:
             throw Py::RuntimeError("Incorrect # of args to range(start,stop [,step]).");
         }
 
-        Py::Long start(rargs[0]);
-        Py::Long stop(rargs[1]);
-        Py::Long step(1);
+        Py::Long start( rargs[0] );
+        Py::Long stop( rargs[1] );
+        Py::Long step( 1 );
         if (rargs.length() == 3)
         {
             step = rargs[2];
         }
-        if (long(start) > long(stop) + 1 || long(step) == 0)
+        std::cout   << "new_r"
+                    << " start: " << start.as_long()
+                    << " stop: " << stop.as_long()
+                    << " step: " << step.as_long()
+                    << std::endl;
+        if( start.as_long() > stop.as_long() + 1 || step.as_long() == 0 )
         {
-            throw Py::RuntimeError("Bad arguments to range(start,stop [,step]).");
+            throw Py::RuntimeError("Bad arguments to range( start, stop [,step] )");
         }
-        return Py::asObject(new range(start, stop, step));
+
+        return Py::asObject( new range( start.as_long(), stop.as_long(), step.as_long() ) );
     }
 
-    Py::Object ex_string (const Py::Tuple &a)
+    Py::Object ex_string( const Py::Tuple &a )
     {
         std::cout << "ex_std::string: s1 is first arg" << std::endl;
         Py::Object o1( a[0] );
@@ -575,31 +740,38 @@ private:
             std::cout << "  Py::Exception traceback: " << Py::trace(e) << std::endl;
             e.clear();
         }
-        debug_check_ref_queue();
 
-        std::string result = test_boolean();
-        std::cout << "Py::Boolean: " << result << std::endl;
-        debug_check_ref_queue();
-        std::cout << "Numbers: " << test_numbers() << std::endl;
-        debug_check_ref_queue();
-        std::cout << "Py::String: " << test_String() << std::endl;
-        debug_check_ref_queue();
-        std::cout << "Py::List: " << test_List() << std::endl;
-        debug_check_ref_queue();
-        std::cout << "Py::Dict: " << test_Dict() << std::endl;
-        debug_check_ref_queue();
-        std::cout << "Py::Tuple: " << test_Tuple() << std::endl;
-        debug_check_ref_queue();
-        std::cout << "STL test: " << test_STL() << std::endl;
-        debug_check_ref_queue();
-        std::cout << "Extension object test: " << test_extension_object() << std::endl;
-        debug_check_ref_queue();
+        try
+        {
+            debug_check_ref_queue();
+            std::string result = test_boolean();
+            std::cout << "Py::Boolean: " << result << std::endl;
+            debug_check_ref_queue();
+            std::cout << "Numbers: " << test_numbers() << std::endl;
+            debug_check_ref_queue();
+            std::cout << "Py::String: " << test_String() << std::endl;
+            debug_check_ref_queue();
+            std::cout << "Py::List: " << test_List() << std::endl;
+            debug_check_ref_queue();
+            std::cout << "Py::Dict: " << test_Dict() << std::endl;
+            debug_check_ref_queue();
+            std::cout << "Py::Tuple: " << test_Tuple() << std::endl;
+            debug_check_ref_queue();
+            std::cout << "STL test: " << test_STL() << std::endl;
+            debug_check_ref_queue();
+            std::cout << "Extension object test: " << test_extension_object() << std::endl;
+            debug_check_ref_queue();
+        }
+        catch( TestError &e )
+        {
+            std::cout << "FAILED: Test error - " << e.m_description << std::endl;
+        }
 
         Py::List b(a);
         Py::Tuple c(b);
         if( c != a)
         {
-            std::cout << "Py::Tuple/list conversion failed.\n";
+            std::cout << "failed (1) Py::Tuple/list conversion.\n";
         }
 
         Py::Module m("sys");

@@ -42,7 +42,12 @@ extern "C"
 {
 #endif
 
-PyObject py_object_initializer = PyModuleDef_HEAD_INIT;
+PyObject py_object_initializer = 
+    {
+    _PyObject_EXTRA_INIT
+    1, 
+    NULL    // type must be init'ed by user
+    };
 
 #ifdef __cplusplus
 }
