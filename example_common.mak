@@ -72,3 +72,6 @@ test_iter: pycxx_iter.so
 test_ad_hoc: example.so test_ad_hoc.py
 	echo Ad hoc test
 	PYTHONPATH=. $(PYTHON) test_ad_hoc.py
+
+test_ad_hoc.py:
+	touch test_ad_hoc.py
