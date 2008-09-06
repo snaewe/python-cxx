@@ -72,3 +72,4 @@ clean:
 test: example.so pycxx_iter.so
 	PYTHONPATH=. $(PYTHON) Demo/test_example.py
 	PYTHONPATH=. $(PYTHON) Demo/test_pycxx_iter.py
+	PYTHONPATH=. $(PYTHON) Demo/test_simple.py
