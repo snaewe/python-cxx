@@ -63,13 +63,14 @@ IndirectPythonInterface.o: Src/IndirectPythonInterface.cxx
 #
 clean:
 	rm -f *.o
+	rm -f simple.so
 	rm -f example.so
 	rm -f pycxx_iter.so
 
 #
 #	test rule
 #
-test: example.so pycxx_iter.so
+test: simple.so example.so pycxx_iter.so
+	PYTHONPATH=. $(PYTHON) Demo/test_simple.py
 	PYTHONPATH=. $(PYTHON) Demo/test_example.py
 	PYTHONPATH=. $(PYTHON) Demo/test_pycxx_iter.py
-	PYTHONPATH=. $(PYTHON) Demo/test_simple.py
