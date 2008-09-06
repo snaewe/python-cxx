@@ -4,16 +4,26 @@
 #	include this mak file after defining the variables it needs
 #
 COMMON_OBJECTS=cxxsupport.o cxx_extensions.o cxxextensions.o IndirectPythonInterface.o
-EXAMPLE_OBJECTS=example.o range.o rangetest.o $(COMMON_OBJECTS)
-PYCXX_ITER_OBJECTS=pycxx_iter.o $(COMMON_OBJECTS)
+SIMPLE_OBJECTS=simple.o
+EXAMPLE_OBJECTS=example.o range.o rangetest.o
+PYCXX_ITER_OBJECTS=pycxx_iter.o
 
-all: example.so pycxx_iter.so
+all: simple.so example.so pycxx_iter.so
+
+#
+#	Simple
+#
+simple.so: $(SIMPLE_OBJECTS) $(COMMON_OBJECTS)
+	$(LDSHARED) -o $@ $(SIMPLE_OBJECTS) $(COMMON_OBJECTS) $(LDLIBS)
+
+simple.o: Demo/simple.cxx
+	$(CCC) $(CCCFLAGS) -o $@ $<
 
 #
 #	Example
 #
-example.so: $(EXAMPLE_OBJECTS)
-	$(LDSHARED) -o $@ $(EXAMPLE_OBJECTS) $(LDLIBS)
+example.so: $(EXAMPLE_OBJECTS) $(COMMON_OBJECTS)
+	$(LDSHARED) -o $@ $(EXAMPLE_OBJECTS) $(COMMON_OBJECTS) $(LDLIBS)
 
 example.o: Demo/example.cxx
 	$(CCC) $(CCCFLAGS) -o $@ $<
@@ -27,8 +37,8 @@ rangetest.o: Demo/rangetest.cxx
 #
 #	pycxx_iter
 #
-pycxx_iter.so: $(PYCXX_ITER_OBJECTS)
-	$(LDSHARED) -o $@ $(PYCXX_ITER_OBJECTS) $(LDLIBS)
+pycxx_iter.so: $(PYCXX_ITER_OBJECTS) $(COMMON_OBJECTS)
+	$(LDSHARED) -o $@ $(PYCXX_ITER_OBJECTS) $(COMMON_OBJECTS) $(LDLIBS)
 
 pycxx_iter.o: Demo/pycxx_iter.cxx
 	$(CCC) $(CCCFLAGS) -o $@ $<
@@ -59,19 +69,7 @@ clean:
 #
 #	test rule
 #
-test: test_example test_iter test_ad_hoc
-
-test_example: example.so
-	echo Demo/test_example.py
+test: example.so pycxx_iter.so simple.so
+	PYTHONPATH=. $(PYTHON) Demo/test_simple.py
 	PYTHONPATH=. $(PYTHON) Demo/test_example.py
-
-test_iter: pycxx_iter.so 
-	echo Demo/test_pycxx_iter.py
 	PYTHONPATH=. $(PYTHON) Demo/test_pycxx_iter.py
-
-test_ad_hoc: example.so test_ad_hoc.py
-	echo Ad hoc test
-	PYTHONPATH=. $(PYTHON) test_ad_hoc.py
-
-test_ad_hoc.py:
-	touch test_ad_hoc.py
