@@ -70,7 +70,16 @@ clean:
 #
 #	test rule
 #
-test: simple.so example.so pycxx_iter.so
+#
+#	test rules
+#
+test: test_simple test_iter test_example
+
+test_simple: simple.so
 	PYTHONPATH=. $(PYTHON) Demo/test_simple.py
-	PYTHONPATH=. $(PYTHON) Demo/test_example.py
+
+test_iter: pycxx_iter.sp
 	PYTHONPATH=. $(PYTHON) Demo/test_pycxx_iter.py
+
+test_example: example.so
+	PYTHONPATH=. $(PYTHON) Demo/test_example.py
