@@ -418,7 +418,6 @@ void test_Dict()
 
 void test_STL()
 {
-    {
     Py::List list1;
 
     list1.append( Py::Long(5) );
@@ -443,27 +442,15 @@ void test_STL()
 
     test_assert( "STL ad hoc", true, it != dict1.end() );
 
-    std::cout << "debug ln: " << __LINE__ << std::endl;
     while( it != dict1.end() )
     {
-        std::cout << "debug ln: " << __LINE__ << std::endl;
         Py::Dict::value_type    vt( *it );
-        std::cout << "debug ln: " << __LINE__ << std::endl;
         Py::String rs = vt.second.repr();
-        std::cout << "debug ln: " << __LINE__ << std::endl;
         Py::Bytes bs = rs.encode( "utf-8" );
-        std::cout << "debug ln: " << __LINE__ << std::endl;
         std::string ls = bs.as_std_string();
-        std::cout << "debug ln: " << __LINE__ << std::endl;
         std::cout << "STL test: " << ls << std::endl;
-        std::cout << "debug ln: " << __LINE__ << std::endl;
         ++it;
-        std::cout << "debug ln: " << __LINE__ << std::endl;
     }
-
-    std::cout << "debug ln: " << __LINE__ << std::endl;
-    }
-    std::cout << "STL test Done " << std::endl;
 }
 
 void debug_check_ref_queue()
