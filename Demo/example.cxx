@@ -280,8 +280,8 @@ test_List()
 
     Py::List::iterator l1, l2;
     for(l1= a.begin(), l2 = ans.begin();
-    l1 != a.end() && l2 != ans.end();
-    ++l1, ++l2) 
+        l1 != a.end() && l2 != ans.end();
+        ++l1, ++l2) 
     {
         if(*l1 != *l2) return "failed 1" + a.as_string();
     }
@@ -309,6 +309,7 @@ test_Dict()
         return "failed 1b " + a.as_string();
 
     v = a.values();
+
 #if 0
     std::sort(v.begin(), v.end());
 
@@ -381,6 +382,8 @@ test_STL()
     {
         return "failed count test";
     }
+
+
 #if 0
     std::sort(w.begin(), w.end());
     if (w != wans)
@@ -397,9 +400,7 @@ test_STL()
     d[ "three" ] = s2;
     d[ "four" ] = s2;
 
-    Py::Dict::iterator    it( d.begin() );
-//    it = d.begin();        // this (using the assignment operator) is causing
-                // a problem; if I just use the copy ctor it works fine.
+    Py::Dict::iterator    it = d.begin();
     for( ; it != d.end(); ++it )
     {
         Py::Dict::value_type    vt( *it );

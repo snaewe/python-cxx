@@ -397,18 +397,19 @@ namespace Py
             // failed to link on Windows?
             throw KeyError("delItem failed.");
         }
-        // Equality and comparison use PyObject_Compare
+
+        // Equality and comparison use PyObject_RichCompareBool
 
         bool operator==(const Object& o2) const
         {
-            int k = PyObject_Compare (p, *o2);
+            int k = PyObject_RichCompareBool (p, *o2, Py_EQ);
             if (PyErr_Occurred()) throw Exception();
-            return k == 0;
+            return k != 0;
         }
 
         bool operator!=(const Object& o2) const
         {
-            int k = PyObject_Compare (p, *o2);
+            int k = PyObject_RichCompareBool (p, *o2, Py_NE);
             if (PyErr_Occurred()) throw Exception();
             return k != 0;
 
@@ -416,30 +417,30 @@ namespace Py
 
         bool operator>=(const Object& o2) const
         {
-            int k = PyObject_Compare (p, *o2);
+            int k = PyObject_RichCompareBool (p, *o2, Py_GE);
             if (PyErr_Occurred()) throw Exception();
-            return k >= 0;
+            return k != 0;
         }
 
         bool operator<=(const Object& o2) const
         {
-            int k = PyObject_Compare (p, *o2);
+            int k = PyObject_RichCompareBool (p, *o2, Py_LE);
             if (PyErr_Occurred()) throw Exception();
-            return k <= 0;
+            return k != 0;
         }
 
         bool operator<(const Object& o2) const
         {
-            int k = PyObject_Compare (p, *o2);
+            int k = PyObject_RichCompareBool (p, *o2, Py_LT);
             if (PyErr_Occurred()) throw Exception();
-            return k < 0;
+            return k != 0;
         }
 
         bool operator>(const Object& o2) const
         {
-            int k = PyObject_Compare (p, *o2);
+            int k = PyObject_RichCompareBool (p, *o2, Py_GT);
             if (PyErr_Occurred()) throw Exception();
-            return k > 0;
+            return k != 0;
         }
     };
     // End of class Object
@@ -1470,12 +1471,12 @@ namespace Py
 
             bool eql (const iterator& other) const
             {
-                return (*seq == *other.seq) && (count == other.count);
+                return (seq->ptr() == other.seq->ptr()) && (count == other.count);
             }
 
             bool neq (const iterator& other) const
             {
-                return (*seq != *other.seq) || (count != other.count);
+                return (seq->ptr() != other.seq->ptr()) || (count != other.count);
             }
 
             bool lss (const iterator& other) const
@@ -1541,7 +1542,7 @@ namespace Py
             int operator-(const iterator& other) const
             {
                 if (*seq != *other.seq)
-                throw RuntimeError ("SeqBase<T>::iterator comparison error");
+                    throw RuntimeError ("SeqBase<T>::iterator comparison error");
                 return count - other.count;
             }
 
@@ -1584,6 +1585,12 @@ namespace Py
             const SeqBase<T>* seq;
             sequence_index_type count;
 
+        private:
+            const_iterator (const SeqBase<T>* s, int where)
+                : seq( s )
+                , count( where )
+            {}
+
         public:
             ~const_iterator ()
             {}
@@ -1591,11 +1598,6 @@ namespace Py
             const_iterator ()
                 : seq( 0 )
                 , count( 0 )
-            {}
-
-            const_iterator (const SeqBase<T>* s, int where)
-                : seq( s )
-                , count( where )
             {}
 
             const_iterator(const const_iterator& other)
@@ -1628,12 +1630,12 @@ namespace Py
 
             bool eql (const const_iterator& other) const
             {
-                return (*seq == *other.seq) && (count == other.count);
+                return (seq->ptr() == other.seq->ptr()) && (count == other.count);
             }
 
             bool neq (const const_iterator& other) const
             {
-                return (*seq != *other.seq) || (count != other.count);
+                return (seq->ptr() != other.seq->ptr()) || (count != other.count);
             }
 
             bool lss (const const_iterator& other) const
@@ -2533,39 +2535,6 @@ namespace Py
             return List(PyMapping_Items(ptr()), true);
         }
 
-        // iterators for MapBase<T>
-        // Added by TMM: 2Jul'01 - NOT COMPLETED
-        // There is still a bug.  I decided to stop, before fixing the bug, because
-        // this can't be halfway efficient until Python gets built-in iterators.
-        // My current soln is to iterate over the map by getting a copy of its keys
-        // and iterating over that.  Not a good solution.
-
-        // The iterator holds a MapBase<T>* rather than a MapBase<T> because that's
-        // how the sequence iterator is implemented and it works.  But it does seem
-        // odd to me - we are iterating over the map object, not the reference.
-
-#if 0    // here is the test code with which I found the (still existing) bug
-        typedef cxx::Dict    d_t;
-        d_t    d;
-        cxx::String    s1("blah");
-        cxx::String    s2("gorf");
-        d[ "one" ] = s1;
-        d[ "two" ] = s1;
-        d[ "three" ] = s2;
-        d[ "four" ] = s2;
-
-        d_t::iterator    it;
-        it = d.begin();        // this (using the assignment operator) is causing
-        // a problem; if I just use the copy ctor it works fine.
-        for( ; it != d.end(); ++it )
-        {
-            d_t::value_type    vt( *it );
-            cxx::String rs = vt.second.repr();
-            std::string ls = rs.operator std::string();
-            fprintf( stderr, "%s\n", ls );
-        }
-#endif // 0
-
         class iterator
         {
             // : public forward_iterator_parent( std::pair<const T,T> ) {
@@ -2579,8 +2548,15 @@ namespace Py
             friend class MapBase<T>;
             //
             MapBase<T>* map;
-            List    keys;            // for iterating over the map
-            List::iterator    pos;        // index into the keys
+            List        keys;       // for iterating over the map
+            int         pos;        // index into the keys
+
+        private:
+            iterator( MapBase<T>* m, List k, int p )
+            : map( m )
+            , keys( k )
+            , pos( p )
+            {}
 
         public:
             ~iterator ()
@@ -2595,7 +2571,7 @@ namespace Py
             iterator (MapBase<T>* m, bool end = false )
                 : map( m )
                 , keys( m->keys() )
-                , pos( end ? keys.end() : keys.begin() )
+                , pos( end ? keys.length() : 0 )
             {}
 
             iterator (const iterator& other)
@@ -2606,7 +2582,7 @@ namespace Py
 
             reference operator*()
             {
-                Object key = *pos;
+                Object key = keys[ pos ];
                 return std::make_pair(key, mapref<T>(*map,key));
             }
 
@@ -2622,11 +2598,11 @@ namespace Py
 
             bool eql(const iterator& right) const
             {
-                return *map == *right.map && pos == right.pos;
+                return map->ptr() == right.map->ptr() && pos == right.pos;
             }
             bool neq( const iterator& right ) const
             {
-                return *map != *right.map || pos != right.pos;
+                return map->ptr() != right.map->ptr() || pos != right.pos;
             }
 
             // pointer operator->() {
@@ -2675,8 +2651,15 @@ namespace Py
 
             friend class MapBase<T>;
             const MapBase<T>* map;
-            List    keys;    // for iterating over the map
-            List::iterator    pos;        // index into the keys
+            List            keys;   // for iterating over the map
+            int             pos;    // index into the keys
+
+        private:
+            const_iterator( MapBase<T>* m, List k, int p )
+            : map( m )
+            , keys( k )
+            , pos( p )
+            {}
 
         public:
             ~const_iterator ()
@@ -2688,10 +2671,10 @@ namespace Py
                 , pos()
             {}
 
-            const_iterator (const MapBase<T>* m, List k, List::iterator p )
+            const_iterator (MapBase<T>* m, bool end = false )
                 : map( m )
-                , keys( k )
-                , pos( p )
+                , keys( m->keys() )
+                , pos( end ? keys.length() : 0 )
             {}
 
             const_iterator(const const_iterator& other)
@@ -2702,19 +2685,19 @@ namespace Py
 
             bool eql(const const_iterator& right) const
             {
-                return *map == *right.map && pos == right.pos;
+                return map->ptr() == right.map->ptr() && pos == right.pos;
             }
+
             bool neq( const const_iterator& right ) const
             {
-                return *map != *right.map || pos != right.pos;
+                return map->ptr() != right.map->ptr() || pos != right.pos;
             }
 
-
-            //            const_reference    operator*() {
-            //                Object key = *pos;
-            //                return std::make_pair( key, map->[key] );
-            // GCC < 3 barfes on this line at the '['.
-            //         }
+            const_reference operator*()
+            {
+                Object key = keys[ pos ];
+                return std::make_pair( key, mapref<T>( *map, key ) );
+            }
 
             const_iterator& operator=(const const_iterator& other)
             {
@@ -2741,12 +2724,12 @@ namespace Py
 
         const_iterator begin () const
         {
-            return const_iterator(this, 0);
+            return const_iterator(this);
         }
 
         const_iterator end () const
         {
-            return const_iterator(this, length());
+            return const_iterator(this, true);
         }
 
     };    // end of MapBase<T>
