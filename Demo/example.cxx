@@ -47,74 +47,36 @@
 #include <assert.h>
 
 #include "range.hxx"  // Extension object
+#include "test_assert.hxx"
+
 extern std::string test_extension_object();
 
 #include <algorithm>
 
-class TestError
+void test_compare()
 {
-public:
-    TestError( const std::string &description )
-    : m_description( description )
-    {}
+    test_assert( "compare == true", true, Py::Long( 100 ) == Py::Long( 100 ) );
+    test_assert( "compare == false", false, Py::Long( 100 ) == Py::Long( 101 ) );
 
-    ~TestError()
-    {}
+    test_assert( "compare != true", true, Py::Long( 100 ) != Py::Long( 101 ) );
+    test_assert( "compare != false", false, Py::Long( 100 ) != Py::Long( 100 ) );
 
-    std::string m_description;
-};
+    test_assert( "compare < true", true, Py::Long( 100 ) < Py::Long( 101 ) );
+    test_assert( "compare < false", false, Py::Long( 100 ) < Py::Long( 99 ) );
 
-template <TEMPLATE_TYPENAME T> static void test_assert_scaler( char *description, char *type, T benchmark, T value )
-{
-    std::ostringstream full_description;
-    full_description << description << ": " << type << " benchmark=" << benchmark << " " << type << " value=" << value << std::ends;
+    test_assert( "compare <= true", true, Py::Long( 100 ) <= Py::Long( 101 ) );
+    test_assert( "compare <= true", true, Py::Long( 100 ) <= Py::Long( 100 ) );
+    test_assert( "compare <= false", false, Py::Long( 100 ) <= Py::Long( 99 ) );
 
-    if( benchmark != value )
-    {
-        throw TestError( full_description.str() );
-    }
-    else
-    {
-        std::cout << "PASSED: " << full_description.str() << std::endl;
-    }
+    test_assert( "compare > true", true, Py::Long( 100 ) > Py::Long( 99 ) );
+    test_assert( "compare > false", false, Py::Long( 100 ) > Py::Long( 101 ) );
+
+    test_assert( "compare >= true", true, Py::Long( 100 ) >= Py::Long( 99 ) );
+    test_assert( "compare >= true", true, Py::Long( 100 ) >= Py::Long( 100 ) );
+    test_assert( "compare >= false", false, Py::Long( 100 ) >= Py::Long( 101 ) );
 }
 
-static void test_assert( char *description, bool benchmark, bool value )
-{
-    test_assert_scaler( description, "bool", benchmark, value );
-}
-
-static void test_assert( char *description, long benchmark, long value )
-{
-    test_assert_scaler( description, "long", benchmark, value );
-}
-
-static void test_assert( char *description, int benchmark, int value )
-{
-    test_assert_scaler( description, "int", benchmark, value );
-}
-
-static void test_assert( char *description, size_t benchmark, size_t value )
-{
-    test_assert_scaler( description, "size_t", benchmark, value );
-}
-
-static void test_assert( char *description, double benchmark, double value )
-{
-    test_assert_scaler( description, "float", benchmark, value );
-}
-
-static void test_assert( char *description, const std::string &benchmark, const std::string &value )
-{
-    test_assert_scaler( description, "std::string", benchmark, value );
-}
-
-static void test_assert( char *description, const Py::Object &benchmark, const Py::Object &value )
-{
-    test_assert_scaler( description, "std::string", benchmark, value );
-}
-
-static std::string test_String()
+void test_String()
 {
     Py::String s( "hello" );
     Py::Char blank = ' ';
@@ -135,8 +97,6 @@ static std::string test_String()
     Py::String r2( "12345 789" );
     Py::Char c6 = r2[5];
     test_assert( "string convert to std::string", c6, blank );
-
-    return "ok";
 }
 
 void test_boolean()
@@ -181,7 +141,7 @@ void test_boolean()
     test_assert( "boolean false pybool = false", pb2 ? true : false, false );
 }
 
-static void test_long()
+void test_long()
 {
     long cxx_long1( 100 );
     long cxx_long2( 0 );
@@ -242,7 +202,7 @@ static void test_long()
     test_assert( "long operator > ", cxx_long1 >  cxx_long2, py_long1.as_long() >  py_long2.as_long() );
 }
 
-static void test_float()
+void test_float()
 {
     double cxx_float1( 100 );
     double cxx_float2( 0 );
@@ -287,7 +247,7 @@ static void test_float()
     test_assert( "float operator > ", cxx_float1 >  cxx_float2, py_float1.as_double() >  py_float2.as_double() );
 }
 
-static void test_numbers()
+void test_numbers()
 {
     test_long();
     test_float();
@@ -308,7 +268,7 @@ static void test_numbers()
     test_assert( "number calculation", i.as_long(), k.as_long() );
 }
 
-static void test_List()
+void test_List()
 {
     // test the Py::List class
     Py::List list1;
@@ -324,39 +284,45 @@ static void test_List()
     list1.append( list2 );
     list1.append( Py::String( "world" ) );
 
-    test_assert( "list len()", list1.size(), static_cast<size_t>( 4 ) );
+    test_assert( "list len()", static_cast<size_t>( 4 ), list1.size() );
 
-    test_assert( "list index[0]", list1[0], Py::Long( 3 ) );
-    test_assert( "list index[1]", list1[1], Py::Float( 6.0 ) );
-    test_assert( "list index[-1]", list1[-1], Py::String( "world" ) );
+    test_assert( "list index[0]", Py::Long( 3 ), list1[0] );
+    test_assert( "list index[1]", Py::Float( 6.0 ), list1[1] );
+    test_assert( "list index[-1]", Py::String( "world" ), list1[-1] );
 
     Py::List::iterator it1 = list1.begin();
-    test_assert( "list iterator not end [0]", it1 != list1.end(), true );
-    test_assert( "list iterator compare [0]", *it1, Py::Long( 3 ) );
+    test_assert( "list iterator not end != [0]", true, it1 != list1.end() );
+    test_assert( "list iterator not end == [0]", false, it1 == list1.end() );
+    test_assert( "list iterator compare [0]", Py::Long( 3 ), *it1 );
     ++it1;
-    test_assert( "list iterator not end [1]", it1 != list1.end(), true );
-    test_assert( "list iterator compare [1]", *it1, Py::Float( 6.0 ) );
+    test_assert( "list iterator not end != [1]", true, it1 != list1.end() );
+    test_assert( "list iterator not end == [1]", false, it1 == list1.end() );
+    test_assert( "list iterator compare [1]", Py::Float( 6.0 ), *it1 );
     ++it1;
-    test_assert( "list iterator not end [2]", it1 != list1.end(), true );
-    test_assert( "list iterator compare [2]", *it1, list2 );
+    test_assert( "list iterator not end != [2]", true, it1 != list1.end() );
+    test_assert( "list iterator not end == [2]", false, it1 == list1.end() );
+    test_assert( "list iterator compare [2]", list2, *it1 );
     ++it1;
-    test_assert( "list iterator not end [3]", it1 != list1.end(), true );
-    test_assert( "list iterator compare [3]", *it1, Py::String( "world" ) );
+    Py::List::iterator it2 = list1.end();
+    test_assert( "list iterator not end != [3]", true, it1 != list1.end() );
+    test_assert( "list iterator not end == [3]", false, it1 == list1.end() );
+    test_assert( "list iterator compare [3]", Py::String( "world" ), *it1 );
     ++it1;
-    test_assert( "list iterator at end [4]", it1 == list1.end(), true );
+    test_assert( "list iterator at end != [4]", false, it1 != list1.end() );
+    test_assert( "list iterator at end == [4]", true, it1 == list1.end() );
 
     list1[ 3 ] = Py::String( "hello" );
     test_assert( "list index assign", list1[ 3 ], Py::String( "hello" ) );
 
     Py::List list3;
     list3 = list1 + list2;
-    test_assert( "list operator+ count", list3.size(), static_cast<size_t>( 6 ) );
+    test_assert( "list operator+ count", static_cast<size_t>( 6 ), list3.size() );
 
     Py::Tuple tuple1( list1 );
-    test_assert( "list construct from tuple", tuple1.size(), list1.size() );
+    test_assert( "list construct from tuple", list1.size(), tuple1.size() );
 }
 
-static void test_Tuple()
+void test_Tuple()
 {
     // test the Tuple class
     Py::Float f1( 1.0 );
@@ -371,16 +337,16 @@ static void test_Tuple()
     Py::Tuple tuple2( tuple1 );
 
     Py::Tuple::iterator it2 = tuple2.begin();
-    test_assert( "tuple iterator not end [0]", it2 != tuple2.end(), true );
-    test_assert( "tuple iterator compare [0]", *it2, Py::Float( 1.0 ) );
+    test_assert( "tuple iterator not end [0]", true, it2 != tuple2.end() );
+    test_assert( "tuple iterator compare [0]", Py::Float( 1.0 ), *it2 );
     ++it2;
-    test_assert( "tuple iterator not end [1]", it2 != tuple2.end(), true );
-    test_assert( "tuple iterator compare [1]", *it2, Py::Float( 2.0 ) );
+    test_assert( "tuple iterator not end [1]", true, it2 != tuple2.end() );
+    test_assert( "tuple iterator compare [1]", Py::Float( 2.0 ), *it2 );
     ++it2;
-    test_assert( "tuple iterator not end [2]", it2 != tuple2.end(), true );
-    test_assert( "tuple iterator compare [2]", *it2, Py::Float( 3.0 ) );
+    test_assert( "tuple iterator not end [2]", true, it2 != tuple2.end() );
+    test_assert( "tuple iterator compare [2]", Py::Float( 3.0 ), *it2 );
     ++it2;
-    test_assert( "tuple iterator at end [3]", it2 == tuple2.end(), true );
+    test_assert( "tuple iterator at end [3]", true, it2 == tuple2.end() );
 
     bool test_passed = false;
 
@@ -402,7 +368,7 @@ static void test_Tuple()
     test_assert( "tuple construct from list", list1.size(), tuple1.size() );
 }
 
-static void test_Dict()
+void test_Dict()
 {
     // test the Dict class
     Py::Dict dict1;
@@ -420,6 +386,23 @@ static void test_Dict()
     test_assert( "dict keys()", dict1.keys().size(), static_cast<size_t>( 3 ) );
     test_assert( "dict values()", dict1.values().size(), static_cast<size_t>( 3 ) );
 
+    Py::Dict::iterator it1 = dict1.begin();
+    test_assert( "dict iterator not end != [0]", true, it1 != dict1.end() );
+    test_assert( "dict iterator not end == [0]", false, it1 == dict1.end() );
+    ++it1;
+    test_assert( "dict iterator not end != [1]", true, it1 != dict1.end() );
+    test_assert( "dict iterator not end == [1]", false, it1 == dict1.end() );
+    ++it1;
+    test_assert( "dict iterator not end != [2]", true, it1 != dict1.end() );
+    test_assert( "dict iterator not end == [2]", false, it1 == dict1.end() );
+    ++it1;
+    
+    Py::Dict::iterator it2 = dict1.end();
+    bool x = it1 != it2;
+    test_assert( "x", false, x );
+    test_assert( "dict iterator at end != [3]", false, it1 != dict1.end() );
+    test_assert( "dict iterator at end == [3]", true, it1 == dict1.end() );
+
     list1 = dict1.values();
     list1.sort();
 
@@ -433,8 +416,9 @@ static void test_Dict()
     test_assert( "dict clear()", dict2.keys().length(), static_cast<size_t>( 0 ) );
 }
 
-static void test_STL()
+void test_STL()
 {
+    {
     Py::List list1;
 
     list1.append( Py::Long(5) );
@@ -444,7 +428,7 @@ static void test_STL()
     list1.append( Py::Long(3) );
     list1.append( Py::Long(1) );
 
-    test_assert( "STL count", std::count( list1.begin(), list1.end(), Py::Float(1.0) ), 2 );
+    test_assert( "STL count", 2, std::count( list1.begin(), list1.end(), Py::Long( 1 ) ) );
 
     Py::Dict dict1;
     Py::String s1( "blah" );
@@ -455,36 +439,31 @@ static void test_STL()
     dict1[ "three" ] = s2;
     dict1[ "four" ] = s2;
 
-    std::cout << "ln: " << __LINE__ << std::endl;
     Py::Dict::iterator it( dict1.begin() );
 
-    std::cout << "ln: " << __LINE__ << std::endl;
-    Py::Dict::iterator it2( dict1.end() );
+    test_assert( "STL ad hoc", true, it != dict1.end() );
 
-// QQQ: get an Python exception in end() tha is not expected
-#if 0   
-    std::cout << "ln: " << __LINE__ << std::endl;
-    if( it != it2 )
+    std::cout << "debug ln: " << __LINE__ << std::endl;
+    while( it != dict1.end() )
     {
-        std::cout << "ln: " << __LINE__ << std::endl;
-        test_assert( "STL ad hoc", it != dict1.end(), true );
-    }
-    std::cout << "ln: " << __LINE__ << std::endl;
-
-    for( ; it != dict1.end(); ++it )
-    {
-        std::cout << "ln: " << __LINE__ << std::endl;
+        std::cout << "debug ln: " << __LINE__ << std::endl;
         Py::Dict::value_type    vt( *it );
-        std::cout << "ln: " << __LINE__ << std::endl;
+        std::cout << "debug ln: " << __LINE__ << std::endl;
         Py::String rs = vt.second.repr();
-        std::cout << "ln: " << __LINE__ << std::endl;
+        std::cout << "debug ln: " << __LINE__ << std::endl;
         Py::Bytes bs = rs.encode( "utf-8" );
-        std::cout << "ln: " << __LINE__ << std::endl;
+        std::cout << "debug ln: " << __LINE__ << std::endl;
         std::string ls = bs.as_std_string();
+        std::cout << "debug ln: " << __LINE__ << std::endl;
         std::cout << "STL test: " << ls << std::endl;
+        std::cout << "debug ln: " << __LINE__ << std::endl;
+        ++it;
+        std::cout << "debug ln: " << __LINE__ << std::endl;
     }
-    std::cout << "ln: " << __LINE__ << std::endl;
-#endif
+
+    std::cout << "debug ln: " << __LINE__ << std::endl;
+    }
+    std::cout << "STL test Done " << std::endl;
 }
 
 void debug_check_ref_queue()
@@ -658,27 +637,40 @@ private:
         {
             debug_check_ref_queue();
 
+            std::cout << "Start: test_compare" << std::endl;
+            test_compare();
+            debug_check_ref_queue();
+
+            std::cout << "Start: test_boolean" << std::endl;
             test_boolean();
             debug_check_ref_queue();
 
+            std::cout << "Start: test_numbers" << std::endl;
             test_numbers();
             debug_check_ref_queue();
 
+            std::cout << "Start: test_String" << std::endl;
             test_String();
             debug_check_ref_queue();
 
+            std::cout << "Start: test_List" << std::endl;
             test_List();
             debug_check_ref_queue();
 
+            std::cout << "Start: test_Dict" << std::endl;
             test_Dict();
             debug_check_ref_queue();
 
+            std::cout << "Start: test_Tuple" << std::endl;
             test_Tuple();
             debug_check_ref_queue();
 
+            std::cout << "Start: test_STL" << std::endl;
             test_STL();
+            std::cout << "Done: test_STL" << std::endl;
             debug_check_ref_queue();
 
+            std::cout << "Start: test_extension_object" << std::endl;
             test_extension_object();
             debug_check_ref_queue();
         }

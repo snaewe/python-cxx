@@ -104,7 +104,7 @@ namespace Py
         validate();
     }
 
-    MyType( const Object& other ): Object( other.ptr() )
+    MyType( const Object &other ): Object( other.ptr() )
     {
         validate();
     }
@@ -124,7 +124,7 @@ namespace Py
 
     //( 4 ) Each class needs at least these two assignment operators:
     /*
-    MyType &operator=( const Object& rhs )
+    MyType &operator=( const Object &rhs )
     {
         return *this = *rhs;
     }
@@ -207,7 +207,7 @@ namespace Py
         }
 
         // Copy constructor acquires new ownership of pointer
-        Object( const Object& ob )
+        Object( const Object &ob )
         : p( ob.p )
         {
             Py::_XINCREF( p );
@@ -215,13 +215,13 @@ namespace Py
         }
 
         // Assignment acquires new ownership of pointer
-        Object& operator=( const Object& rhs )
+        Object &operator=( const Object &rhs )
         {
             set( rhs.p );
             return *this;
         }
 
-        Object& operator=( PyObject *rhsp )
+        Object &operator=( PyObject *rhsp )
         {
             if( ptr() != rhsp )
                 set( rhsp );
@@ -372,7 +372,7 @@ namespace Py
             return PyObject_IsTrue( p ) != 0;
         }
 
-        bool isType( const Type& t ) const;
+        bool isType( const Type &t ) const;
 
         bool isTuple() const
         {
@@ -390,13 +390,13 @@ namespace Py
         }
 
         // Commands
-        void setAttr( const std::string& s, const Object& value )
+        void setAttr( const std::string &s, const Object &value )
         {
             if( PyObject_SetAttrString( p, const_cast<char*>( s.c_str() ), *value ) == -1 )
             throw AttributeError( "getAttr failed." );
         }
 
-        void delAttr( const std::string& s )
+        void delAttr( const std::string &s )
         {
             if( PyObject_DelAttrString( p, const_cast<char*>( s.c_str() ) ) == -1 )
             throw AttributeError( "delAttr failed." );
@@ -405,7 +405,7 @@ namespace Py
         // PyObject_SetItem is too weird to be using from C++
         // so it is intentionally omitted.
 
-        void delItem( const Object& key )
+        void delItem( const Object &key )
         {
             //if( PyObject_DelItem( p, *key ) == -1 )
             // failed to link on Windows?
@@ -452,7 +452,7 @@ namespace Py
 
     // TMM: 31May'01 - Added the #ifndef so I can exlude iostreams.
 #ifndef CXX_NO_IOSTREAMS
-    std::ostream& operator<<( std::ostream& os, const Object& ob );
+    std::ostream &operator<<( std::ostream &os, const Object &ob );
 #endif
 
     // Class Type
@@ -465,13 +465,13 @@ namespace Py
             validate();
         }
 
-        Type( const Object& ob )
+        Type( const Object &ob )
         : Object( *ob )
         {
             validate();
         }
 
-        Type( const Type& t ): Object( t )
+        Type( const Type &t ): Object( t )
         {
             validate();
         }
@@ -528,14 +528,14 @@ namespace Py
             validate();
         }
 
-        explicit Boolean( const Object& ob )
+        explicit Boolean( const Object &ob )
         {
             set( *ob, true );
             validate();
         }
 
         // Assignment acquires new ownership of pointer
-        Boolean &operator=( const Object& rhs )
+        Boolean &operator=( const Object &rhs )
         {
             return *this = *rhs;
         }
@@ -577,14 +577,14 @@ namespace Py
             validate();
         }
 
-        Long( const Long& ob )
+        Long( const Long &ob )
         : Object( ob.ptr() )
         {
             validate();
         }
 
         // try to create from any object
-        explicit Long( const Object& ob )
+        explicit Long( const Object &ob )
         : Object( PyNumber_Long( *ob ), true )
         {
             validate();
@@ -631,12 +631,12 @@ namespace Py
         }
 
         // Assignment acquires new ownership of pointer
-        Long& operator=( const Object& rhs )
+        Long &operator=( const Object &rhs )
         {
             return *this = *rhs;
         }
 
-        Long& operator=( PyObject *rhsp )
+        Long &operator=( PyObject *rhsp )
         {
             if( ptr() != rhsp )
                 set( PyNumber_Long( rhsp ), true );
@@ -644,34 +644,34 @@ namespace Py
         }
 
         // assign from an int
-        Long& operator=( int v )
+        Long &operator=( int v )
         {
             set( PyLong_FromLong( long( v ) ), true );
             return *this;
         }
 
         // assign from long
-        Long& operator=( long v )
+        Long &operator=( long v )
         {
             set( PyLong_FromLong( v ), true );
             return *this;
         }
 
         // assign from unsigned long
-        Long& operator=( unsigned long v )
+        Long &operator=( unsigned long v )
         {
             set( PyLong_FromUnsignedLong( v ), true );
             return *this;
         }
 
 #ifdef HAVE_LONG_LONG
-        Long& operator=( PY_LONG_LONG v )
+        Long &operator=( PY_LONG_LONG v )
         {
             set( PyLong_FromLongLong( v ), true );
             return *this;
         }
 
-        Long& operator=( unsigned PY_LONG_LONG v )
+        Long &operator=( unsigned PY_LONG_LONG v )
         {
             set( PyLong_FromUnsignedLongLong( v ), true );
             return *this;
@@ -1009,7 +1009,7 @@ namespace Py
             validate();
         }
 
-        Complex( const Complex& f ): Object( f )
+        Complex( const Complex &f ): Object( f )
         {
             validate();
         }
@@ -1021,12 +1021,12 @@ namespace Py
             validate();
         }
 
-        Complex& operator=( const Object& rhs )
+        Complex &operator=( const Object &rhs )
         {
             return *this = *rhs;
         }
 
-        Complex& operator=( PyObject *rhsp )
+        Complex &operator=( PyObject *rhsp )
         {
             if( ptr() != rhsp )
                 set( rhsp );
@@ -1043,7 +1043,7 @@ namespace Py
             return PyComplex_AsCComplex( ptr() );
         }
         // assign from a Py_complex
-        Complex &operator=( const Py_complex& v )
+        Complex &operator=( const Py_complex &v )
         {
             set( PyComplex_FromCComplex( v ), true );
             return *this;
@@ -1067,7 +1067,7 @@ namespace Py
             return *this;
         }
         // assign from an Long
-        Complex &operator=( const Long& iob )
+        Complex &operator=( const Long &iob )
         {
             set( PyComplex_FromDoubles( double( iob.as_long() ), 0.0 ), true );
             return *this;
@@ -1110,25 +1110,25 @@ namespace Py
     class seqref
     {
     protected:
-        SeqBase<T>& s; // the sequence
+        SeqBase<T> &s; // the sequence
         int offset; // item number
         T the_item; // lvalue
 
     public:
-        seqref( SeqBase<T>& seq, sequence_index_type j )
+        seqref( SeqBase<T> &seq, sequence_index_type j )
         : s( seq )
         , offset( j )
         , the_item( s.getItem( j ) )
         {}
 
-        seqref( const seqref<T>& range )
+        seqref( const seqref<T> &range )
         : s( range.s )
         , offset( range.offset )
         , the_item( range.the_item )
         {}
 
         // TMM: added this seqref ctor for use with STL algorithms
-        seqref( Object& obj )
+        seqref( Object &obj )
         : s( dynamic_cast< SeqBase<T>&>( obj ) )
         , offset( NULL )
         , the_item( s.getItem( offset ) )
@@ -1142,7 +1142,7 @@ namespace Py
             return the_item;
         }
 
-        seqref<T>& operator=( const seqref<T> &rhs )
+        seqref<T> &operator=( const seqref<T> &rhs )
         { //used as lvalue
             the_item = rhs.the_item;
             s.setItem( offset, the_item );
@@ -1175,17 +1175,17 @@ namespace Py
         String str() const;
         String repr() const;
 
-        bool hasAttr( const std::string& attr_name ) const
+        bool hasAttr( const std::string &attr_name ) const
         {
             return the_item.hasAttr( attr_name );
         }
 
-        Object getAttr( const std::string& attr_name ) const
+        Object getAttr( const std::string &attr_name ) const
         {
             return the_item.getAttr( attr_name );
         }
 
-        Object getItem( const Object& key ) const
+        Object getItem( const Object &key ) const
         {
             return the_item.getItem( key );
         }
@@ -1472,12 +1472,12 @@ namespace Py
 
             bool eql( const iterator &other ) const
             {
-                return (*seq == *other.seq) && (count == other.count);
+                return seq->ptr() == other.seq->ptr() && count == other.count;
             }
 
             bool neq( const iterator &other ) const
             {
-                return (*seq != *other.seq) || (count != other.count);
+                return seq->ptr() != other.seq->ptr() || count != other.count;
             }
 
             bool lss( const iterator &other ) const
@@ -1544,8 +1544,9 @@ namespace Py
 
             int operator-( const iterator &other ) const
             {
-                if( *seq != *other.seq )
-                throw RuntimeError( "SeqBase<T>::iterator comparison error" );
+                if( seq.ptr() != other.seq.ptr() )
+                    throw RuntimeError( "SeqBase<T>::iterator comparison error" );
+
                 return count - other.count;
             }
 
@@ -1648,12 +1649,12 @@ namespace Py
 
             bool eql( const const_iterator &other ) const
             {
-                return( *seq == *other.seq ) &&( count == other.count );
+                return seq->ptr() == other.seq->ptr() && count == other.count;
             }
 
             bool neq( const const_iterator &other ) const
             {
-                return( *seq != *other.seq ) ||( count != other.count );
+                return seq->ptr() != other.seq->ptr() || count != other.count;
             }
 
             bool lss( const const_iterator &other ) const
@@ -2690,39 +2691,6 @@ namespace Py
             return List( PyMapping_Items( ptr() ), true );
         }
 
-        // iterators for MapBase<T>
-        // Added by TMM: 2Jul'01 - NOT COMPLETED
-        // There is still a bug.  I decided to stop, before fixing the bug, because
-        // this can't be halfway efficient until Python gets built-in iterators.
-        // My current soln is to iterate over the map by getting a copy of its keys
-        // and iterating over that.  Not a good solution.
-
-        // The iterator holds a MapBase<T>* rather than a MapBase<T> because that's
-        // how the sequence iterator is implemented and it works.  But it does seem
-        // odd to me - we are iterating over the map object, not the reference.
-
-#if 0    // here is the test code with which I found the( still existing ) bug
-        typedef cxx::Dict    d_t;
-        d_t    d;
-        cxx::String    s1( "blah" );
-        cxx::String    s2( "gorf" );
-        d[ "one" ] = s1;
-        d[ "two" ] = s1;
-        d[ "three" ] = s2;
-        d[ "four" ] = s2;
-
-        d_t::iterator    it;
-        it = d.begin();        // this( using the assignment operator ) is causing
-        // a problem; if I just use the copy ctor it works fine.
-        for( ; it != d.end(); ++it )
-        {
-            d_t::value_type    vt( *it );
-            cxx::String rs = vt.second.repr();
-            std::string ls = rs.operator std::string();
-            fprintf( stderr, "%s\n", ls );
-        }
-#endif // 0
-
         class iterator
         {
             // : public forward_iterator_parent( std::pair<const T,T> ) {
@@ -2737,7 +2705,7 @@ namespace Py
             //
             MapBase<T>      *map;
             List            keys;       // for iterating over the map
-            List::iterator  pos;        // index into the keys
+            int             pos;        // index into the keys
 
         public:
             ~iterator()
@@ -2746,13 +2714,13 @@ namespace Py
             iterator()
             : map( 0 )
             , keys()
-            , pos()
+            , pos( 0 )
             {}
 
             iterator( MapBase<T> *m, bool end = false )
             : map( m )
             , keys( m->keys() )
-            , pos( end ? keys.end() : keys.begin() )
+            , pos( end ? keys.length() : 0 )
             {}
 
             iterator( const iterator &other )
@@ -2761,10 +2729,16 @@ namespace Py
             , pos( other.pos )
             {}
 
+            iterator( MapBase<T> *map_, List keys_, int pos_ )
+            : map( map_ )
+            , keys( keys_ )
+            , pos( pos_ )
+            {}
+
             reference operator*()
             {
-                Object key = *pos;
-                return std::make_pair( key, mapref<T>( *map,key ) );
+                Object key = keys[ pos ];
+                return std::make_pair( key, mapref<T>( *map, key ) );
             }
 
             iterator &operator=( const iterator &other )
@@ -2778,13 +2752,14 @@ namespace Py
                 return *this;
             }
 
-            bool eql( const iterator &right ) const
+            bool eql( const iterator &other ) const
             {
-                return *map == *right.map && pos == right.pos;
+                return map->ptr() == other.map->ptr() && pos == other.pos;
             }
-            bool neq( const iterator &right ) const
+
+            bool neq( const iterator &other ) const
             {
-                return *map != *right.map || pos != right.pos;
+                return map->ptr() != other.map->ptr() || pos != other.pos;
             }
 
             // pointer operator->() {
@@ -2845,9 +2820,9 @@ namespace Py
             typedef const std::pair< const T, T > reference;
 
             friend class MapBase<T>;
-            const MapBase<T> *map;
-            List    keys;    // for iterating over the map
-            List::iterator    pos;        // index into the keys
+            const MapBase<T>    *map;
+            List                keys;   // for iterating over the map
+            int                 pos;    // index into the keys
 
         public:
             ~const_iterator()
@@ -2859,7 +2834,7 @@ namespace Py
             , pos()
             {}
 
-            const_iterator( const MapBase<T> *m, List k, List::iterator p )
+            const_iterator( const MapBase<T> *m, List k, int p )
             : map( m )
             , keys( k )
             , pos( p )
@@ -2871,13 +2846,14 @@ namespace Py
             , pos( other.pos )
             {}
 
-            bool eql( const const_iterator &right ) const
+            bool eql( const const_iterator &other ) const
             {
-                return *map == *right.map && pos == right.pos;
+                return map->ptr() == other.map->ptr() && pos == other.pos;
             }
-            bool neq( const const_iterator &right ) const
+
+            bool neq( const const_iterator &other ) const
             {
-                return *map != *right.map || pos != right.pos;
+                return map->ptr() != other.map->ptr() || pos != other.pos;
             }
 
 
@@ -2886,6 +2862,12 @@ namespace Py
             //                return std::make_pair( key, map->[key] );
             // GCC < 3 barfes on this line at the '['.
             //         }
+
+            const_reference operator*()
+            {
+                Object key = keys[ pos ];
+                return std::make_pair( key, mapref<T>( *map, key ) );
+            }
 
             const_iterator &operator=( const const_iterator &other )
             {

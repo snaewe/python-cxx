@@ -43,45 +43,31 @@
 
 #include "CXX/Extensions.hxx"
 #include "range.hxx"
+#include "test_assert.hxx"
 
 // This test also illustrates using the Py namespace explicitly
 
-extern void debug_check_ref_queue();
-
-
-std::string test_extension_object() 
-{ 
-    debug_check_ref_queue();
-
-    Py::Tuple a; // just something that isn't an range...
+void test_extension_object() 
+{
+    Py::List a; // just something that is not a range...
 
     Py::ExtensionObject<range> r1( new range( 1, 20, 3 ) );
-    if( range::check( a ) )
-        std::cout << "range::check failed ( 1 ).";
-    if( !range::check( r1 ) )
-        return "r::check failed ( 2 ).";
+    test_assert( "extension object check() incompatible", false, range::check( a ) );
 
-    debug_check_ref_queue();
+    test_assert( "extension object check() incompatible", true, range::check( r1 ) );
 
     RangeSequence r2( 1, 10, 2 );
-    if( r2[1] != Py::Long( 3 ) )
-        return "RangeSequence check failed. ";
-
-    debug_check_ref_queue();
+    test_assert( "extension object index", r2[ 1 ], Py::Long( 3 ) );
 
     // calling an extension object method using getattr
     Py::Callable w( r2.getAttr( "amethod" ) );
     Py::Tuple args( 1 );
     Py::Long j( 3 );
-    args[0]=j;
+    args[0] = j;
     Py::List answer( w.apply( args ) );
-    if( answer[0] != r2 )
-        return "Extension object test failed ( 1 )";
 
-    if( answer[1] != args[0] )
-        return "Extension object test failed ( 2 )";
-
-    debug_check_ref_queue();
+    test_assert( "extension object q1", answer[0], r2 );
+    test_assert( "extension object q2", answer[1], args[0] );
 
     Py::Tuple nv( 3 );
     nv[0] = Py::Long( 1 );
@@ -91,10 +77,8 @@ std::string test_extension_object()
     Py::List r2value;
     r2.assign( unused, nv );
     r2value = r2.value( unused );
-    if( r2value[1] != Py::Long( 4 ) )
-        return "Extension object test failed. ( 3 )";
 
-    debug_check_ref_queue();
+    test_assert( "extension object q3", r2value[1], Py::Long( 4 ) );
 
     // repeat using getattr
     w = r2.getAttr( "assign" );
@@ -103,25 +87,15 @@ std::string test_extension_object()
     the_arguments[1] = nv;
     w.apply( the_arguments );
 
-    debug_check_ref_queue();
-
     w = r2.getAttr( "value" );
     Py::Tuple one_arg( 1 );
     one_arg[0] = unused;
     r2value = w.apply( one_arg );
-    if( r2value[1] != Py::Long( 4 ) )
-        return "Extension object test failed. ( 4 )";
+    test_assert( "extension object q4", r2value[1], Py::Long( 4 ) );
 
-    debug_check_ref_queue();
     {
         Py::ExtensionObject<range> rheap( new range( 1, 10, 2 ) );
 
-        debug_check_ref_queue();
-
         // delete rheap
     }
-
-    debug_check_ref_queue();
-
-    return "ok.";
 }

@@ -583,18 +583,18 @@ namespace Py
     : public PythonExtensionBase 
     {
     public:
-        static PyTypeObject* type_object() 
+        static PyTypeObject *type_object() 
         {
             return behaviors().type_object();
         }
 
-        static int check( PyObject *p )
+        static bool check( PyObject *p )
         {
             // is p like me?
             return p->ob_type == type_object();
         }
 
-        static int check( const Object& ob )
+        static bool check( const Object& ob )
         {
             return check( ob.ptr() );
         }
@@ -612,12 +612,12 @@ namespace Py
         explicit PythonExtension()
         : PythonExtensionBase()
         {
-            #ifdef PyObject_INIT
+#ifdef PyObject_INIT
             ( void )PyObject_INIT( this, type_object() );
-            #else
+#else
             ob_refcnt = 1;
             ob_type = type_object();
-            #endif
+#endif
 
             // every object must support getattr
             behaviors().supportGetattr();
