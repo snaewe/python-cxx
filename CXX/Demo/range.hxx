@@ -66,8 +66,8 @@ public:
     virtual Py::Object sequence_slice( Py_ssize_t i, Py_ssize_t j );
 
     // define python methods of this object
-    Py::Object amethod (const Py::Tuple& args);
-    Py::Object value (const Py::Tuple& args);
+    Py::Object amethod( const Py::Tuple &args );
+    Py::Object value( const Py::Tuple &args );
     Py::Object assign( const Py::Tuple &args );
     Py::Object reference_count( const Py::Tuple &args );
     Py::Object c_value( const Py::Tuple & ) const;
