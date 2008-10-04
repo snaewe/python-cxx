@@ -596,12 +596,14 @@ namespace Py
         {
             validate();
         }
+
         // create from unsigned long
         explicit Long( unsigned long v )
         : Object( PyLong_FromUnsignedLong( v ), true )
         {
             validate();
         }
+
         // create from int
         explicit Long( int v )
         : Object( PyLong_FromLong( static_cast<long>( v ) ), true )
@@ -616,6 +618,7 @@ namespace Py
         {
             validate();
         }
+
         // create from unsigned long long
         explicit Long( unsigned PY_LONG_LONG v )
         : Object( PyLong_FromUnsignedLongLong( v ), true )
@@ -689,15 +692,15 @@ namespace Py
             return PyLong_AsLong( ptr() );
         }
 
-        //operator long() const
-        //{
-        //    return as_long();
-        //}
+        operator long() const
+        {
+            return as_long();
+        }
 
-        //operator int() const
-        //{
-        //    return static_cast<int>( as_long() );
-        //}
+        operator int() const
+        {
+            return static_cast<int>( as_long() );
+        }
 
         // convert to unsigned
         long as_unsigned_long() const
@@ -705,20 +708,20 @@ namespace Py
             return PyLong_AsUnsignedLong( ptr() );
         }
 
-        //operator unsigned long() const
-        //{
-        //    return as_unsigned_long();
-        //}
+        operator unsigned long() const
+        {
+            return as_unsigned_long();
+        }
 
         double as_double() const
         {
             return PyLong_AsDouble( ptr() );
         }
 
-//        operator double() const
-//        {
-//            return as_double();
-//        }
+        operator double() const
+        {
+            return as_double();
+        }
 
 #ifdef HAVE_LONG_LONG
         PY_LONG_LONG as_long_long() const
@@ -726,20 +729,20 @@ namespace Py
             return PyLong_AsLongLong( ptr() );
         }
 
-//        operator PY_LONG_LONG() const
-//        {
-//           return as_long_long();
-//        }
+        operator PY_LONG_LONG() const
+        {
+           return as_long_long();
+        }
 
         unsigned PY_LONG_LONG as_unsigned_long_long() const
         {
             return PyLong_AsUnsignedLongLong( ptr() );
         }
 
-//        operator unsigned PY_LONG_LONG() const
-//        {
-//            return as_unsigned_long_long();
-//        }
+        operator unsigned PY_LONG_LONG() const
+        {
+            return as_unsigned_long_long();
+        }
 #endif
 
         // prefix ++
