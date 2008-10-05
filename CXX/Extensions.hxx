@@ -50,7 +50,7 @@
 #include "CXX/Config.hxx"
 #include "CXX/Objects.hxx"
 
-extern "C" extern PyObject py_object_initializer;
+extern "C" { extern PyObject py_object_initializer; }
 
 #include <vector>
 
