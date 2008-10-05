@@ -53,7 +53,6 @@ void test_extension_object()
 
     Py::ExtensionObject<range> r1( new range( 1, 20, 3 ) );
     test_assert( "extension object check() incompatible", false, range::check( a ) );
-
     test_assert( "extension object check() incompatible", true, range::check( r1 ) );
 
     RangeSequence r2( 1, 10, 2 );
@@ -87,15 +86,16 @@ void test_extension_object()
     the_arguments[1] = nv;
     w.apply( the_arguments );
 
-    w = r2.getAttr( "value" );
-    Py::Tuple one_arg( 1 );
-    one_arg[0] = unused;
-    r2value = w.apply( one_arg );
-    test_assert( "extension object q4", r2value[1], Py::Long( 4 ) );
 
     {
         Py::ExtensionObject<range> rheap( new range( 1, 10, 2 ) );
 
         // delete rheap
     }
+
+    w = r2.getAttr( "value" );
+    Py::Tuple one_arg( 1 );
+    one_arg[0] = unused;
+    r2value = w.apply( one_arg );
+    test_assert( "extension object q4", r2value[1], Py::Long( 4 ) );
 }

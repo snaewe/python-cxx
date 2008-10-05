@@ -49,7 +49,7 @@
 #include "range.hxx"  // Extension object
 #include "test_assert.hxx"
 
-extern std::string test_extension_object();
+extern void test_extension_object();
 
 #include <algorithm>
 
