@@ -203,7 +203,7 @@ namespace Py
             return p->ob_type == type_object();
         }
 
-        static bool check( const Object& ob )
+        static bool check( const Object &ob )
         {
             return check( ob.ptr() );
         }
@@ -503,8 +503,8 @@ namespace Py
         //
         // prevent the compiler generating these unwanted functions
         //
-        explicit PythonExtension( const PythonExtension<T>& other );
-        void operator=( const PythonExtension<T>& rhs );
+        explicit PythonExtension( const PythonExtension<T> &other );
+        void operator=( const PythonExtension<T> &rhs );
     };
 
     //
@@ -521,24 +521,24 @@ namespace Py
             validate();
         }
 
-        ExtensionObject( const ExtensionObject<T>& other )
+        ExtensionObject( const ExtensionObject<T> &other )
         : Object( *other )
         {
             validate();
         }
 
-        ExtensionObject( const Object& other )
+        ExtensionObject( const Object &other )
         : Object( *other )
         {
             validate();
         }
 
-        ExtensionObject& operator=( const Object& rhs )
+        ExtensionObject &operator=( const Object &rhs )
         {
             return( *this = *rhs );
         }
 
-        ExtensionObject& operator=( PyObject* rhsp )
+        ExtensionObject &operator=( PyObject *rhsp )
         {
             if( ptr() != rhsp )
                 set( rhsp );
@@ -548,7 +548,7 @@ namespace Py
         virtual bool accepts( PyObject *pyob ) const
         {
             return( pyob && T::check( pyob ) );
-        }       
+        }
 
         //
         //    Obtain a pointer to the PythonExtension object
