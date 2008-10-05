@@ -35,8 +35,8 @@
 //
 //-----------------------------------------------------------------------------
 
-#ifndef __CXX_ExtensionModules__h
-#define __CXX_ExtensionModules__h
+#ifndef __CXX_ExtensionClass__h
+#define __CXX_ExtensionClass__h
 
 namespace Py
 {
@@ -560,5 +560,5 @@ namespace Py
     };
 } // Namespace Py
 
-// End of __CXX_ExtensionModules__h
+// End of __CXX_ExtensionClass__h
 #endif
