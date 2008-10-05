@@ -235,10 +235,6 @@ extern "C" void standard_dealloc( PyObject *p )
     PyMem_DEL( p );
 }
 
-PythonType &PythonType::supportClass()
-{
-}
-
 PythonType &PythonType::supportSequenceType()
 {
     if( !sequence_table )
@@ -436,7 +432,9 @@ PythonType::~PythonType()
 }
 
 PyTypeObject *PythonType::type_object() const
-{return table;}
+{
+    return table;
+}
 
 PythonType &PythonType::name( const char *nam )
 {
@@ -463,6 +461,12 @@ const char *PythonType::getDoc() const
 PythonType &PythonType::dealloc( void( *f )( PyObject * ) )
 {
     table->tp_dealloc = f;
+    return *this;
+}
+
+PythonType &PythonType::supportClass()
+{
+    table->tp_flags |= Py_TPFLAGS_BASETYPE;
     return *this;
 }
 
