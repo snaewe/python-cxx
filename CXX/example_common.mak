@@ -64,6 +64,7 @@ IndirectPythonInterface.o: Src/IndirectPythonInterface.cxx
 clean:
 	rm -f *.o
 	rm -f example.so
+	rm -f simple.so
 	rm -f pycxx_iter.so
 
 #
