@@ -2133,12 +2133,11 @@ namespace Py
             return as_std_string( NULL );
         }
 
-        std::string as_std_string( const char *encoding, const char *error="strict" ) const
+        std::string as_std_string( const char *encoding=NULL, const char *error="strict" ) const
         {
             Bytes b( encode( encoding, error ) );
             return b.as_std_string();
         }
-
     };
 
     // ==================================================

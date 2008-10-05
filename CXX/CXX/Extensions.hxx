@@ -201,6 +201,8 @@ namespace Py
 
     extern "C"
     {
+        // Note: Python calls noargs as varargs buts args==NULL
+        typedef PyObject *(*method_noargs_call_handler_t)( PyObject *_self, PyObject * );
         typedef PyObject *(*method_varargs_call_handler_t)( PyObject *_self, PyObject *_args );
         typedef PyObject *(*method_keyword_call_handler_t)( PyObject *_self, PyObject *_args, PyObject *_dict );
     };
@@ -209,9 +211,30 @@ namespace Py
     class MethodDefExt : public PyMethodDef
     {
     public:
+        typedef Object (T::*method_noargs_function_t)();
         typedef Object (T::*method_varargs_function_t)( const Tuple &args );
         typedef Object (T::*method_keyword_function_t)( const Tuple &args, const Dict &kws );
 
+        // NOARGS
+        MethodDefExt
+        ( 
+            const char *_name,
+            method_noargs_function_t _function,
+            method_noargs_call_handler_t _handler,
+            const char *_doc
+        )
+        {
+            ext_meth_def.ml_name = const_cast<char *>( _name );
+            ext_meth_def.ml_meth = reinterpret_cast<method_varargs_call_handler_t>( _handler );
+            ext_meth_def.ml_flags = METH_NOARGS;
+            ext_meth_def.ml_doc = const_cast<char *>( _doc );
+
+            ext_noargs_function = _function;
+            ext_varargs_function = NULL;
+            ext_keyword_function = NULL;
+        }
+
+        // VARARGS
         MethodDefExt
         ( 
             const char *_name,
@@ -221,14 +244,16 @@ namespace Py
         )
         {
             ext_meth_def.ml_name = const_cast<char *>( _name );
-            ext_meth_def.ml_meth = _handler;
+            ext_meth_def.ml_meth = reinterpret_cast<method_varargs_call_handler_t>( _handler );
             ext_meth_def.ml_flags = METH_VARARGS;
             ext_meth_def.ml_doc = const_cast<char *>( _doc );
 
+            ext_noargs_function = NULL;
             ext_varargs_function = _function;
             ext_keyword_function = NULL;
         }
 
+        // VARARGS + KEYWORD
         MethodDefExt
         ( 
             const char *_name,
@@ -238,10 +263,11 @@ namespace Py
         )
         {
             ext_meth_def.ml_name = const_cast<char *>( _name );
-            ext_meth_def.ml_meth = method_varargs_call_handler_t( _handler );
+            ext_meth_def.ml_meth = reinterpret_cast<method_varargs_call_handler_t>( _handler );
             ext_meth_def.ml_flags = METH_VARARGS|METH_KEYWORDS;
             ext_meth_def.ml_doc = const_cast<char *>( _doc );
 
+            ext_noargs_function = NULL;
             ext_varargs_function = NULL;
             ext_keyword_function = _function;
         }
@@ -250,6 +276,7 @@ namespace Py
         {}
 
         PyMethodDef ext_meth_def;
+        method_noargs_function_t ext_noargs_function;    
         method_varargs_function_t ext_varargs_function;    
         method_keyword_function_t ext_keyword_function;    
     };
@@ -263,8 +290,9 @@ namespace Py
         Module module( void ) const;            // only valid after initialize() has been called
         Dict moduleDictionary( void ) const;    // only valid after initialize() has been called
 
-        virtual Object invoke_method_keyword( const std::string &_name, const Tuple &_args, const Dict &_keywords ) = 0;
+        virtual Object invoke_method_noargs( const std::string &_name ) = 0;
         virtual Object invoke_method_varargs( const std::string &_name, const Tuple &_args ) = 0;
+        virtual Object invoke_method_keyword( const std::string &_name, const Tuple &_args, const Dict &_keywords ) = 0;
 
         const std::string &name() const;
         const std::string &fullName() const;
@@ -290,10 +318,12 @@ namespace Py
         void operator=( const ExtensionModuleBase & );          //unimplemented
     };
 
-    extern "C" PyObject *method_keyword_call_handler( PyObject *_self_and_name_tuple, PyObject *_args, PyObject *_keywords );
+    // Note: Python calls noargs as varargs buts args==NULL
+    extern "C" PyObject *method_noargs_call_handler( PyObject *_self_and_name_tuple, PyObject * );
     extern "C" PyObject *method_varargs_call_handler( PyObject *_self_and_name_tuple, PyObject *_args );
-    extern "C" void do_not_dealloc( void * );
+    extern "C" PyObject *method_keyword_call_handler( PyObject *_self_and_name_tuple, PyObject *_args, PyObject *_keywords );
 
+    extern "C" void do_not_dealloc( void * );
 
     template<TEMPLATE_TYPENAME T>
     class ExtensionModule : public ExtensionModuleBase
@@ -306,6 +336,7 @@ namespace Py
         {}
 
     protected:
+        typedef Object (T::*method_noargs_function_t)();
         typedef Object (T::*method_varargs_function_t)( const Tuple &args );
         typedef Object (T::*method_keyword_function_t)( const Tuple &args, const Dict &kws );
 
@@ -315,34 +346,22 @@ namespace Py
         typedef std::map<std::string, MethodDefExt<T> *> method_map_t;
 #endif
 
+        static void add_noargs_method( const char *name, method_noargs_function_t function, const char *doc="" )
+        {
+            method_map_t &mm = methods();
+            mm[ std::string( name ) ] = new MethodDefExt<T>( name, function, method_noargs_call_handler, doc );
+        }
+
         static void add_varargs_method( const char *name, method_varargs_function_t function, const char *doc="" )
         {
             method_map_t &mm = methods();
-
-            MethodDefExt<T> *method_definition = new MethodDefExt<T>
-                                                    ( 
-                                                    name,
-                                                    function,
-                                                    method_varargs_call_handler,
-                                                    doc
-                                                    );
-
-            mm[std::string( name )] = method_definition;
+            mm[ std::string( name ) ] = new MethodDefExt<T>( name, function, method_varargs_call_handler, doc );
         }
 
         static void add_keyword_method( const char *name, method_keyword_function_t function, const char *doc="" )
         {
             method_map_t &mm = methods();
-
-            MethodDefExt<T> *method_definition = new MethodDefExt<T>
-                                                    ( 
-                                                    name,
-                                                    function,
-                                                    method_keyword_call_handler,
-                                                    doc
-                                                    );
-
-            mm[std::string( name )] = method_definition;
+            mm[ std::string( name ) ] = new MethodDefExt<T>( name, function, method_keyword_call_handler, doc );
         }
 
         void initialize( const char *module_doc="" )
@@ -387,15 +406,14 @@ namespace Py
             return *map_of_methods;
         }
 
-
         // this invoke function must be called from within a try catch block
-        virtual Object invoke_method_keyword( const std::string &name, const Tuple &args, const Dict &keywords )
+        virtual Object invoke_method_noargs( const std::string &name )
         {
             method_map_t &mm = methods();
             MethodDefExt<T> *meth_def = mm[ name ];
             if( meth_def == NULL )
             {
-                std::string error_msg( "CXX - cannot invoke keyword method named " );
+                std::string error_msg( "CXX - cannot invoke noargs method named " );
                 error_msg += name;
                 throw RuntimeError( error_msg );
             }
@@ -403,7 +421,7 @@ namespace Py
             // cast up to the derived class
             T *self = static_cast<T *>( this );
 
-            return (self->*meth_def->ext_keyword_function)( args, keywords );
+            return (self->*meth_def->ext_noargs_function)();
         }
 
         // this invoke function must be called from within a try catch block
@@ -422,6 +440,24 @@ namespace Py
             T *self = static_cast<T *>( this );
 
             return (self->*meth_def->ext_varargs_function)( args );
+        }
+
+        // this invoke function must be called from within a try catch block
+        virtual Object invoke_method_keyword( const std::string &name, const Tuple &args, const Dict &keywords )
+        {
+            method_map_t &mm = methods();
+            MethodDefExt<T> *meth_def = mm[ name ];
+            if( meth_def == NULL )
+            {
+                std::string error_msg( "CXX - cannot invoke keyword method named " );
+                error_msg += name;
+                throw RuntimeError( error_msg );
+            }
+
+            // cast up to the derived class
+            T *self = static_cast<T *>( this );
+
+            return (self->*meth_def->ext_keyword_function)( args, keywords );
         }
 
     private:
@@ -450,12 +486,14 @@ namespace Py
         PythonType &doc( const char* d );
         PythonType &dealloc( void( *f )( PyObject* ) );
 
+        PythonType &supportClass( void );
         PythonType &supportPrint( void );
         PythonType &supportGetattr( void );
         PythonType &supportSetattr( void );
         PythonType &supportGetattro( void );
         PythonType &supportSetattro( void );
         PythonType &supportCompare( void );
+        PythonType &supportRichCompare( void );
         PythonType &supportRepr( void );
         PythonType &supportStr( void );
         PythonType &supportHash( void );
@@ -523,6 +561,7 @@ namespace Py
         virtual Object getattro( const Object & );
         virtual int setattro( const Object &, const Object & );
         virtual int compare( const Object & );
+        virtual Object rich_compare( const Object &, int );
         virtual Object repr();
         virtual Object str();
         virtual long hash();
@@ -643,7 +682,7 @@ namespace Py
             return *p;
         }
 
-
+        typedef Object (T::*method_noargs_function_t)();
         typedef Object (T::*method_varargs_function_t)( const Tuple &args );
         typedef Object (T::*method_keyword_function_t)( const Tuple &args, const Dict &kws );
 
@@ -721,46 +760,35 @@ namespace Py
             return Object( func, true );
         }
 
-        static void add_varargs_method( const char *name, method_varargs_function_t function, const char *doc="" )
+        // check that all methods added are unique
+        static void check_unique_method_name( const char *name )
         {
             method_map_t &mm = methods();
-
-            // check that all methods added are unique
             EXPLICIT_TYPENAME method_map_t::const_iterator i;
             i = mm.find( name );
             if( i != mm.end() )
                 throw AttributeError( name );
+        }
 
-            MethodDefExt<T> *method_definition = new MethodDefExt<T>
-                                                    ( 
-                                                    name,
-                                                    function,
-                                                    method_varargs_call_handler,
-                                                    doc
-                                                    );
+        static void add_noargs_method( const char *name, method_noargs_function_t function, const char *doc="" )
+        {
+            check_unique_method_name( name );
+            method_map_t &mm = methods();
+            mm[ std::string( name ) ] = new MethodDefExt<T>( name, function, method_noargs_call_handler, doc );
+        }
 
-            mm[std::string( name )] = method_definition;
+        static void add_varargs_method( const char *name, method_varargs_function_t function, const char *doc="" )
+        {
+            check_unique_method_name( name );
+            method_map_t &mm = methods();
+            mm[ std::string( name ) ] = new MethodDefExt<T>( name, function, method_varargs_call_handler, doc );
         }
 
         static void add_keyword_method( const char *name, method_keyword_function_t function, const char *doc="" )
         {
+            check_unique_method_name( name );
             method_map_t &mm = methods();
-
-            // check that all methods added are unique
-            EXPLICIT_TYPENAME method_map_t::const_iterator i;
-            i = mm.find( name );
-            if( i != mm.end() )
-                throw AttributeError( name );
-
-            MethodDefExt<T> *method_definition = new MethodDefExt<T>
-                                                    ( 
-                                                    name,
-                                                    function,
-                                                    method_keyword_call_handler,
-                                                    doc
-                                                    );
-
-            mm[std::string( name )] = method_definition;
+            mm[ std::string( name ) ] = new MethodDefExt<T>( name, function, method_keyword_call_handler, doc );
         }
 
     private:
@@ -773,7 +801,8 @@ namespace Py
             return *map_of_methods;
         }
 
-        static PyObject *method_keyword_call_handler( PyObject *_self_and_name_tuple, PyObject *_args, PyObject *_keywords )
+        // Note: Python calls noargs as varargs buts args==NULL
+        static PyObject *method_noargs_call_handler( PyObject *_self_and_name_tuple, PyObject * )
         {
             try
             {
@@ -793,14 +822,22 @@ namespace Py
 
                 MethodDefExt<T> *meth_def = i->second;
 
-                Tuple args( _args );
+                Object result;
 
-                // _keywords may be NULL so be careful about the way the dict is created
-                Dict keywords;
-                if( _keywords != NULL )
-                    keywords = Dict( _keywords );
-
-                Object result( ( self->*meth_def->ext_keyword_function )( args, keywords ) );
+                // Adding try & catch in case of STL debug-mode exceptions.
+                #ifdef _STLP_DEBUG
+                try
+                {
+                    result = (self->*meth_def->ext_noargs_function)();
+                }
+                catch( std::__stl_debug_exception )
+                {
+                    // throw cxx::RuntimeError( sErrMsg );
+                    throw RuntimeError( "Error message not set yet." );
+                }
+                #else
+                result = (self->*meth_def->ext_noargs_function)();
+                #endif // _STLP_DEBUG
 
                 return new_reference_to( result.ptr() );
             }
@@ -834,7 +871,7 @@ namespace Py
 
                 Object result;
 
-                // TMM: 7Jun'01 - Adding try & catch in case of STL debug-mode exceptions.
+                // Adding try & catch in case of STL debug-mode exceptions.
                 #ifdef _STLP_DEBUG
                 try
                 {
@@ -842,12 +879,48 @@ namespace Py
                 }
                 catch( std::__stl_debug_exception )
                 {
-                    // throw cxx::RuntimeError( sErrMsg );
-                    throw cxx::RuntimeError( "Error message not set yet." );
+                    throw RuntimeError( "Error message not set yet." );
                 }
                 #else
                 result = (self->*meth_def->ext_varargs_function)( args );
                 #endif // _STLP_DEBUG
+
+                return new_reference_to( result.ptr() );
+            }
+            catch( Exception & )
+            {
+                return 0;
+            }
+        }
+
+        static PyObject *method_keyword_call_handler( PyObject *_self_and_name_tuple, PyObject *_args, PyObject *_keywords )
+        {
+            try
+            {
+                Tuple self_and_name_tuple( _self_and_name_tuple );
+
+                PyObject *self_in_cobject = self_and_name_tuple[0].ptr();
+                T *self = static_cast<T *>( self_in_cobject );
+
+                String name( self_and_name_tuple[1] );
+
+                method_map_t &mm = methods();
+
+                EXPLICIT_TYPENAME method_map_t::const_iterator i;                
+                i = mm.find( name );
+                if( i == mm.end() )
+                    return 0;
+
+                MethodDefExt<T> *meth_def = i->second;
+
+                Tuple args( _args );
+
+                // _keywords may be NULL so be careful about the way the dict is created
+                Dict keywords;
+                if( _keywords != NULL )
+                    keywords = Dict( _keywords );
+
+                Object result( ( self->*meth_def->ext_keyword_function )( args, keywords ) );
 
                 return new_reference_to( result.ptr() );
             }
