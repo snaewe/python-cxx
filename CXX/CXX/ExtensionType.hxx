@@ -52,10 +52,10 @@ namespace Py
         const char *getName() const;
         const char *getDoc() const;
 
-        PyTypeObject* type_object() const;
-        PythonType &name( const char* nam );
-        PythonType &doc( const char* d );
-        PythonType &dealloc( void( *f )( PyObject* ) );
+        PyTypeObject *type_object() const;
+        PythonType &name( const char *nam );
+        PythonType &doc( const char *d );
+        PythonType &dealloc( void( *f )( PyObject * ) );
 
         PythonType &supportClass( void );
         PythonType &supportPrint( void );
