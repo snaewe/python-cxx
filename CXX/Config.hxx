@@ -107,14 +107,6 @@
 #    define TEMPLATE_TYPENAME class
 #endif
 
-// before 2.5 Py_ssize_t was missing
-#ifndef PY_MAJOR_VERSION
-#error not defined PY_MAJOR_VERSION
-#endif
-#if PY_MAJOR_VERSION < 2 || (PY_MAJOR_VERSION == 2 && PY_MINOR_VERSION < 5)
-typedef int Py_ssize_t;
-#endif
-
 // hash_map container usage selection
 // 1) if PYCXX_USING_STD_MAP is defined PyCXX will be using std::map<> container 
 //    implementation only.

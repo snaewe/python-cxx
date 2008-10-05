@@ -34,7 +34,9 @@ public:
         behaviors().doc( "documentation for cls class" );
         behaviors().supportGetattr();
 
-        add_varargs_method( "cls_func", &cls::cls_func );
+        add_noargs_method( "cls_func_noargs", &cls::cls_func_noargs );
+        add_varargs_method( "cls_func_varargs", &cls::cls_func_varargs );
+        add_keyword_method( "cls_func_keyword", &cls::cls_func_keyword );
     }
 
     // override functions from PythonExtension
@@ -43,9 +45,28 @@ public:
         return getattr_methods( name );
     }
 
-    Py::Object cls_func( const Py::Tuple &args )
+    Py::Object cls_func_noargs( void )
     {
-        std::cout << "Called with " << args.length() << " normal arguments." << std::endl;
+        std::cout << "cls_func_noargs Called." << std::endl;
+        return Py::None();
+    }
+
+    Py::Object cls_func_varargs( const Py::Tuple &args )
+    {
+        std::cout << "cls_func_varargs Called with " << args.length() << " normal arguments." << std::endl;
+        return Py::None();
+    }
+
+    Py::Object cls_func_keyword( const Py::Tuple &args, const Py::Dict &kws )
+    {
+        std::cout << "cls_func_keyword Called with " << args.length() << " normal arguments." << std::endl;
+        Py::List names( kws.keys() );
+        std::cout << "and with " << names.length() << " keyword arguments:" << std::endl;
+        for( Py::List::size_type i=0; i< names.length(); i++ )
+        {
+            Py::String name( names[i] );
+            std::cout << "    " << name << std::endl;
+        }
         return Py::None();
     }
 };
@@ -105,5 +126,5 @@ extern "C" PyObject *PyInit_simple()
 // symbol required for the debug version
 extern "C" PyObject *PyInit_simple_d()
 { 
-    PyInit_simple();
+    return PyInit_simple();
 }
