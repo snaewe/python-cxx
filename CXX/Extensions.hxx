@@ -167,8 +167,8 @@ namespace Py
         virtual ~ExtensionExceptionType();
 
         // call init to create the type
-        void init( ExtensionModuleBase &module, const std::string& name, ExtensionExceptionType &parent );
-        void init( ExtensionModuleBase &module, const std::string& name );
+        void init( ExtensionModuleBase &module, const std::string &name, ExtensionExceptionType &parent );
+        void init( ExtensionModuleBase &module, const std::string &name );
     };
 
     class MethodTable 
@@ -177,8 +177,8 @@ namespace Py
         MethodTable();
         virtual ~MethodTable();
 
-        void add( const char* method_name, PyCFunction f, const char* doc="", int flag=1 );
-        PyMethodDef* table();
+        void add( const char *method_name, PyCFunction f, const char *doc="", int flag=1 );
+        PyMethodDef *table();
 
     protected:
         std::vector<PyMethodDef> t;    // accumulator of PyMethodDef's
@@ -190,8 +190,8 @@ namespace Py
         //
         // prevent the compiler generating these unwanted functions
         //
-        MethodTable( const MethodTable& m );    //unimplemented
-        void operator=( const MethodTable& m );    //unimplemented
+        MethodTable( const MethodTable &m );    //unimplemented
+        void operator=( const MethodTable &m );    //unimplemented
 
     }; // end class MethodTable
 
