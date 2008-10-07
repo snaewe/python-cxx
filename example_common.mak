@@ -5,10 +5,11 @@
 #
 COMMON_OBJECTS=cxxsupport.o cxx_extensions.o cxxextensions.o IndirectPythonInterface.o
 SIMPLE_OBJECTS=simple.o
+SIMPLE2_OBJECTS=simple2.o
 EXAMPLE_OBJECTS=example.o range.o rangetest.o
 PYCXX_ITER_OBJECTS=pycxx_iter.o
 
-all: simple.so example.so pycxx_iter.so
+all: simple.so simple2.so example.so pycxx_iter.so
 
 #
 #	Simple
@@ -17,6 +18,15 @@ simple.so: $(SIMPLE_OBJECTS) $(COMMON_OBJECTS)
 	$(LDSHARED) -o $@ $(SIMPLE_OBJECTS) $(COMMON_OBJECTS) $(LDLIBS)
 
 simple.o: Demo/simple.cxx
+	$(CCC) $(CCCFLAGS) -o $@ $<
+
+#
+#	Simple2
+#
+simple2.so: $(SIMPLE2_OBJECTS) $(COMMON_OBJECTS)
+	$(LDSHARED) -o $@ $(SIMPLE2_OBJECTS) $(COMMON_OBJECTS) $(LDLIBS)
+
+simple2.o: Demo/simple2.cxx
 	$(CCC) $(CCCFLAGS) -o $@ $<
 
 #
@@ -65,6 +75,7 @@ clean:
 	rm -f *.o
 	rm -f example.so
 	rm -f simple.so
+	rm -f simple2.so
 	rm -f pycxx_iter.so
 
 #
