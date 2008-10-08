@@ -177,6 +177,7 @@ extern "C"
     static PyObject* getattro_handler (PyObject*, PyObject*);
     static int setattro_handler (PyObject*, PyObject*, PyObject*);
     static int compare_handler (PyObject*, PyObject*);
+    static PyObject* richcompare_handler (PyObject*, PyObject*, int op);
     static PyObject* repr_handler (PyObject*);
     static PyObject* str_handler (PyObject*);
     static long hash_handler (PyObject*);
@@ -455,6 +456,14 @@ PythonType & PythonType::supportCompare()
     return *this;
 }
 
+#if PY_MAJOR_VERSION > 2 || (PY_MAJOR_VERSION == 2 && PY_MINOR_VERSION >= 1)
+PythonType & PythonType::supportRichCompare()
+{
+    table->tp_richcompare = richcompare_handler;
+    return *this;
+}
+#endif
+
 PythonType & PythonType::supportRepr()
 {
     table->tp_repr = repr_handler;
@@ -568,6 +577,21 @@ extern "C" int compare_handler( PyObject *self, PyObject *other )
         return -1;    // indicate error
     }
 }
+
+#if PY_MAJOR_VERSION > 2 || (PY_MAJOR_VERSION == 2 && PY_MINOR_VERSION >= 1)
+extern "C" PyObject* richcompare_handler( PyObject *self, PyObject *other, int op )
+{
+    try
+    {
+        PythonExtensionBase *p = static_cast<PythonExtensionBase *>( self );
+        return new_reference_to( p->richCompare( Py::Object( other ), op ) );
+    }
+    catch( Py::Exception & )
+    {
+        return NULL;    // indicate error
+    }
+}
+#endif
 
 extern "C" PyObject* repr_handler( PyObject *self )
 {
@@ -1142,6 +1166,11 @@ int PythonExtensionBase::setattro( const Py::Object &, const Py::Object & )
 
 int PythonExtensionBase::compare( const Py::Object & )
 { missing_method( compare ); return -1; }
+
+#if PY_MAJOR_VERSION > 2 || (PY_MAJOR_VERSION == 2 && PY_MINOR_VERSION >= 1)
+Py::Object PythonExtensionBase::richCompare( const Py::Object &, int op )
+{ missing_method( richCompare ); return Py::None(); }
+#endif
 
 Py::Object PythonExtensionBase::repr()
 { missing_method( repr ); return Py::Nothing(); }
