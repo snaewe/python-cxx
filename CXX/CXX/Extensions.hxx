@@ -454,6 +454,9 @@ namespace Py
         PythonType & supportGetattro(void);
         PythonType & supportSetattro(void);
         PythonType & supportCompare(void);
+#if PY_MAJOR_VERSION > 2 || (PY_MAJOR_VERSION == 2 && PY_MINOR_VERSION >= 1)
+        PythonType & supportRichCompare(void);
+#endif
         PythonType & supportRepr(void);
         PythonType & supportStr(void);
         PythonType & supportHash(void);
@@ -521,6 +524,7 @@ namespace Py
         virtual Object getattro( const Object & );
         virtual int setattro( const Object &, const Object & );
         virtual int compare( const Object & );
+        virtual Object richCompare( const Object &, int op );
         virtual Object repr();
         virtual Object str();
         virtual long hash();
