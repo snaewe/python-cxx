@@ -584,7 +584,7 @@ extern "C" PyObject* richcompare_handler( PyObject *self, PyObject *other, int o
     try
     {
         PythonExtensionBase *p = static_cast<PythonExtensionBase *>( self );
-        return new_reference_to( p->richCompare( Py::Object( other ), op ) );
+        return new_reference_to( p->rich_compare( Py::Object( other ), op ) );
     }
     catch( Py::Exception & )
     {
