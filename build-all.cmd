@@ -20,6 +20,13 @@ call setup-msvc71
 echo on
 devenv example_py24.sln %ACTION% "%BUILD_TYPE%"  /project "example"
 devenv example_py24.sln %ACTION% "%BUILD_TYPE%"  /project "pycxx_iter"
+devenv example_py24.sln %ACTION% "%BUILD_TYPE%"  /project "simple"
+devenv example_py25.sln %ACTION% "%BUILD_TYPE%"  /project "example"
+devenv example_py25.sln %ACTION% "%BUILD_TYPE%"  /project "pycxx_iter"
+devenv example_py25.sln %ACTION% "%BUILD_TYPE%"  /project "simple"
+devenv example_py26.sln %ACTION% "%BUILD_TYPE%"  /project "example"
+devenv example_py26.sln %ACTION% "%BUILD_TYPE%"  /project "pycxx_iter"
+devenv example_py26.sln %ACTION% "%BUILD_TYPE%"  /project "simple"
 endlocal
 
 endlocal
