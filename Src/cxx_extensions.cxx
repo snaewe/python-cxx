@@ -1168,8 +1168,8 @@ int PythonExtensionBase::compare( const Py::Object & )
 { missing_method( compare ); return -1; }
 
 #if PY_MAJOR_VERSION > 2 || (PY_MAJOR_VERSION == 2 && PY_MINOR_VERSION >= 1)
-Py::Object PythonExtensionBase::richCompare( const Py::Object &, int op )
-{ missing_method( richCompare ); return Py::None(); }
+Py::Object PythonExtensionBase::rich_compare( const Py::Object &, int op )
+{ missing_method( rich_compare ); return Py::None(); }
 #endif
 
 Py::Object PythonExtensionBase::repr()
