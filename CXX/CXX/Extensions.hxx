@@ -524,13 +524,13 @@ namespace Py
         virtual Object getattro( const Object & );
         virtual int setattro( const Object &, const Object & );
         virtual int compare( const Object & );
-        virtual Object richCompare( const Object &, int op );
+        virtual Object rich_compare( const Object &, int op );
         virtual Object repr();
         virtual Object str();
         virtual long hash();
         virtual Object call( const Object &, const Object & );
-                virtual Object iter();
-                virtual PyObject* iternext();
+        virtual Object iter();
+        virtual PyObject* iternext();
         
         // Sequence methods
         virtual int sequence_length();
