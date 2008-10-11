@@ -403,10 +403,10 @@ test_STL()
     Py::Dict::iterator    it = d.begin();
     for( ; it != d.end(); ++it )
     {
-        Py::Dict::value_type    vt( *it );
+        Py::Dict::value_type vt( *it );
         Py::String rs = vt.second.repr();
         std::string ls = rs.operator std::string();
-        fprintf( stderr, "%s\n", ls.c_str() );
+        std::cout << "dict value " << ls.c_str() << std::endl;
     }
 
     return "ok";
@@ -561,9 +561,10 @@ private:
         std::cout << "Example Test starting" << std::endl;
         try
         {
-            Py::String s("this should fail");
-            std::cout << "Trying to convert a Py::String to an Py::Int" << std::endl;
-            Py::Int k(s.ptr());
+            PyObject *p = NULL;
+            std::cout << "Trying to convert a NULL to an Py::Int" << std::endl;
+            Py::Int k( p );
+            std::cout << "Failed to raise error" << std::endl;
         }
         catch (Py::TypeError& e)
         {
@@ -572,6 +573,23 @@ private:
             std::cout << "  Py::Exception traceback: " << Py::trace(e) << std::endl;
             e.clear();
         }
+
+        try
+        {
+            Py::String s("this should fail");
+            PyObject *p = s.ptr();
+            std::cout << "Trying to convert a Py::String to an Py::Int" << std::endl;
+            Py::Int k( p );
+            std::cout << "Failed to raise error" << std::endl;
+        }
+        catch (Py::TypeError& e)
+        {
+            std::cout << "Correctly caught " << Py::type(e) << std::endl;
+            std::cout << "  Py::Exception value: " << Py::value(e) << std::endl;
+            std::cout << "  Py::Exception traceback: " << Py::trace(e) << std::endl;
+            e.clear();
+        }
+
         debug_check_ref_queue();
 
         std::string result = test_boolean();

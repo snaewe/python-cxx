@@ -41,6 +41,41 @@
 
 namespace Py 
 {
+
+void Object::validate()
+{
+    // release pointer if not the right type
+    if( !accepts( p ) )
+    {
+#if defined( _CPPRTTI ) || defined( __GNUG__ )
+        std::string s( "PyCXX: Error creating object of type " );
+        s += (typeid( *this )).name();
+
+        if( p != 0 )
+        {
+            String from_repr = repr();
+            s += " from ";
+            s += from_repr.as_std_string();
+        }
+        else
+        {
+            s += " from (nil)";
+        }
+#endif
+        release();
+        if( PyErr_Occurred() )
+        { // Error message already set
+            throw Exception();
+        }
+        // Better error message if RTTI available
+#if defined( _CPPRTTI ) || defined( __GNUG__ )
+        throw TypeError( s );
+#else
+        throw TypeError( "PyCXX: type error." );
+#endif
+    }
+}
+
 //================================================================================
 //
 //    Implementation of MethodTable

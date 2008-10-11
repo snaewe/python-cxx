@@ -168,26 +168,7 @@ namespace Py
             p = 0;
         }
 
-        void validate()
-        {
-            // release pointer if not the right type
-            if (! accepts (p))
-            {
-                release ();
-                if(PyErr_Occurred())
-                { // Error message already set
-                    throw Exception();
-                }
-                // Better error message if RTTI available
-#if defined( _CPPRTTI ) || defined(__GNUG__)
-                std::string s("CXX : Error creating object of type ");
-                s += (typeid (*this)).name();
-                throw TypeError (s);
-#else
-                throw TypeError ("CXX: type error.");
-#endif
-            }
-        }
+        void validate();
 
     public:
         // Constructor acquires new ownership of pointer unless explicitly told not to.
