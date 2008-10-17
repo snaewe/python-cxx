@@ -18,4 +18,4 @@ How to release PyCXX
    7. Edit file properties
    8. Send Email notification
 5. Update docs on the PyCXX homepage
-   1. scp <file> barry-scott@shell.sourceforge.net:/home/groups/c/cx/cxx/htdocs
+   1. scp <file> barry-scott,cxx@web.sourceforge.net:/home/groups/c/cx/cxx/htdocs
