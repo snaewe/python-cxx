@@ -173,26 +173,7 @@ namespace Py
             p = 0;
         }
 
-        void validate()
-        {
-            // release pointer if not the right type
-            if( ! accepts( p ) )
-            {
-                release();
-                if( PyErr_Occurred() )
-                { // Error message already set
-                    throw Exception();
-                }
-                // Better error message if RTTI available
-#if defined( _CPPRTTI ) || defined( __GNUG__ )
-                std::string s( "CXX : Error creating object of type " );
-                s +=( typeid( *this ) ).name();
-                throw TypeError( s );
-#else
-                throw TypeError( "CXX: type error." );
-#endif
-            }
-        }
+        void validate();
 
     public:
         // Constructor acquires new ownership of pointer unless explicitly told not to.
@@ -776,140 +757,63 @@ namespace Py
         }
     };
 
-#if 0
+#ifdef PYCXX_PYTHON_2TO3
+    // PyCXX for Python2 had an Int and LongLong classes
+    typedef Long Int;
+#ifdef HAVE_LONG_LONG
+    typedef Long LongLong;
+#endif
+#endif
+
+#if 1
     //------------------------------------------------------------
     // compare operators
-    bool operator!=( const Long &a, long b )
-    {
-        return a.as_long() != b;
-    }
-
-    bool operator!=( long a, const Long &b )
-    {
-        return a != b.as_long();
-    }
-
+    bool operator!=( const Long &a, long b );
+    bool operator!=( long a, const Long &b );
     //------------------------------
-    bool operator==( const Long &a, long b )
-    {
-        return a.as_long() == b;
-    }
-
-    bool operator==( long a, const Long &b )
-    {
-        return a == b.as_long();
-    }
-
+    bool operator==( const Long &a, long b );
+    bool operator==( int a, const Long &b );
+    bool operator==( long a, const Long &b );
     //------------------------------
-    bool operator>( const Long &a, long b )
-    {
-        return a.as_long() > b;
-    }
-
-    bool operator>( long a, const Long &b )
-    {
-        return a > b.as_long();
-    }
-
+    bool operator>( const Long &a, int b );
+    bool operator>( const Long &a, long b );
+    bool operator>( int a, const Long &b );
+    bool operator>( long a, const Long &b );
     //------------------------------
-    bool operator>=( const Long &a, long b )
-    {
-        return a.as_long() >= b;
-    }
-
-    bool operator>=( long a, const Long &b )
-    {
-        return a >= b.as_long();
-    }
-
+    bool operator>=( const Long &a, int b );
+    bool operator>=( const Long &a, long b );
+    bool operator>=( int a, const Long &b );
+    bool operator>=( long a, const Long &b );
     //------------------------------
-    bool operator<( const Long &a, long b )
-    {
-        return a.as_long() < b;
-    }
-
-    bool operator<( long a, const Long &b )
-    {
-        return a < b.as_long();
-    }
-
+    bool operator<( const Long &a, int b );
+    bool operator<( const Long &a, long b );
+    bool operator<( int a, const Long &b );
+    bool operator<( long a, const Long &b );
     //------------------------------
-    bool operator<=( const Long &a, long b )
-    {
-        return a.as_long() <= b;
-    }
-
-    bool operator<=( long a, const Long &b )
-    {
-        return a <= b.as_long();
-    }
+    bool operator<=( int a, const Long &b );
+    bool operator<=( long a, const Long &b );
+    bool operator<=( const Long &a, int b );
+    bool operator<=( const Long &a, long b );
 
 #ifdef HAVE_LONG_LONG
     //------------------------------
-    bool operator!=( const Long &a, PY_LONG_LONG b )
-    {
-        return a.as_long_long() != b;
-    }
-
-    bool operator!=( PY_LONG_LONG a, const Long &b )
-    {
-        return a != b.as_long_long();
-    }
-
+    bool operator!=( const Long &a, PY_LONG_LONG b );
+    bool operator!=( PY_LONG_LONG a, const Long &b );
     //------------------------------
-    bool operator==( const Long &a, PY_LONG_LONG b )
-    {
-        return a.as_long_long() == b;
-    }
-
-    bool operator==( PY_LONG_LONG a, const Long &b )
-    {
-        return a == b.as_long_long();
-    }
-
+    bool operator==( const Long &a, PY_LONG_LONG b );
+    bool operator==( PY_LONG_LONG a, const Long &b );
     //------------------------------
-    bool operator>( const Long &a, PY_LONG_LONG b )
-    {
-        return a.as_long_long() > b;
-    }
-
-    bool operator>( PY_LONG_LONG a, const Long &b )
-    {
-        return a > b.as_long_long();
-    }
-
+    bool operator>( const Long &a, PY_LONG_LONG b );
+    bool operator>( PY_LONG_LONG a, const Long &b );
     //------------------------------
-    bool operator>=( const Long &a, PY_LONG_LONG b )
-    {
-        return a.as_long_long() >= b;
-    }
-
-    bool operator>=( PY_LONG_LONG a, const Long &b )
-    {
-        return a >= b.as_long_long();
-    }
-
+    bool operator>=( const Long &a, PY_LONG_LONG b );
+    bool operator>=( PY_LONG_LONG a, const Long &b );
     //------------------------------
-    bool operator<( const Long &a, PY_LONG_LONG b )
-    {
-        return a.as_long_long() < b;
-    }
-
-    bool operator<( PY_LONG_LONG a, const Long &b )
-    {
-        return a < b.as_long_long();
-    }
-
+    bool operator<( const Long &a, PY_LONG_LONG b );
+    bool operator<( PY_LONG_LONG a, const Long &b );
     //------------------------------
-    bool operator<=( const Long &a, PY_LONG_LONG b )
-    {
-        return a.as_long_long() <= b;
-    }
-
-    bool operator<=( PY_LONG_LONG a, const Long &b )
-    {
-        return a <= b.as_long_long();
-    }
+    bool operator<=( const Long &a, PY_LONG_LONG b );
+    bool operator<=( PY_LONG_LONG a, const Long &b );
 #endif
 #endif
 

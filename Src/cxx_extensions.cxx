@@ -41,6 +41,41 @@
 
 namespace Py 
 {
+
+void Object::validate()
+{
+    // release pointer if not the right type
+    if( !accepts( p ) )
+    {
+#if defined( _CPPRTTI ) || defined( __GNUG__ )
+        std::string s( "PyCXX: Error creating object of type " );
+        s += (typeid( *this )).name();
+
+        if( p != 0 )
+        {
+            String from_repr = repr();
+            s += " from ";
+            s += from_repr.as_std_string();
+        }
+        else
+        {
+            s += " from (nil)";
+        }
+#endif
+        release();
+        if( PyErr_Occurred() )
+        { // Error message already set
+            throw Exception();
+        }
+        // Better error message if RTTI available
+#if defined( _CPPRTTI ) || defined( __GNUG__ )
+        throw TypeError( s );
+#else
+        throw TypeError( "PyCXX: type error." );
+#endif
+    }
+}
+
 //================================================================================
 //
 //    Implementation of MethodTable
@@ -411,7 +446,7 @@ PythonType::PythonType( size_t basic_size, int itemsize, const char *default_nam
     table->tp_del = 0;
 
     // Type attribute cache version tag. Added in version 2.6
-    unsigned int tp_version_tag;
+    table->tp_version_tag = 0;
 
 #ifdef COUNT_ALLOCS
     table->tp_alloc = 0;
@@ -1640,4 +1675,193 @@ Exception::Exception( PyObject *exception, Object &reason )
     PyErr_SetObject( exception, reason.ptr() );
 }        
 
+#if 1
+//------------------------------------------------------------
+// compare operators
+bool operator!=( const Long &a, long b )
+{
+    return a.as_long() != b;
+}
+
+bool operator!=( long a, const Long &b )
+{
+    return a != b.as_long();
+}
+
+//------------------------------
+bool operator==( const Long &a, int b )
+{
+    return a.as_long() == b;
+}
+
+bool operator==( const Long &a, long b )
+{
+    return a.as_long() == b;
+}
+
+bool operator==( int a, const Long &b )
+{
+    return a == b.as_long();
+}
+
+bool operator==( long a, const Long &b )
+{
+    return a == b.as_long();
+}
+
+//------------------------------
+bool operator>( const Long &a, int b )
+{
+    return a.as_long() > b;
+}
+
+bool operator>( const Long &a, long b )
+{
+    return a.as_long() > b;
+}
+
+bool operator>( int a, const Long &b )
+{
+    return a > b.as_long();
+}
+
+bool operator>( long a, const Long &b )
+{
+    return a > b.as_long();
+}
+
+//------------------------------
+bool operator>=( const Long &a, int b )
+{
+    return a.as_long() >= b;
+}
+
+bool operator>=( const Long &a, long b )
+{
+    return a.as_long() >= b;
+}
+
+bool operator>=( int a, const Long &b )
+{
+    return a >= b.as_long();
+}
+
+bool operator>=( long a, const Long &b )
+{
+    return a >= b.as_long();
+}
+
+//------------------------------
+bool operator<( const Long &a, int b )
+{
+    return a.as_long() < b;
+}
+
+bool operator<( const Long &a, long b )
+{
+    return a.as_long() < b;
+}
+
+bool operator<( int a, const Long &b )
+{
+    return a < b.as_long();
+}
+
+bool operator<( long a, const Long &b )
+{
+    return a < b.as_long();
+}
+
+//------------------------------
+bool operator<=( int a, const Long &b )
+{
+    return a <= b.as_long();
+}
+
+bool operator<=( long a, const Long &b )
+{
+    return a <= b.as_long();
+}
+
+bool operator<=( const Long &a, int b )
+{
+    return a.as_long() <= b;
+}
+
+bool operator<=( const Long &a, long b )
+{
+    return a.as_long() <= b;
+}
+
+#ifdef HAVE_LONG_LONG
+//------------------------------
+bool operator!=( const Long &a, PY_LONG_LONG b )
+{
+    return a.as_long_long() != b;
+}
+
+bool operator!=( PY_LONG_LONG a, const Long &b )
+{
+    return a != b.as_long_long();
+}
+
+//------------------------------
+bool operator==( const Long &a, PY_LONG_LONG b )
+{
+    return a.as_long_long() == b;
+}
+
+bool operator==( PY_LONG_LONG a, const Long &b )
+{
+    return a == b.as_long_long();
+}
+
+//------------------------------
+bool operator>( const Long &a, PY_LONG_LONG b )
+{
+    return a.as_long_long() > b;
+}
+
+bool operator>( PY_LONG_LONG a, const Long &b )
+{
+    return a > b.as_long_long();
+}
+
+//------------------------------
+bool operator>=( const Long &a, PY_LONG_LONG b )
+{
+    return a.as_long_long() >= b;
+}
+
+bool operator>=( PY_LONG_LONG a, const Long &b )
+{
+    return a >= b.as_long_long();
+}
+
+//------------------------------
+bool operator<( const Long &a, PY_LONG_LONG b )
+{
+    return a.as_long_long() < b;
+}
+
+bool operator<( PY_LONG_LONG a, const Long &b )
+{
+    return a < b.as_long_long();
+}
+
+//------------------------------
+bool operator<=( const Long &a, PY_LONG_LONG b )
+{
+    return a.as_long_long() <= b;
+}
+
+bool operator<=( PY_LONG_LONG a, const Long &b )
+{
+    return a <= b.as_long_long();
+}
+#endif
+#endif
+
+
 }    // end of namespace Py
+
