@@ -221,7 +221,7 @@ namespace Py
         explicit PythonExtension()
         : PythonExtensionBase()
         {
-            PyObject_INIT( this, type_object() );
+            PyObject_Init( this, type_object() );
 
             // every object must support getattr
             behaviors().supportGetattr();
