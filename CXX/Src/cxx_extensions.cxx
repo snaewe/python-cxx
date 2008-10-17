@@ -41,6 +41,33 @@
 
 namespace Py 
 {
+#ifdef PYCXX_PYTHON_2TO3
+std::string String::as_std_string( const char *encoding, const char *error ) const
+{
+    if( isUnicode() )
+    {
+        Bytes encoded( encode( encoding, error ) );
+        return encoded.as_std_string();
+    }
+    else
+    {
+        return std::string( PyString_AsString( ptr() ), static_cast<size_type>( PyString_Size( ptr() ) ) );
+    }
+}
+
+Bytes String::encode( const char *encoding, const char *error ) const
+{
+    if( isUnicode() )
+    {
+        return Bytes( PyUnicode_AsEncodedString( ptr(), encoding, error ) );
+    }
+    else
+    {
+        return Bytes( PyString_AsEncodedObject( ptr(), encoding, error ) );
+    }
+}
+
+#endif
 
 void Object::validate()
 {
@@ -55,7 +82,7 @@ void Object::validate()
         {
             String from_repr = repr();
             s += " from ";
-            s += from_repr.as_std_string();
+            s += from_repr.as_std_string( "utf-8" );
         }
         else
         {
@@ -1360,7 +1387,7 @@ extern "C" PyObject *method_keyword_call_handler( PyObject *_self_and_name_tuple
         ExtensionModuleBase *self = static_cast<ExtensionModuleBase *>( self_as_void );
 
         String py_name( self_and_name_tuple[1] );
-        std::string name( py_name.as_std_string() );
+        std::string name( py_name.as_std_string( "utf-8" ) );
 
         Tuple args( _args );
         if( _keywords == NULL )
@@ -1396,7 +1423,7 @@ extern "C" PyObject *method_varargs_call_handler( PyObject *_self_and_name_tuple
         ExtensionModuleBase *self = static_cast<ExtensionModuleBase *>( self_as_void );
 
         String py_name( self_and_name_tuple[1] );
-        std::string name( py_name.as_std_string() );
+        std::string name( py_name.as_std_string( "utf-8" ) );
 
         Tuple args( _args );
 
