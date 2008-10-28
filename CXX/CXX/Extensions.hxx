@@ -276,6 +276,9 @@ namespace Py
 } // Namespace Py
 
 #include "CXX/ExtensionModule.hxx"
+#include "CXX/PythonType.hxx"
+#include "CXX/ExtensionTypeBase.hxx"
+#include "CXX/ExtensionOldType.hxx"
 #include "CXX/ExtensionType.hxx"
 
 // End of CXX_Extensions.h

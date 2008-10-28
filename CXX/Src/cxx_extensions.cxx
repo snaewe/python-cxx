@@ -39,8 +39,12 @@
 
 #include <assert.h>
 
+void bpt( void )
+{}
+
 namespace Py 
 {
+
 
 void Object::validate()
 {
@@ -51,7 +55,7 @@ void Object::validate()
         std::string s( "PyCXX: Error creating object of type " );
         s += (typeid( *this )).name();
 
-        if( p != 0 )
+        if( p != NULL )
         {
             String from_repr = repr();
             s += " from ";
@@ -95,7 +99,7 @@ PyMethodDef MethodTable::method( const char *method_name, PyCFunction f, int fla
 MethodTable::MethodTable()
 {
     t.push_back( method( 0, 0, 0, 0 ) );
-    mt = 0;
+    mt = NULL;
 }
 
 MethodTable::~MethodTable()
@@ -121,7 +125,7 @@ PyMethodDef *MethodTable::table()
     {
         Py_ssize_t t1size = t.size();
         mt = new PyMethodDef[ t1size ];
-        int j = 0;
+        int j = NULL;
         for( std::vector<PyMethodDef>::iterator i = t.begin(); i != t.end(); i++ )
         {
             mt[j++] = *i;
@@ -268,6 +272,11 @@ extern "C"
 extern "C" void standard_dealloc( PyObject *p )
 {
     PyMem_DEL( p );
+}
+
+bool PythonType::readyType()
+{
+    return PyType_Ready( table ) >= 0;
 }
 
 PythonType &PythonType::supportSequenceType()
@@ -493,9 +502,21 @@ const char *PythonType::getDoc() const
     return table->tp_doc;
 }
 
-PythonType &PythonType::dealloc( void( *f )( PyObject * ) )
+PythonType &PythonType::set_tp_dealloc( void (*tp_dealloc)( PyObject *self ) )
 {
-    table->tp_dealloc = f;
+    table->tp_dealloc = tp_dealloc;
+    return *this;
+}
+
+PythonType &PythonType::set_tp_init( int (*tp_init)(PyObject *self, PyObject *args, PyObject *kwds) )
+{
+    table->tp_init = tp_init;
+    return *this;
+}
+
+PythonType &PythonType::set_tp_new( PyObject *(*tp_new)( PyTypeObject *subtype, PyObject *args, PyObject *kwds ) )
+{
+    table->tp_new = tp_new;
     return *this;
 }
 
@@ -505,11 +526,13 @@ PythonType &PythonType::supportClass()
     return *this;
 }
 
+#ifdef PYCXX_PYTHON_2TO3
 PythonType &PythonType::supportPrint()
 {
     table->tp_print = print_handler;
     return *this;
 }
+#endif
 
 PythonType &PythonType::supportGetattr()
 {
@@ -583,11 +606,25 @@ PythonType &PythonType::supportIter()
 //    Handlers
 //
 //--------------------------------------------------------------------------------
+PythonExtensionBase *getPythonExtensionBase( PyObject *self )
+{
+    if( self->ob_type->tp_flags&Py_TPFLAGS_BASETYPE )
+    {
+        PythonClassInstance *instance = reinterpret_cast<PythonClassInstance *>( self );
+        return instance->cxx_object;
+    }
+    else
+    {
+        return static_cast<PythonExtensionBase *>( self );
+    }
+}
+
+#ifdef PYCXX_PYTHON_2TO3
 extern "C" int print_handler( PyObject *self, FILE *fp, int flags )
 {
     try
     {
-        PythonExtensionBase *p = static_cast<PythonExtensionBase *>( self );
+        PythonExtensionBase *p = getPythonExtensionBase( self );
         return p->print( fp, flags );
     }
     catch( Py::Exception & )
@@ -595,12 +632,13 @@ extern "C" int print_handler( PyObject *self, FILE *fp, int flags )
         return -1;    // indicate error
     }
 }
+#endif
 
 extern "C" PyObject *getattr_handler( PyObject *self, char *name )
 {
     try
     {
-        PythonExtensionBase *p = static_cast<PythonExtensionBase *>( self );
+        PythonExtensionBase *p = getPythonExtensionBase( self );
         return new_reference_to( p->getattr( name ) );
     }
     catch( Py::Exception & )
@@ -613,7 +651,7 @@ extern "C" int setattr_handler( PyObject *self, char *name, PyObject *value )
 {
     try
     {
-        PythonExtensionBase *p = static_cast<PythonExtensionBase *>( self );
+        PythonExtensionBase *p = getPythonExtensionBase( self );
         return p->setattr( name, Py::Object( value ) );
     }
     catch( Py::Exception & )
@@ -626,7 +664,7 @@ extern "C" PyObject *getattro_handler( PyObject *self, PyObject *name )
 {
     try
     {
-        PythonExtensionBase *p = static_cast<PythonExtensionBase *>( self );
+        PythonExtensionBase *p = getPythonExtensionBase( self );
         return new_reference_to( p->getattro( Py::Object( name ) ) );
     }
     catch( Py::Exception & )
@@ -639,7 +677,7 @@ extern "C" int setattro_handler( PyObject *self, PyObject *name, PyObject *value
 {
     try
     {
-        PythonExtensionBase *p = static_cast<PythonExtensionBase *>( self );
+        PythonExtensionBase *p = getPythonExtensionBase( self );
         return p->setattro( Py::Object( name ), Py::Object( value ) );
     }
     catch( Py::Exception & )
@@ -652,7 +690,7 @@ extern "C" int compare_handler( PyObject *self, PyObject *other )
 {
     try
     {
-        PythonExtensionBase *p = static_cast<PythonExtensionBase *>( self );
+        PythonExtensionBase *p = getPythonExtensionBase( self );
         return p->compare( Py::Object( other ) );
     }
     catch( Py::Exception & )
@@ -665,7 +703,7 @@ extern "C" PyObject *rich_compare_handler( PyObject *self, PyObject *other, int 
 {
     try
     {
-        PythonExtensionBase *p = static_cast<PythonExtensionBase *>( self );
+        PythonExtensionBase *p = getPythonExtensionBase( self );
         return new_reference_to( p->rich_compare( Py::Object( other ), op ) );
     }
     catch( Py::Exception & )
@@ -678,7 +716,7 @@ extern "C" PyObject *repr_handler( PyObject *self )
 {
     try
     {
-        PythonExtensionBase *p = static_cast<PythonExtensionBase *>( self );
+        PythonExtensionBase *p = getPythonExtensionBase( self );
         return new_reference_to( p->repr() );
     }
     catch( Py::Exception & )
@@ -691,7 +729,7 @@ extern "C" PyObject *str_handler( PyObject *self )
 {
     try
     {
-        PythonExtensionBase *p = static_cast<PythonExtensionBase *>( self );
+        PythonExtensionBase *p = getPythonExtensionBase( self );
         return new_reference_to( p->str() );
     }
     catch( Py::Exception & )
@@ -704,7 +742,7 @@ extern "C" long hash_handler( PyObject *self )
 {
     try
     {
-        PythonExtensionBase *p = static_cast<PythonExtensionBase *>( self );
+        PythonExtensionBase *p = getPythonExtensionBase( self );
         return p->hash();
     }
     catch( Py::Exception & )
@@ -717,7 +755,7 @@ extern "C" PyObject *call_handler( PyObject *self, PyObject *args, PyObject *kw 
 {
     try
     {
-        PythonExtensionBase *p = static_cast<PythonExtensionBase *>( self );
+        PythonExtensionBase *p = getPythonExtensionBase( self );
         if( kw != NULL )
             return new_reference_to( p->call( Py::Object( args ), Py::Object( kw ) ) );
         else
@@ -733,7 +771,7 @@ extern "C" PyObject *iter_handler( PyObject *self )
 {
     try
     {
-        PythonExtensionBase *p = static_cast<PythonExtensionBase *>( self );
+        PythonExtensionBase *p = getPythonExtensionBase( self );
         return new_reference_to( p->iter() );
     }
     catch( Py::Exception & )
@@ -746,7 +784,7 @@ extern "C" PyObject *iternext_handler( PyObject *self )
 {
     try
     {
-        PythonExtensionBase *p = static_cast<PythonExtensionBase *>( self );
+        PythonExtensionBase *p = getPythonExtensionBase( self );
         return p->iternext();  // might be a NULL ptr on end of iteration
     }
     catch( Py::Exception & )
@@ -761,7 +799,7 @@ extern "C" Py_ssize_t sequence_length_handler( PyObject *self )
 {
     try
     {
-        PythonExtensionBase *p = static_cast<PythonExtensionBase *>( self );
+        PythonExtensionBase *p = getPythonExtensionBase( self );
         return p->sequence_length();
     }
     catch( Py::Exception & )
@@ -774,7 +812,7 @@ extern "C" PyObject *sequence_concat_handler( PyObject *self, PyObject *other )
 {
     try
     {
-        PythonExtensionBase *p = static_cast<PythonExtensionBase *>( self );
+        PythonExtensionBase *p = getPythonExtensionBase( self );
         return new_reference_to( p->sequence_concat( Py::Object( other ) ) );
     }
     catch( Py::Exception & )
@@ -787,7 +825,7 @@ extern "C" PyObject *sequence_repeat_handler( PyObject *self, Py_ssize_t count )
 {
     try
     {
-        PythonExtensionBase *p = static_cast<PythonExtensionBase *>( self );
+        PythonExtensionBase *p = getPythonExtensionBase( self );
         return new_reference_to( p->sequence_repeat( count ) );
     }
     catch( Py::Exception & )
@@ -800,7 +838,7 @@ extern "C" PyObject *sequence_item_handler( PyObject *self, Py_ssize_t index )
 {
     try
     {
-        PythonExtensionBase *p = static_cast<PythonExtensionBase *>( self );
+        PythonExtensionBase *p = getPythonExtensionBase( self );
         return new_reference_to( p->sequence_item( index ) );
     }
     catch( Py::Exception & )
@@ -813,7 +851,7 @@ extern "C" PyObject *sequence_slice_handler( PyObject *self, Py_ssize_t first, P
 {
     try
     {
-        PythonExtensionBase *p = static_cast<PythonExtensionBase *>( self );
+        PythonExtensionBase *p = getPythonExtensionBase( self );
         return new_reference_to( p->sequence_slice( first, last ) );
     }
     catch( Py::Exception & )
@@ -826,7 +864,7 @@ extern "C" int sequence_ass_item_handler( PyObject *self, Py_ssize_t index, PyOb
 {
     try
     {
-        PythonExtensionBase *p = static_cast<PythonExtensionBase *>( self );
+        PythonExtensionBase *p = getPythonExtensionBase( self );
         return p->sequence_ass_item( index, Py::Object( value ) );
     }
     catch( Py::Exception & )
@@ -839,7 +877,7 @@ extern "C" int sequence_ass_slice_handler( PyObject *self, Py_ssize_t first, Py_
 {
     try
     {
-        PythonExtensionBase *p = static_cast<PythonExtensionBase *>( self );
+        PythonExtensionBase *p = getPythonExtensionBase( self );
         return p->sequence_ass_slice( first, last, Py::Object( value ) );
     }
     catch( Py::Exception & )
@@ -853,7 +891,7 @@ extern "C" Py_ssize_t mapping_length_handler( PyObject *self )
 {
     try
     {
-        PythonExtensionBase *p = static_cast<PythonExtensionBase *>( self );
+        PythonExtensionBase *p = getPythonExtensionBase( self );
         return p->mapping_length();
     }
     catch( Py::Exception & )
@@ -866,7 +904,7 @@ extern "C" PyObject *mapping_subscript_handler( PyObject *self, PyObject *key )
 {
     try
     {
-        PythonExtensionBase *p = static_cast<PythonExtensionBase *>( self );
+        PythonExtensionBase *p = getPythonExtensionBase( self );
         return new_reference_to( p->mapping_subscript( Py::Object( key ) ) );
     }
     catch( Py::Exception & )
@@ -879,7 +917,7 @@ extern "C" int mapping_ass_subscript_handler( PyObject *self, PyObject *key, PyO
 {
     try
     {
-        PythonExtensionBase *p = static_cast<PythonExtensionBase *>( self );
+        PythonExtensionBase *p = getPythonExtensionBase( self );
         return p->mapping_ass_subscript( Py::Object( key ), Py::Object( value ) );
     }
     catch( Py::Exception & )
@@ -893,7 +931,7 @@ extern "C" int number_nonzero_handler( PyObject *self )
 {
     try
     {
-        PythonExtensionBase *p = static_cast<PythonExtensionBase *>( self );
+        PythonExtensionBase *p = getPythonExtensionBase( self );
         return p->number_nonzero();
     }
     catch( Py::Exception & )
@@ -906,7 +944,7 @@ extern "C" PyObject *number_negative_handler( PyObject *self )
 {
     try
     {
-        PythonExtensionBase *p = static_cast<PythonExtensionBase *>( self );
+        PythonExtensionBase *p = getPythonExtensionBase( self );
         return new_reference_to( p->number_negative() );
     }
     catch( Py::Exception & )
@@ -919,7 +957,7 @@ extern "C" PyObject *number_positive_handler( PyObject *self )
 {
     try
     {
-        PythonExtensionBase *p = static_cast<PythonExtensionBase *>( self );
+        PythonExtensionBase *p = getPythonExtensionBase( self );
         return new_reference_to( p->number_positive() );
     }
     catch( Py::Exception & )
@@ -932,7 +970,7 @@ extern "C" PyObject *number_absolute_handler( PyObject *self )
 {
     try
     {
-        PythonExtensionBase *p = static_cast<PythonExtensionBase *>( self );
+        PythonExtensionBase *p = getPythonExtensionBase( self );
         return new_reference_to( p->number_absolute() );
     }
     catch( Py::Exception & )
@@ -945,7 +983,7 @@ extern "C" PyObject *number_invert_handler( PyObject *self )
 {
     try
     {
-        PythonExtensionBase *p = static_cast<PythonExtensionBase *>( self );
+        PythonExtensionBase *p = getPythonExtensionBase( self );
         return new_reference_to( p->number_invert() );
     }
     catch( Py::Exception & )
@@ -958,7 +996,7 @@ extern "C" PyObject *number_int_handler( PyObject *self )
 {
     try
     {
-        PythonExtensionBase *p = static_cast<PythonExtensionBase *>( self );
+        PythonExtensionBase *p = getPythonExtensionBase( self );
         return new_reference_to( p->number_int() );
     }
     catch( Py::Exception & )
@@ -971,7 +1009,7 @@ extern "C" PyObject *number_float_handler( PyObject *self )
 {
     try
     {
-        PythonExtensionBase *p = static_cast<PythonExtensionBase *>( self );
+        PythonExtensionBase *p = getPythonExtensionBase( self );
         return new_reference_to( p->number_float() );
     }
     catch( Py::Exception & )
@@ -984,7 +1022,7 @@ extern "C" PyObject *number_long_handler( PyObject *self )
 {
     try
     {
-        PythonExtensionBase *p = static_cast<PythonExtensionBase *>( self );
+        PythonExtensionBase *p = getPythonExtensionBase( self );
         return new_reference_to( p->number_long() );
     }
     catch( Py::Exception & )
@@ -997,7 +1035,7 @@ extern "C" PyObject *number_oct_handler( PyObject *self )
 {
     try
     {
-        PythonExtensionBase *p = static_cast<PythonExtensionBase *>( self );
+        PythonExtensionBase *p = getPythonExtensionBase( self );
         return new_reference_to( p->number_oct() );
     }
     catch( Py::Exception & )
@@ -1010,7 +1048,7 @@ extern "C" PyObject *number_hex_handler( PyObject *self )
 {
     try
     {
-        PythonExtensionBase *p = static_cast<PythonExtensionBase *>( self );
+        PythonExtensionBase *p = getPythonExtensionBase( self );
         return new_reference_to( p->number_hex() );
     }
     catch( Py::Exception & )
@@ -1023,7 +1061,7 @@ extern "C" PyObject *number_add_handler( PyObject *self, PyObject *other )
 {
     try
     {
-        PythonExtensionBase *p = static_cast<PythonExtensionBase *>( self );
+        PythonExtensionBase *p = getPythonExtensionBase( self );
         return new_reference_to( p->number_add( Py::Object( other ) ) );
     }
     catch( Py::Exception & )
@@ -1036,7 +1074,7 @@ extern "C" PyObject *number_subtract_handler( PyObject *self, PyObject *other )
 {
     try
     {
-        PythonExtensionBase *p = static_cast<PythonExtensionBase *>( self );
+        PythonExtensionBase *p = getPythonExtensionBase( self );
         return new_reference_to( p->number_subtract( Py::Object( other ) ) );
     }
     catch( Py::Exception & )
@@ -1049,7 +1087,7 @@ extern "C" PyObject *number_multiply_handler( PyObject *self, PyObject *other )
 {
     try
     {
-        PythonExtensionBase *p = static_cast<PythonExtensionBase *>( self );
+        PythonExtensionBase *p = getPythonExtensionBase( self );
         return new_reference_to( p->number_multiply( Py::Object( other ) ) );
     }
     catch( Py::Exception & )
@@ -1062,7 +1100,7 @@ extern "C" PyObject *number_divide_handler( PyObject *self, PyObject *other )
 {
     try
     {
-        PythonExtensionBase *p = static_cast<PythonExtensionBase *>( self );
+        PythonExtensionBase *p = getPythonExtensionBase( self );
         return new_reference_to( p->number_divide( Py::Object( other ) ) );
     }
     catch( Py::Exception & )
@@ -1075,7 +1113,7 @@ extern "C" PyObject *number_remainder_handler( PyObject *self, PyObject *other )
 {
     try
     {
-        PythonExtensionBase *p = static_cast<PythonExtensionBase *>( self );
+        PythonExtensionBase *p = getPythonExtensionBase( self );
         return new_reference_to( p->number_remainder( Py::Object( other ) ) );
     }
     catch( Py::Exception & )
@@ -1088,7 +1126,7 @@ extern "C" PyObject *number_divmod_handler( PyObject *self, PyObject *other )
 {
     try
     {
-        PythonExtensionBase *p = static_cast<PythonExtensionBase *>( self );
+        PythonExtensionBase *p = getPythonExtensionBase( self );
         return new_reference_to( p->number_divmod( Py::Object( other ) ) );
     }
     catch( Py::Exception & )
@@ -1101,7 +1139,7 @@ extern "C" PyObject *number_lshift_handler( PyObject *self, PyObject *other )
 {
     try
     {
-        PythonExtensionBase *p = static_cast<PythonExtensionBase *>( self );
+        PythonExtensionBase *p = getPythonExtensionBase( self );
         return new_reference_to( p->number_lshift( Py::Object( other ) ) );
     }
     catch( Py::Exception & )
@@ -1114,7 +1152,7 @@ extern "C" PyObject *number_rshift_handler( PyObject *self, PyObject *other )
 {
     try
     {
-        PythonExtensionBase *p = static_cast<PythonExtensionBase *>( self );
+        PythonExtensionBase *p = getPythonExtensionBase( self );
         return new_reference_to( p->number_rshift( Py::Object( other ) ) );
     }
     catch( Py::Exception & )
@@ -1127,7 +1165,7 @@ extern "C" PyObject *number_and_handler( PyObject *self, PyObject *other )
 {
     try
     {
-        PythonExtensionBase *p = static_cast<PythonExtensionBase *>( self );
+        PythonExtensionBase *p = getPythonExtensionBase( self );
         return new_reference_to( p->number_and( Py::Object( other ) ) );
     }
     catch( Py::Exception & )
@@ -1140,7 +1178,7 @@ extern "C" PyObject *number_xor_handler( PyObject *self, PyObject *other )
 {
     try
     {
-        PythonExtensionBase *p = static_cast<PythonExtensionBase *>( self );
+        PythonExtensionBase *p = getPythonExtensionBase( self );
         return new_reference_to( p->number_xor( Py::Object( other ) ) );
     }
     catch( Py::Exception & )
@@ -1153,7 +1191,7 @@ extern "C" PyObject *number_or_handler( PyObject *self, PyObject *other )
 {
     try
     {
-        PythonExtensionBase *p = static_cast<PythonExtensionBase *>( self );
+        PythonExtensionBase *p = getPythonExtensionBase( self );
         return new_reference_to( p->number_or( Py::Object( other ) ) );
     }
     catch( Py::Exception & )
@@ -1166,7 +1204,7 @@ extern "C" PyObject *number_power_handler( PyObject *self, PyObject *x1, PyObjec
 {
     try
     {
-        PythonExtensionBase *p = static_cast<PythonExtensionBase *>( self );
+        PythonExtensionBase *p = getPythonExtensionBase( self );
         return new_reference_to( p->number_power( Py::Object( x1 ), Py::Object( x2 ) ) );
     }
     catch( Py::Exception & )
@@ -1180,7 +1218,7 @@ extern "C" Py_ssize_t buffer_getreadbuffer_handler( PyObject *self, Py_ssize_t i
 {
     try
     {
-        PythonExtensionBase *p = static_cast<PythonExtensionBase *>( self );
+        PythonExtensionBase *p = getPythonExtensionBase( self );
         return p->buffer_getreadbuffer( index, pp );
     }
     catch( Py::Exception & )
@@ -1193,7 +1231,7 @@ extern "C" Py_ssize_t buffer_getwritebuffer_handler( PyObject *self, Py_ssize_t 
 {
     try
     {
-        PythonExtensionBase *p = static_cast<PythonExtensionBase *>( self );
+        PythonExtensionBase *p = getPythonExtensionBase( self );
         return p->buffer_getwritebuffer( index, pp );
     }
     catch( Py::Exception & )
@@ -1206,7 +1244,7 @@ extern "C" Py_ssize_t buffer_getsegcount_handler( PyObject *self, Py_ssize_t *co
 {
     try
     {
-        PythonExtensionBase *p = static_cast<PythonExtensionBase *>( self );
+        PythonExtensionBase *p = getPythonExtensionBase( self );
         return p->buffer_getsegcount( count );
     }
     catch( Py::Exception & )
@@ -1226,6 +1264,8 @@ throw RuntimeError( "Extension object does not support method " #method );
 
 PythonExtensionBase::PythonExtensionBase()
 {
+    bpt();
+    ob_refcnt = 0;
 }
 
 PythonExtensionBase::~PythonExtensionBase()
@@ -1233,11 +1273,18 @@ PythonExtensionBase::~PythonExtensionBase()
     assert( ob_refcnt == 0 );
 }
 
+void PythonExtensionBase::reinit( Tuple &args, Dict &kwds )
+{ 
+    throw RuntimeError( "Cannot call __init__ twice on this class" );
+}
+
+#ifdef PYCXX_PYTHON_2TO3
 int PythonExtensionBase::print( FILE *, int )
 { 
     missing_method( print );\
     return -1;
 }
+#endif
 
 int PythonExtensionBase::setattr( const char*, const Py::Object & )
 { 
@@ -1678,9 +1725,24 @@ Exception::Exception( PyObject *exception, Object &reason )
 #if 1
 //------------------------------------------------------------
 // compare operators
+bool operator!=( const Long &a, const Long &b )
+{
+    return a.as_long() != b.as_long();
+}
+
+bool operator!=( const Long &a, int b )
+{
+    return a.as_long() != b;
+}
+
 bool operator!=( const Long &a, long b )
 {
     return a.as_long() != b;
+}
+
+bool operator!=( int a, const Long &b )
+{
+    return a != b.as_long();
 }
 
 bool operator!=( long a, const Long &b )
@@ -1689,6 +1751,11 @@ bool operator!=( long a, const Long &b )
 }
 
 //------------------------------
+bool operator==( const Long &a, const Long &b )
+{
+    return a.as_long() == b.as_long();
+}
+
 bool operator==( const Long &a, int b )
 {
     return a.as_long() == b;
@@ -1710,6 +1777,11 @@ bool operator==( long a, const Long &b )
 }
 
 //------------------------------
+bool operator>( const Long &a, const Long &b )
+{
+    return a.as_long() > b.as_long();
+}
+
 bool operator>( const Long &a, int b )
 {
     return a.as_long() > b;
@@ -1731,6 +1803,11 @@ bool operator>( long a, const Long &b )
 }
 
 //------------------------------
+bool operator>=( const Long &a, const Long &b )
+{
+    return a.as_long() >= b.as_long();
+}
+
 bool operator>=( const Long &a, int b )
 {
     return a.as_long() >= b;
@@ -1752,6 +1829,11 @@ bool operator>=( long a, const Long &b )
 }
 
 //------------------------------
+bool operator<( const Long &a, const Long &b )
+{
+    return a.as_long() < b.as_long();
+}
+
 bool operator<( const Long &a, int b )
 {
     return a.as_long() < b;
@@ -1773,6 +1855,11 @@ bool operator<( long a, const Long &b )
 }
 
 //------------------------------
+bool operator<=( const Long &a, const Long &b )
+{
+    return a.as_long() <= b.as_long();
+}
+
 bool operator<=( int a, const Long &b )
 {
     return a <= b.as_long();
@@ -1861,6 +1948,105 @@ bool operator<=( PY_LONG_LONG a, const Long &b )
 }
 #endif
 #endif
+
+//------------------------------------------------------------
+// compare operators
+bool operator!=( const Float &a, const Float &b )
+{
+    return a.as_double() != b.as_double();
+}
+
+bool operator!=( const Float &a, double b )
+{
+    return a.as_double() != b;
+}
+
+bool operator!=( double a, const Float &b )
+{
+    return a != b.as_double();
+}
+
+//------------------------------
+bool operator==( const Float &a, const Float &b )
+{
+    return a.as_double() == b.as_double();
+}
+
+bool operator==( const Float &a, double b )
+{
+    return a.as_double() == b;
+}
+
+bool operator==( double a, const Float &b )
+{
+    return a == b.as_double();
+}
+
+//------------------------------
+bool operator>( const Float &a, const Float &b )
+{
+    return a.as_double() > b.as_double();
+}
+
+bool operator>( const Float &a, double b )
+{
+    return a.as_double() > b;
+}
+
+bool operator>( double a, const Float &b )
+{
+    return a > b.as_double();
+}
+
+//------------------------------
+bool operator>=( const Float &a, const Float &b )
+{
+    return a.as_double() >= b.as_double();
+}
+
+bool operator>=( const Float &a, double b )
+{
+    return a.as_double() >= b;
+}
+
+bool operator>=( double a, const Float &b )
+{
+    return a >= b.as_double();
+}
+
+//------------------------------
+bool operator<( const Float &a, const Float &b )
+{
+    return a.as_double() < b.as_double();
+}
+
+bool operator<( const Float &a, double b )
+{
+    return a.as_double() < b;
+}
+
+bool operator<( double a, const Float &b )
+{
+    return a < b.as_double();
+}
+
+//------------------------------
+bool operator<=( const Float &a, const Float &b )
+{
+    return a.as_double() <= b.as_double();
+}
+
+bool operator<=( double a, const Float &b )
+{
+    return a <= b.as_double();
+}
+
+bool operator<=( const Float &a, double b )
+{
+    return a.as_double() <= b;
+}
+
+
 
 
 }    // end of namespace Py

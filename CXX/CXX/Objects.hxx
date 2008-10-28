@@ -768,28 +768,37 @@ namespace Py
 #if 1
     //------------------------------------------------------------
     // compare operators
+    bool operator!=( const Long &a, const Long &b );
+    bool operator!=( const Long &a, int b );
     bool operator!=( const Long &a, long b );
+    bool operator!=( int a, const Long &b );
     bool operator!=( long a, const Long &b );
     //------------------------------
+    bool operator==( const Long &a, const Long &b );
+    bool operator==( const Long &a, int b );
     bool operator==( const Long &a, long b );
     bool operator==( int a, const Long &b );
     bool operator==( long a, const Long &b );
     //------------------------------
+    bool operator>( const Long &a, const Long &b );
     bool operator>( const Long &a, int b );
     bool operator>( const Long &a, long b );
     bool operator>( int a, const Long &b );
     bool operator>( long a, const Long &b );
     //------------------------------
+    bool operator>=( const Long &a, const Long &b );
     bool operator>=( const Long &a, int b );
     bool operator>=( const Long &a, long b );
     bool operator>=( int a, const Long &b );
     bool operator>=( long a, const Long &b );
     //------------------------------
+    bool operator<( const Long &a, const Long &b );
     bool operator<( const Long &a, int b );
     bool operator<( const Long &a, long b );
     bool operator<( int a, const Long &b );
     bool operator<( long a, const Long &b );
     //------------------------------
+    bool operator<=( const Long &a, const Long &b );
     bool operator<=( int a, const Long &b );
     bool operator<=( long a, const Long &b );
     bool operator<=( const Long &a, int b );
@@ -904,6 +913,32 @@ namespace Py
             return *this;
         }
     };
+
+    //------------------------------------------------------------
+    // compare operators
+    bool operator!=( const Float &a, const Float &b );
+    bool operator!=( const Float &a, double b );
+    bool operator!=( double a, const Float &b );
+    //------------------------------
+    bool operator==( const Float &a, const Float &b );
+    bool operator==( const Float &a, double b );
+    bool operator==( double a, const Float &b );
+    //------------------------------
+    bool operator>( const Float &a, const Float &b );
+    bool operator>( const Float &a, double b );
+    bool operator>( double a, const Float &b );
+    //------------------------------
+    bool operator>=( const Float &a, const Float &b );
+    bool operator>=( const Float &a, double b );
+    bool operator>=( double a, const Float &b );
+    //------------------------------
+    bool operator<( const Float &a, const Float &b );
+    bool operator<( const Float &a, double b );
+    bool operator<( double a, const Float &b );
+    //------------------------------
+    bool operator<=( const Float &a, const Float &b );
+    bool operator<=( double a, const Float &b );
+    bool operator<=( const Float &a, double b );
 
     // ===============================================
     // class Complex
