@@ -35,108 +35,18 @@
 //
 //-----------------------------------------------------------------------------
 
-#ifndef __CXX_ExtensionClass__h
-#define __CXX_ExtensionClass__h
-
-extern void bpt();
+#ifndef __CXX_ExtensionOldType__h
+#define __CXX_ExtensionOldType__h
 
 namespace Py
 {
-    struct PythonClassInstance
-    {
-        PyObject_HEAD
-        PythonExtensionBase *cxx_object;
-    };
-
-    template<TEMPLATE_TYPENAME T> class PythonClass
+    template<TEMPLATE_TYPENAME T> class PythonExtension
     : public PythonExtensionBase 
     {
-    protected:
-        explicit PythonClass( Tuple &args, Dict &kwds )
-        : PythonExtensionBase()
-        {
-            // we are a class
-            behaviors().supportClass();
-
-            // every object must support getattr
-            behaviors().supportGetattr();
-        }
-
-        virtual ~PythonClass()
-        {} 
-
-        static PythonType &behaviors()
-        {
-            static PythonType *p;
-            if( p == NULL ) 
-            {
-#if defined( _CPPRTTI ) || defined( __GNUG__ )
-                const char *default_name = (typeid( T )).name();
-#else
-                const char *default_name = "unknown";
-#endif
-                p = new PythonType( sizeof( T ), 0, default_name );
-                p->set_tp_new( extension_object_new );
-                p->set_tp_init( extension_object_init );
-                p->set_tp_dealloc( extension_object_deallocator );
-            }
-
-            return *p;
-        }
-
-        static void extension_object_deallocator( PyObject *o )
-        {
-            PythonClassInstance *o2 = reinterpret_cast< PythonClassInstance * >( o );
-            delete o2->cxx_object;
-        }
-
-        static PyObject *extension_object_new( PyTypeObject *subtype, PyObject *args, PyObject *kwds )
-        {
-            PythonClassInstance *o = reinterpret_cast<PythonClassInstance *>( subtype->tp_alloc( subtype, 0 ) );
-            if( o == NULL )
-                return NULL;
-
-            o->cxx_object = NULL;
-
-            return reinterpret_cast<PyObject *>( o );
-        }
-
-        static int extension_object_init( PyObject *self, PyObject *args_, PyObject *kwds_ )
-        {
-            try
-            {
-                Py::Tuple args( args_ );
-                Py::Dict kwds;
-                if( kwds_ != NULL )
-                    kwds = kwds_;
-
-                PythonClassInstance *o = reinterpret_cast<PythonClassInstance *>( self );
-
-                if( o->cxx_object == NULL )
-                {
-                    o->cxx_object = new T( args, kwds );
-                }
-                else
-                {
-                    o->cxx_object->reinit( args, kwds );
-                }
-            }
-            catch( Exception & )
-            {
-                return -1;
-            }
-            return 0;
-        }
-
     public:
-        static PyTypeObject *type_object()
+        static PyTypeObject *type_object() 
         {
             return behaviors().type_object();
-        }
-
-        static Object type()
-        {
-            return Object( reinterpret_cast<PyObject *>( behaviors().type_object() ) );
         }
 
         static bool check( PyObject *p )
@@ -160,6 +70,35 @@ namespace Py
         }
 
     protected:
+        explicit PythonExtension()
+        : PythonExtensionBase()
+        {
+            PyObject_Init( this, type_object() );
+
+            // every object must support getattr
+            behaviors().supportGetattr();
+        }
+
+        virtual ~PythonExtension()
+        {} 
+
+        static PythonType &behaviors()
+        {
+            static PythonType* p;
+            if( p == NULL ) 
+            {
+#if defined( _CPPRTTI ) || defined( __GNUG__ )
+                const char *default_name =( typeid( T ) ).name();
+#else
+                const char *default_name = "unknown";
+#endif
+                p = new PythonType( sizeof( T ), 0, default_name );
+                p->set_tp_dealloc( extension_object_deallocator );
+            }
+
+            return *p;
+        }
+
         typedef Object (T::*method_noargs_function_t)();
         typedef Object (T::*method_varargs_function_t)( const Tuple &args );
         typedef Object (T::*method_keyword_function_t)( const Tuple &args, const Dict &kws );
@@ -184,6 +123,20 @@ namespace Py
             {
                 return Py::String( type_object()->tp_doc );
             }
+
+// trying to fake out being a class for help()
+//            else if( name == "__bases__"  )
+//            {
+//                return Py::Tuple( 0 );
+//            }
+//            else if( name == "__module__"  )
+//            {
+//                return Py::Nothing();
+//            }
+//            else if( name == "__dict__"  )
+//            {
+//                return Py::Dict();
+//            }
 
             return getattr_methods( _name );
         }
@@ -268,7 +221,6 @@ namespace Py
         // Note: Python calls noargs as varargs buts args==NULL
         static PyObject *method_noargs_call_handler( PyObject *_self_and_name_tuple, PyObject * )
         {
-            bpt();
             try
             {
                 Tuple self_and_name_tuple( _self_and_name_tuple );
@@ -395,46 +347,50 @@ namespace Py
             }
         }
 
+        static void extension_object_deallocator( PyObject* t )
+        {
+            delete (T *)( t );
+        }
+
         //
         // prevent the compiler generating these unwanted functions
         //
-        explicit PythonClass( const PythonClass<T> &other );
-        void operator=( const PythonClass<T> &rhs );
+        explicit PythonExtension( const PythonExtension<T> &other );
+        void operator=( const PythonExtension<T> &rhs );
     };
 
     //
     // ExtensionObject<T> is an Object that will accept only T's.
     //
     template<TEMPLATE_TYPENAME T>
-    class PythonClassObject: public Object
+    class ExtensionObject: public Object
     {
     public:
 
-        explicit PythonClassObject( PyObject *pyob )
+        explicit ExtensionObject( PyObject *pyob )
         : Object( pyob )
         {
             validate();
         }
 
-        PythonClassObject( const PythonClassObject<T> &other )
+        ExtensionObject( const ExtensionObject<T> &other )
         : Object( *other )
         {
             validate();
         }
 
-        PythonClassObject( const Object &other )
+        ExtensionObject( const Object &other )
         : Object( *other )
         {
             validate();
         }
 
-        PythonClassObject &operator=( const Object &rhs )
+        ExtensionObject &operator=( const Object &rhs )
         {
-            *this = *rhs;
-            return *this;
+            return( *this = *rhs );
         }
 
-        PythonClassObject &operator=( PyObject *rhsp )
+        ExtensionObject &operator=( PyObject *rhsp )
         {
             if( ptr() != rhsp )
                 set( rhsp );
@@ -449,12 +405,12 @@ namespace Py
         //
         //    Obtain a pointer to the PythonExtension object
         //
-        T *getCxxObject( void )
+        T *extensionObject( void )
         {
             return static_cast<T *>( ptr() );
         }
     };
 } // Namespace Py
 
-// End of __CXX_ExtensionClass__h
+// End of __CXX_ExtensionOldType__h
 #endif

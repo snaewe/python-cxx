@@ -74,6 +74,26 @@ void test_compare()
     test_assert( "compare >= true", true, Py::Long( 100 ) >= Py::Long( 99 ) );
     test_assert( "compare >= true", true, Py::Long( 100 ) >= Py::Long( 100 ) );
     test_assert( "compare >= false", false, Py::Long( 100 ) >= Py::Long( 101 ) );
+
+    test_assert( "compare == true", true, Py::Float( 100 ) == Py::Float( 100 ) );
+    test_assert( "compare == false", false, Py::Float( 100 ) == Py::Float( 101 ) );
+
+    test_assert( "compare != true", true, Py::Float( 100 ) != Py::Float( 101 ) );
+    test_assert( "compare != false", false, Py::Float( 100 ) != Py::Float( 100 ) );
+
+    test_assert( "compare < true", true, Py::Float( 100 ) < Py::Float( 101 ) );
+    test_assert( "compare < false", false, Py::Float( 100 ) < Py::Float( 99 ) );
+
+    test_assert( "compare <= true", true, Py::Float( 100 ) <= Py::Float( 101 ) );
+    test_assert( "compare <= true", true, Py::Float( 100 ) <= Py::Float( 100 ) );
+    test_assert( "compare <= false", false, Py::Float( 100 ) <= Py::Float( 99 ) );
+
+    test_assert( "compare > true", true, Py::Float( 100 ) > Py::Float( 99 ) );
+    test_assert( "compare > false", false, Py::Float( 100 ) > Py::Float( 101 ) );
+
+    test_assert( "compare >= true", true, Py::Float( 100 ) >= Py::Float( 99 ) );
+    test_assert( "compare >= true", true, Py::Float( 100 ) >= Py::Float( 100 ) );
+    test_assert( "compare >= false", false, Py::Float( 100 ) >= Py::Float( 101 ) );
 }
 
 void test_String()
@@ -185,26 +205,69 @@ void test_long()
     py_long3 = cxx_long3;
    
 
-    test_assert( "long operator < ", cxx_long1 <  cxx_long2, py_long1 <  py_long2 );
-    test_assert( "long operator < ", cxx_long2 <  cxx_long1, py_long2 <  py_long1 );
+    // ------------------------------------------------------------
+    test_assert( "long operator ==", cxx_long2 == cxx_long3, py_long2  == py_long3 );
+    test_assert( "long operator ==", cxx_long2 == cxx_long3, cxx_long2 == py_long3 );
+    test_assert( "long operator ==", cxx_long2 == cxx_long3, py_long2  == cxx_long3 );
 
-    test_assert( "long operator ==", cxx_long2 == cxx_long3, py_long2 == py_long3 );
-    test_assert( "long operator ==", cxx_long1 == cxx_long3, py_long1 == py_long3 );
+    test_assert( "long operator ==", cxx_long1 == cxx_long3, py_long1  == py_long3 );
+    test_assert( "long operator ==", cxx_long1 == cxx_long3, cxx_long1 == py_long3 );
+    test_assert( "long operator ==", cxx_long1 == cxx_long3, py_long1  == cxx_long3 );
 
-    test_assert( "long operator !=", cxx_long1 != cxx_long2, py_long1 != py_long2 );
-    test_assert( "long operator !=", cxx_long2 != cxx_long3, py_long2 != py_long3 );
+    // ------------------------------------------------------------
+    test_assert( "long operator !=", cxx_long1 != cxx_long2, py_long1  != py_long2 );
+    test_assert( "long operator !=", cxx_long1 != cxx_long2, cxx_long1 != py_long2 );
+    test_assert( "long operator !=", cxx_long1 != cxx_long2, py_long1  != cxx_long2 );
 
-    test_assert( "long operator <=", cxx_long1 <= cxx_long2, py_long1 <= py_long2 );
-    test_assert( "long operator <=", cxx_long2 <= cxx_long3, py_long2 <= py_long3 );
-    test_assert( "long operator <=", cxx_long2 <= cxx_long1, py_long2 <= py_long1 );
+    test_assert( "long operator !=", cxx_long2 != cxx_long3, py_long2  != py_long3 );
+    test_assert( "long operator !=", cxx_long2 != cxx_long3, cxx_long2 != py_long3 );
+    test_assert( "long operator !=", cxx_long2 != cxx_long3, py_long2  != cxx_long3 );
 
-    test_assert( "long operator >=", cxx_long2 >= cxx_long1, py_long2 >= py_long1 );
-    test_assert( "long operator >=", cxx_long2 >= cxx_long3, py_long2 >= py_long3 );
-    test_assert( "long operator >=", cxx_long1 >= cxx_long2, py_long1 >= py_long2 );
+    // ------------------------------------------------------------
+    test_assert( "long operator < ", cxx_long1 <  cxx_long2, py_long1  <  py_long2 );
+    test_assert( "long operator < ", cxx_long1 <  cxx_long2, cxx_long1 <  py_long2 );
+    test_assert( "long operator < ", cxx_long1 <  cxx_long2, py_long1  <  cxx_long2 );
 
-    test_assert( "long operator > ", cxx_long2 >  cxx_long1, py_long2 >  py_long1 );
-    test_assert( "long operator > ", cxx_long1 >  cxx_long2, py_long1 >  py_long2 );
+    test_assert( "long operator < ", cxx_long2 <  cxx_long1, py_long2  <  py_long1 );
+    test_assert( "long operator < ", cxx_long2 <  cxx_long1, cxx_long2 <  py_long1 );
+    test_assert( "long operator < ", cxx_long2 <  cxx_long1, py_long2  <  cxx_long1 );
 
+    // ------------------------------------------------------------
+    test_assert( "long operator > ", cxx_long2 >  cxx_long1, py_long2  >  py_long1 );
+    test_assert( "long operator > ", cxx_long2 >  cxx_long1, cxx_long2 >  py_long1 );
+    test_assert( "long operator > ", cxx_long2 >  cxx_long1, py_long2  >  cxx_long1 );
+
+    test_assert( "long operator > ", cxx_long1 >  cxx_long2, py_long1  >  py_long2 );
+    test_assert( "long operator > ", cxx_long1 >  cxx_long2, cxx_long1 >  py_long2 );
+    test_assert( "long operator > ", cxx_long1 >  cxx_long2, py_long1  >  cxx_long2 );
+
+    // ------------------------------------------------------------
+    test_assert( "long operator <=", cxx_long1 <= cxx_long2, py_long1  <= py_long2 );
+    test_assert( "long operator <=", cxx_long1 <= cxx_long2, cxx_long1 <= py_long2 );
+    test_assert( "long operator <=", cxx_long1 <= cxx_long2, py_long1  <= cxx_long2 );
+
+    test_assert( "long operator <=", cxx_long2 <= cxx_long3, py_long2  <= py_long3 );
+    test_assert( "long operator <=", cxx_long2 <= cxx_long3, cxx_long2 <= py_long3 );
+    test_assert( "long operator <=", cxx_long2 <= cxx_long3, py_long2  <= cxx_long3 );
+
+    test_assert( "long operator <=", cxx_long2 <= cxx_long1, py_long2  <= py_long1 );
+    test_assert( "long operator <=", cxx_long2 <= cxx_long1, cxx_long2 <= py_long1 );
+    test_assert( "long operator <=", cxx_long2 <= cxx_long1, py_long2  <= cxx_long1 );
+
+    // ------------------------------------------------------------
+    test_assert( "long operator >=", cxx_long2 >= cxx_long1, py_long2  >= py_long1 );
+    test_assert( "long operator >=", cxx_long2 >= cxx_long1, cxx_long2 >= py_long1 );
+    test_assert( "long operator >=", cxx_long2 >= cxx_long1, py_long2  >= cxx_long1 );
+
+    test_assert( "long operator >=", cxx_long2 >= cxx_long3, py_long2  >= py_long3 );
+    test_assert( "long operator >=", cxx_long2 >= cxx_long3, cxx_long2 >= py_long3 );
+    test_assert( "long operator >=", cxx_long2 >= cxx_long3, py_long2  >= cxx_long3 );
+
+    test_assert( "long operator >=", cxx_long1 >= cxx_long2, py_long1  >= py_long2 );
+    test_assert( "long operator >=", cxx_long1 >= cxx_long2, cxx_long1 >= py_long2 );
+    test_assert( "long operator >=", cxx_long1 >= cxx_long2, py_long1  >= cxx_long2 );
+
+    // ------------------------------------------------------------
     test_assert( "long operator long", cxx_long2, long( py_long2 ) );
     test_assert( "long operator int", int( cxx_long2 ), int( py_long2 ) );
 }
@@ -231,27 +294,70 @@ void test_float()
     py_float1 = cxx_float1;
     py_float2 = cxx_float2;
     py_float3 = cxx_float3;
-   
-    test_assert( "float operator < ", cxx_float1 <  cxx_float2, py_float1 <  py_float2 );
-    test_assert( "float operator < ", cxx_float2 <  cxx_float1, py_float2 <  py_float1 );
 
-    test_assert( "float operator ==", cxx_float2 == cxx_float3, py_float2 == py_float3 );
-    test_assert( "float operator ==", cxx_float1 == cxx_float3, py_float1 == py_float3 );
+    //------------------------------------------------------------   
+    test_assert( "float operator ==", cxx_float2 == cxx_float3, py_float2  == py_float3 );
+    test_assert( "float operator ==", cxx_float2 == cxx_float3, cxx_float2 == py_float3 );
+    test_assert( "float operator ==", cxx_float2 == cxx_float3, py_float2  == cxx_float3 );
 
-    test_assert( "float operator !=", cxx_float1 != cxx_float2, py_float1 != py_float2 );
-    test_assert( "float operator !=", cxx_float2 != cxx_float3, py_float2 != py_float3 );
+    test_assert( "float operator ==", cxx_float1 == cxx_float3, py_float1  == py_float3 );
+    test_assert( "float operator ==", cxx_float1 == cxx_float3, cxx_float1 == py_float3 );
+    test_assert( "float operator ==", cxx_float1 == cxx_float3, py_float1  == cxx_float3 );
 
-    test_assert( "float operator <=", cxx_float1 <= cxx_float2, py_float1 <= py_float2 );
-    test_assert( "float operator <=", cxx_float2 <= cxx_float3, py_float2 <= py_float3 );
-    test_assert( "float operator <=", cxx_float2 <= cxx_float1, py_float2 <= py_float1 );
+    //------------------------------------------------------------   
+    test_assert( "float operator !=", cxx_float1 != cxx_float2, py_float1  != py_float2 );
+    test_assert( "float operator !=", cxx_float1 != cxx_float2, cxx_float1 != py_float2 );
+    test_assert( "float operator !=", cxx_float1 != cxx_float2, py_float1  != cxx_float2 );
 
-    test_assert( "float operator >=", cxx_float2 >= cxx_float1, py_float2 >= py_float1 );
-    test_assert( "float operator >=", cxx_float2 >= cxx_float3, py_float2 >= py_float3 );
-    test_assert( "float operator >=", cxx_float1 >= cxx_float2, py_float1 >= py_float2 );
+    test_assert( "float operator !=", cxx_float2 != cxx_float3, py_float2  != py_float3 );
+    test_assert( "float operator !=", cxx_float2 != cxx_float3, cxx_float2 != py_float3 );
+    test_assert( "float operator !=", cxx_float2 != cxx_float3, py_float2  != cxx_float3 );
 
-    test_assert( "float operator > ", cxx_float2 >  cxx_float1, py_float2 >  py_float1 );
-    test_assert( "float operator > ", cxx_float1 >  cxx_float2, py_float1 >  py_float2 );
+    //------------------------------------------------------------   
+    test_assert( "float operator < ", cxx_float1 <  cxx_float2, py_float1  <  py_float2 );
+    test_assert( "float operator < ", cxx_float1 <  cxx_float2, cxx_float1 <  py_float2 );
+    test_assert( "float operator < ", cxx_float1 <  cxx_float2, py_float1  <  cxx_float2 );
 
+    test_assert( "float operator < ", cxx_float2 <  cxx_float1, py_float2  <  py_float1 );
+    test_assert( "float operator < ", cxx_float2 <  cxx_float1, cxx_float2 <  py_float1 );
+    test_assert( "float operator < ", cxx_float2 <  cxx_float1, py_float2  <  cxx_float1 );
+
+    //------------------------------------------------------------   
+    test_assert( "float operator > ", cxx_float2 >  cxx_float1, py_float2  >  py_float1 );
+    test_assert( "float operator > ", cxx_float2 >  cxx_float1, cxx_float2 >  py_float1 );
+    test_assert( "float operator > ", cxx_float2 >  cxx_float1, py_float2  >  cxx_float1 );
+
+    test_assert( "float operator > ", cxx_float1 >  cxx_float2, py_float1  >  py_float2 );
+    test_assert( "float operator > ", cxx_float1 >  cxx_float2, cxx_float1 >  py_float2 );
+    test_assert( "float operator > ", cxx_float1 >  cxx_float2, py_float1  >  cxx_float2 );
+
+    //------------------------------------------------------------   
+    test_assert( "float operator <=", cxx_float1 <= cxx_float2, py_float1  <= py_float2 );
+    test_assert( "float operator <=", cxx_float1 <= cxx_float2, cxx_float2 <= py_float2 );
+    test_assert( "float operator <=", cxx_float1 <= cxx_float2, py_float1  <= cxx_float2 );
+
+    test_assert( "float operator <=", cxx_float2 <= cxx_float3, py_float2  <= py_float3 );
+    test_assert( "float operator <=", cxx_float2 <= cxx_float3, cxx_float2 <= py_float3 );
+    test_assert( "float operator <=", cxx_float2 <= cxx_float3, py_float2  <= cxx_float3 );
+
+    test_assert( "float operator <=", cxx_float2 <= cxx_float1, py_float2  <= py_float1 );
+    test_assert( "float operator <=", cxx_float2 <= cxx_float1, cxx_float2 <= py_float1 );
+    test_assert( "float operator <=", cxx_float2 <= cxx_float1, py_float2  <= cxx_float1 );
+
+    //------------------------------------------------------------   
+    test_assert( "float operator >=", cxx_float2 >= cxx_float1, py_float2  >= py_float1 );
+    test_assert( "float operator >=", cxx_float2 >= cxx_float1, cxx_float2 >= py_float1 );
+    test_assert( "float operator >=", cxx_float2 >= cxx_float1, py_float2  >= cxx_float1 );
+
+    test_assert( "float operator >=", cxx_float2 >= cxx_float3, py_float2  >= py_float3 );
+    test_assert( "float operator >=", cxx_float2 >= cxx_float3, cxx_float2 >= py_float3 );
+    test_assert( "float operator >=", cxx_float2 >= cxx_float3, py_float2  >= cxx_float3 );
+
+    test_assert( "float operator >=", cxx_float1 >= cxx_float2, py_float1  >= py_float2 );
+    test_assert( "float operator >=", cxx_float1 >= cxx_float2, cxx_float1 >= py_float2 );
+    test_assert( "float operator >=", cxx_float1 >= cxx_float2, py_float1  >= cxx_float2 );
+
+    //------------------------------------------------------------   
     test_assert( "float operator float", cxx_float2, float( py_float2 ) );
 }
 

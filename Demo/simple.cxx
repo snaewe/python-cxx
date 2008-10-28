@@ -17,26 +17,39 @@
 
 #include <assert.h>
 
-class cls: public Py::PythonExtension< cls >
+class new_style_class: public Py::PythonClass< new_style_class >
 {
 public:
-    cls()
+    new_style_class( Py::Tuple &args, Py::Dict &kwds )
+    : Py::PythonClass< new_style_class >::PythonClass( args, kwds )
     {
+        std::cout << "new_style_class c'tor Called with " << args.length() << " normal arguments." << std::endl;
+        Py::List names( kwds.keys() );
+        std::cout << "and with " << names.length() << " keyword arguments:" << std::endl;
+        for( Py::List::size_type i=0; i< names.length(); i++ )
+        {
+            Py::String name( names[i] );
+            std::cout << "    " << name << std::endl;
+        }
     }
 
-    virtual ~cls()
+    virtual ~new_style_class()
     {
+        std::cout << "~new_style_class." << std::endl;
     }
 
     static void init_type(void)
     {
-        behaviors().name( "cls" );
-        behaviors().doc( "documentation for cls class" );
+        behaviors().name( "new_style_class" );
+        behaviors().doc( "documentation for new_style_class class" );
         behaviors().supportGetattr();
 
-        add_noargs_method( "cls_func_noargs", &cls::cls_func_noargs );
-        add_varargs_method( "cls_func_varargs", &cls::cls_func_varargs );
-        add_keyword_method( "cls_func_keyword", &cls::cls_func_keyword );
+        add_noargs_method( "new_style_class_func_noargs", &new_style_class::new_style_class_func_noargs );
+        add_varargs_method( "new_style_class_func_varargs", &new_style_class::new_style_class_func_varargs );
+        add_keyword_method( "new_style_class_func_keyword", &new_style_class::new_style_class_func_keyword );
+
+        // Call to make the type ready for use
+        behaviors().readyType();
     }
 
     // override functions from PythonExtension
@@ -45,22 +58,78 @@ public:
         return getattr_methods( name );
     }
 
-    Py::Object cls_func_noargs( void )
+    Py::Object new_style_class_func_noargs( void )
     {
-        std::cout << "cls_func_noargs Called." << std::endl;
+        bpt();
+        std::cout << "new_style_class_func_noargs Called." << std::endl;
         return Py::None();
     }
 
-    Py::Object cls_func_varargs( const Py::Tuple &args )
+    Py::Object new_style_class_func_varargs( const Py::Tuple &args )
     {
-        std::cout << "cls_func_varargs Called with " << args.length() << " normal arguments." << std::endl;
+        std::cout << "new_style_class_func_varargs Called with " << args.length() << " normal arguments." << std::endl;
         return Py::None();
     }
 
-    Py::Object cls_func_keyword( const Py::Tuple &args, const Py::Dict &kws )
+    Py::Object new_style_class_func_keyword( const Py::Tuple &args, const Py::Dict &kwds )
     {
-        std::cout << "cls_func_keyword Called with " << args.length() << " normal arguments." << std::endl;
-        Py::List names( kws.keys() );
+        std::cout << "new_style_class_func_keyword Called with " << args.length() << " normal arguments." << std::endl;
+        Py::List names( kwds.keys() );
+        std::cout << "and with " << names.length() << " keyword arguments:" << std::endl;
+        for( Py::List::size_type i=0; i< names.length(); i++ )
+        {
+            Py::String name( names[i] );
+            std::cout << "    " << name << std::endl;
+        }
+        return Py::None();
+    }
+};
+
+
+class old_style_class: public Py::PythonExtension< old_style_class >
+{
+public:
+    old_style_class()
+    {
+    }
+
+    virtual ~old_style_class()
+    {
+    }
+
+    static void init_type(void)
+    {
+        behaviors().name( "old_style_class" );
+        behaviors().doc( "documentation for old_style_class class" );
+        behaviors().supportGetattr();
+
+        add_noargs_method( "old_style_class_func_noargs", &old_style_class::old_style_class_func_noargs );
+        add_varargs_method( "old_style_class_func_varargs", &old_style_class::old_style_class_func_varargs );
+        add_keyword_method( "old_style_class_func_keyword", &old_style_class::old_style_class_func_keyword );
+    }
+
+    // override functions from PythonExtension
+    virtual Py::Object getattr( const char *name )
+    {
+        return getattr_methods( name );
+    }
+
+    Py::Object old_style_class_func_noargs( void )
+    {
+        std::cout << "old_style_class_func_noargs Called." << std::endl;
+        return Py::None();
+    }
+
+    Py::Object old_style_class_func_varargs( const Py::Tuple &args )
+    {
+        std::cout << "old_style_class_func_varargs Called with " << args.length() << " normal arguments." << std::endl;
+        return Py::None();
+    }
+
+    Py::Object old_style_class_func_keyword( const Py::Tuple &args, const Py::Dict &kwds )
+    {
+        std::cout << "old_style_class_func_keyword Called with " << args.length() << " normal arguments." << std::endl;
+        Py::List names( kwds.keys() );
         std::cout << "and with " << names.length() << " keyword arguments:" << std::endl;
         for( Py::List::size_type i=0; i< names.length(); i++ )
         {
@@ -77,26 +146,29 @@ public:
     simple_module()
     : Py::ExtensionModule<simple_module>( "simple" ) // this must be name of the file on disk e.g. simple.so or simple.pyd
     {
-        cls::init_type();
+        old_style_class::init_type();
+        new_style_class::init_type();
 
-        add_varargs_method("cls", &simple_module::factory_cls, "documentation for cls()");
+        add_varargs_method("old_style_class", &simple_module::factory_old_style_class, "documentation for old_style_class()");
         add_keyword_method("func", &simple_module::func, "documentation for func()");
 
-        // after initialize the moduleDictionary with exist
+        // after initialize the moduleDictionary will exist
         initialize( "documentation for the simple module" );
 
         Py::Dict d( moduleDictionary() );
         d["var"] = Py::String( "var value" );
+        Py::Object x( new_style_class::type() );
+        d["new_style_class"] = x;
     }
 
     virtual ~simple_module()
     {}
 
 private:
-    Py::Object func( const Py::Tuple &args, const Py::Dict &kws )
+    Py::Object func( const Py::Tuple &args, const Py::Dict &kwds )
     {
         std::cout << "Called with " << args.length() << " normal arguments." << std::endl;
-        Py::List names( kws.keys() );
+        Py::List names( kwds.keys() );
         std::cout << "and with " << names.length() << " keyword arguments:" << std::endl;
         for( Py::List::size_type i=0; i< names.length(); i++ )
         {
@@ -107,9 +179,9 @@ private:
         return Py::None();
     }
 
-    Py::Object factory_cls( const Py::Tuple &rargs )
+    Py::Object factory_old_style_class( const Py::Tuple &rargs )
     {
-        return Py::asObject( new cls );
+        return Py::asObject( new old_style_class );
     }
 };
 
