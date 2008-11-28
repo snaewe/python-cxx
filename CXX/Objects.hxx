@@ -1359,7 +1359,7 @@ namespace Py
 
         seqref<T> front()
         {
-            return seqref<T>( this, 0 );
+            return seqref<T>( *this, 0 );
         }
 
         const T back() const
@@ -1369,20 +1369,20 @@ namespace Py
 
         seqref<T> back()
         {
-            return seqref<T>( this, size()-1 );
+            return seqref<T>( *this, size()-1 );
         }
 
         void verify_length( size_type required_size ) const
         {
             if( size() != required_size )
-            throw IndexError( "Unexpected SeqBase<T> length." );
+                throw IndexError( "Unexpected SeqBase<T> length." );
         }
 
         void verify_length( size_type min_size, size_type max_size ) const
         {
             size_type n = size();
             if( n < min_size || n > max_size )
-            throw IndexError( "Unexpected SeqBase<T> length." );
+                throw IndexError( "Unexpected SeqBase<T> length." );
         }
 
         class iterator
@@ -2850,12 +2850,12 @@ namespace Py
 
         const_iterator begin() const
         {
-            return const_iterator( this, 0 );
+            return const_iterator( this, keys(), 0 );
         }
 
         const_iterator end() const
         {
-            return const_iterator( this, length() );
+            return const_iterator( this, keys(), length() );
         }
 
     };    // end of MapBase<T>

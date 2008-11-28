@@ -117,6 +117,9 @@ void test_String()
     Py::String r2( "12345 789" );
     Py::Char c6 = r2[5];
     test_assert( "string convert to std::string", c6, blank );
+
+    Py::Char c7 = r2.front();
+    Py::Char c8 = r2.back();
 }
 
 void test_boolean()
@@ -528,6 +531,11 @@ void test_Dict()
     Py::Dict dict2 = dict1;
     dict2.clear();
     test_assert( "dict clear()", dict2.keys().length(), static_cast<size_t>( 0 ) );
+
+    const Py::Dict c;
+    for (Py::Dict::const_iterator it = c.begin(); it != c.end(); ++it)
+    {
+    }
 }
 
 void test_STL()
