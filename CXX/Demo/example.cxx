@@ -76,6 +76,10 @@ static std::string test_String()
         std::cout << "|" << c6 << "|" << std::endl;
         return "failed (3)";
     }
+
+    Py::Char c7 = r2.front();
+    Py::Char c8 = r2.back();
+
     return "ok";
 }
 
@@ -326,6 +330,12 @@ test_Dict()
     {
         return "failed 3 " + b.as_string();
     }
+
+    const Py::Dict c;
+    for (Py::Dict::const_iterator it = c.begin(); it != c.end(); ++it)
+    {
+    }
+
     return "ok";
 }
 

@@ -66,6 +66,20 @@ Bytes String::encode( const char *encoding, const char *error ) const
         return Bytes( PyString_AsEncodedObject( ptr(), encoding, error ) );
     }
 }
+#else
+
+std::string String::as_std_string( const char *encoding, const char *error ) const
+{
+    if( isUnicode() )
+    {
+        String encoded( encode( encoding, error ) );
+        return encoded.as_std_string();
+    }
+    else
+    {
+        return std::string( PyString_AsString( ptr() ), static_cast<size_type>( PyString_Size( ptr() ) ) );
+    }
+}
 
 #endif
 
