@@ -1397,30 +1397,30 @@ namespace Py
 
         seqref<T> front()
         {
-            return seqref<T>(this, 0);
+            return seqref<T>(*this, 0);
         }
 
-        const T back () const
+        const T back() const
         {
             return getItem(size()-1);
         }
 
         seqref<T> back()
         {
-            return seqref<T>(this, size()-1);
+            return seqref<T>(*this, size()-1);
         }
 
         void verify_length(size_type required_size) const
         {
             if (size() != required_size)
-            throw IndexError ("Unexpected SeqBase<T> length.");
+                throw IndexError ("Unexpected SeqBase<T> length.");
         }
 
         void verify_length(size_type min_size, size_type max_size) const
         {
             size_type n = size();
             if (n < min_size || n > max_size)
-            throw IndexError ("Unexpected SeqBase<T> length.");
+                throw IndexError ("Unexpected SeqBase<T> length.");
         }
 
         class iterator
@@ -2188,16 +2188,16 @@ namespace Py
 
 
         // Encode
-        String encode( const char *encoding, const char *error="strict" )
+        String encode( const char *encoding, const char *error="strict" ) const
         {
             if( isUnicode() )
-        {
+            {
                 return String( PyUnicode_AsEncodedString( ptr(), encoding, error ) );
-        }
+            }
             else
-        {
+            {
                 return String( PyString_AsEncodedObject( ptr(), encoding, error ) );
-        }
+            }
         }
 
         String decode( const char *encoding, const char *error="strict" )
@@ -2234,6 +2234,8 @@ namespace Py
                 return std::string( PyString_AsString( ptr() ), static_cast<size_type>( PyString_Size( ptr() ) ) );
             }
         }
+
+        std::string as_std_string( const char *encoding, const char *error="strict" ) const;
 
         unicodestring as_unicodestring() const
         {
@@ -2912,7 +2914,7 @@ namespace Py
             int             pos;    // index into the keys
 
         private:
-            const_iterator( MapBase<T>* m, List k, int p )
+            const_iterator( const MapBase<T>* m, List k, int p )
             : map( m )
             , keys( k )
             , pos( p )
@@ -2928,7 +2930,7 @@ namespace Py
                 , pos()
             {}
 
-            const_iterator (MapBase<T>* m, bool end = false )
+            const_iterator (const MapBase<T>* m, bool end = false )
                 : map( m )
                 , keys( m->keys() )
                 , pos( end ? keys.length() : 0 )
