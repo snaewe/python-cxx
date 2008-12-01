@@ -20,3 +20,18 @@ new_style_class.new_style_class_func_keyword()
 new_style_class.new_style_class_func_keyword( name=6, value=7 )
 new_style_class.new_style_class_func_keyword( 4, 5 )
 new_style_class.new_style_class_func_keyword( 4, 5, name=6, value=7 )
+print( 'dir(new_style_class)',dir(new_style_class) )
+
+class derived_new_style_class(simple.new_style_class):
+    def __init__( self, arg ):
+        simple.new_style_class.__init__( self )
+        self.arg = arg
+
+    def derived_func( self ):
+        print( 'derived_func => %r' % self.arg )
+        self.new_style_class_func_noargs()
+
+dnsc = derived_new_style_class( [1,3,7] )
+print( 'dir(dnsc)',dir(dnsc) )
+dnsc.derived_func()
+dnsc.new_style_class_func_noargs()

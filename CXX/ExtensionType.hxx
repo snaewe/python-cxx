@@ -51,8 +51,9 @@ namespace Py
     : public PythonExtensionBase 
     {
     protected:
-        explicit PythonClass( Tuple &args, Dict &kwds )
+        explicit PythonClass( PythonClassInstance *self, Tuple &args, Dict &kwds )
         : PythonExtensionBase()
+        , m_self( self )
         {
             // we are a class
             behaviors().supportClass();
@@ -83,24 +84,25 @@ namespace Py
             return *p;
         }
 
-        static void extension_object_deallocator( PyObject *o )
-        {
-            PythonClassInstance *o2 = reinterpret_cast< PythonClassInstance * >( o );
-            delete o2->cxx_object;
-        }
-
         static PyObject *extension_object_new( PyTypeObject *subtype, PyObject *args, PyObject *kwds )
         {
+#ifdef PYCXX_DEBUG
+            std::cout << "extension_object_new()" << std::endl;
+#endif
             PythonClassInstance *o = reinterpret_cast<PythonClassInstance *>( subtype->tp_alloc( subtype, 0 ) );
             if( o == NULL )
                 return NULL;
 
             o->cxx_object = NULL;
 
-            return reinterpret_cast<PyObject *>( o );
+            PyObject *self = reinterpret_cast<PyObject *>( o );
+#ifdef PYCXX_DEBUG
+            std::cout << "extension_object_new() => self=0x" << std::hex << reinterpret_cast< unsigned int >( self ) << std::dec << std::endl;
+#endif
+            return self;
         }
 
-        static int extension_object_init( PyObject *self, PyObject *args_, PyObject *kwds_ )
+        static int extension_object_init( PyObject *_self, PyObject *args_, PyObject *kwds_ )
         {
             try
             {
@@ -109,15 +111,25 @@ namespace Py
                 if( kwds_ != NULL )
                     kwds = kwds_;
 
-                PythonClassInstance *o = reinterpret_cast<PythonClassInstance *>( self );
+                PythonClassInstance *self = reinterpret_cast<PythonClassInstance *>( _self );
+#ifdef PYCXX_DEBUG
+                std::cout << "extension_object_init( self=0x" << std::hex << reinterpret_cast< unsigned int >( self ) << std::dec << " )" << std::endl;
+                std::cout << "    self->cxx_object=0x" << std::hex << reinterpret_cast< unsigned int >( self->cxx_object ) << std::dec << std::endl;
+#endif
 
-                if( o->cxx_object == NULL )
+                if( self->cxx_object == NULL )
                 {
-                    o->cxx_object = new T( args, kwds );
+                    self->cxx_object = new T( self, args, kwds );
+#ifdef PYCXX_DEBUG
+                    std::cout << "    self->cxx_object=0x" << std::hex << reinterpret_cast< unsigned int >( self->cxx_object ) << std::dec << std::endl;
+#endif
                 }
                 else
                 {
-                    o->cxx_object->reinit( args, kwds );
+#ifdef PYCXX_DEBUG
+                    std::cout << "    reinit - self->cxx_object=0x" << std::hex << reinterpret_cast< unsigned int >( self->cxx_object ) << std::dec << std::endl;
+#endif
+                    self->cxx_object->reinit( args, kwds );
                 }
             }
             catch( Exception & )
@@ -126,6 +138,17 @@ namespace Py
             }
             return 0;
         }
+
+        static void extension_object_deallocator( PyObject *_self )
+        {
+            PythonClassInstance *self = reinterpret_cast< PythonClassInstance * >( _self );
+#ifdef PYCXX_DEBUG
+            std::cout << "extension_object_deallocator( self=0x" << std::hex << reinterpret_cast< unsigned int >( self ) << std::dec << " )" << std::endl;
+            std::cout << "    self->cxx_object=0x" << std::hex << reinterpret_cast< unsigned int >( self->cxx_object ) << std::dec << std::endl;
+#endif
+            delete self->cxx_object;
+        }
+
 
     public:
         static PyTypeObject *type_object()
@@ -213,7 +236,7 @@ namespace Py
 
             Tuple self( 2 );
 
-            self[0] = Object( this );
+            self[0] = Object( reinterpret_cast<PyObject *>( m_self ) );
             self[1] = String( name );
 
             MethodDefExt<T> *method_definition = i->second;
@@ -267,13 +290,20 @@ namespace Py
         // Note: Python calls noargs as varargs buts args==NULL
         static PyObject *method_noargs_call_handler( PyObject *_self_and_name_tuple, PyObject * )
         {
-            bpt();
             try
             {
                 Tuple self_and_name_tuple( _self_and_name_tuple );
 
-                PyObject *self_in_cobject = self_and_name_tuple[0].ptr();
-                T *self = static_cast<T *>( self_in_cobject );
+                Object _self_in_cobject = self_and_name_tuple[0];
+                PyObject *self_in_cobject = _self_in_cobject.ptr();
+                PythonClassInstance *instance_wrapper = reinterpret_cast<PythonClassInstance *>( self_in_cobject );
+                T *instance = static_cast<T *>( instance_wrapper->cxx_object );
+
+#ifdef PYCXX_DEBUG
+                std::cout << "method_noargs_call_handler( self=0x" << std::hex << reinterpret_cast< unsigned int >( self_in_cobject ) << std::dec << " )" << std::endl;
+                std::cout << "    self->cxx_object=0x" << std::hex << reinterpret_cast< unsigned int >( instance ) << std::dec << std::endl;
+                bpt();
+#endif
 
                 String name( self_and_name_tuple[1] );
 
@@ -292,7 +322,7 @@ namespace Py
                 #ifdef _STLP_DEBUG
                 try
                 {
-                    result = (self->*meth_def->ext_noargs_function)();
+                    result = (instance->*meth_def->ext_noargs_function)();
                 }
                 catch( std::__stl_debug_exception )
                 {
@@ -300,7 +330,7 @@ namespace Py
                     throw RuntimeError( "Error message not set yet." );
                 }
                 #else
-                result = (self->*meth_def->ext_noargs_function)();
+                result = (instance->*meth_def->ext_noargs_function)();
                 #endif // _STLP_DEBUG
 
                 return new_reference_to( result.ptr() );
@@ -394,6 +424,10 @@ namespace Py
             }
         }
 
+    private:
+        PythonClassInstance *m_self;
+
+    private:
         //
         // prevent the compiler generating these unwanted functions
         //

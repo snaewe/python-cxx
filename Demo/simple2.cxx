@@ -342,8 +342,6 @@ public:
 private:
     Py::Object func( const Py::Tuple &args, const Py::Dict &kws )
     {
-        bpt();
-
         return Py::None();
     }
 
