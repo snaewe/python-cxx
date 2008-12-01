@@ -49,10 +49,9 @@ void bpt( void )
 
 void printRefCount( PyObject *obj )
 {
-    std::cout << "RefCount of " << reinterpret_cast< unsigned int >( obj ) << " is " << Py_REFCNT( obj ) << std::endl;
+    std::cout << "RefCount of 0x" << std::hex << reinterpret_cast< unsigned int >( obj ) << std::dec << " is " << Py_REFCNT( obj ) << std::endl;
 }
 #endif
-
 
 namespace Py 
 {
@@ -136,10 +135,10 @@ PyMethodDef *MethodTable::table()
     {
         Py_ssize_t t1size = t.size();
         mt = new PyMethodDef[ t1size ];
-        int j = NULL;
+        int j = 0;
         for( std::vector<PyMethodDef>::iterator i = t.begin(); i != t.end(); i++ )
         {
-            mt[j++] = *i;
+            mt[ j++ ] = *i;
         }
     }
     return mt;
@@ -1275,7 +1274,6 @@ throw RuntimeError( "Extension object does not support method " #method );
 
 PythonExtensionBase::PythonExtensionBase()
 {
-    bpt();
     ob_refcnt = 0;
 }
 

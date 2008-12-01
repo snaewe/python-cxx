@@ -20,8 +20,8 @@
 class new_style_class: public Py::PythonClass< new_style_class >
 {
 public:
-    new_style_class( Py::Tuple &args, Py::Dict &kwds )
-    : Py::PythonClass< new_style_class >::PythonClass( args, kwds )
+    new_style_class( Py::PythonClassInstance *self, Py::Tuple &args, Py::Dict &kwds )
+    : Py::PythonClass< new_style_class >::PythonClass( self, args, kwds )
     {
         std::cout << "new_style_class c'tor Called with " << args.length() << " normal arguments." << std::endl;
         Py::List names( kwds.keys() );
@@ -60,7 +60,6 @@ public:
 
     Py::Object new_style_class_func_noargs( void )
     {
-        bpt();
         std::cout << "new_style_class_func_noargs Called." << std::endl;
         return Py::None();
     }
@@ -167,7 +166,7 @@ public:
 private:
     Py::Object func( const Py::Tuple &args, const Py::Dict &kwds )
     {
-        std::cout << "Called with " << args.length() << " normal arguments." << std::endl;
+        std::cout << "func Called with " << args.length() << " normal arguments." << std::endl;
         Py::List names( kwds.keys() );
         std::cout << "and with " << names.length() << " keyword arguments:" << std::endl;
         for( Py::List::size_type i=0; i< names.length(); i++ )
@@ -176,12 +175,27 @@ private:
             std::cout << "    " << name << std::endl;
         }
 
+#ifdef PYCXX_DEBUG
+        if( args.length() > 0 )
+        {
+            Py::Object x( args[0] );
+            PyObject *x_p = x.ptr();
+            std::cout << "func( self=0x" << std::hex << reinterpret_cast< unsigned int >( x_p ) << std::dec << " )" << std::endl;
+            Py::PythonClassInstance *instance_wrapper = reinterpret_cast< Py::PythonClassInstance * >( x_p );
+            new_style_class *instance = static_cast<new_style_class *>( instance_wrapper->cxx_object );
+            std::cout << "    self->cxx_object=0x" << std::hex << reinterpret_cast< unsigned int >( instance ) << std::dec << std::endl;
+        }
+
+        bpt();
+#endif
+
         return Py::None();
     }
 
     Py::Object factory_old_style_class( const Py::Tuple &rargs )
     {
-        return Py::asObject( new old_style_class );
+        Py::Object obj = Py::asObject( new old_style_class );
+        return obj;
     }
 };
 

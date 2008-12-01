@@ -3,7 +3,7 @@
 #
 CCC=g++ -c -g
 CC=gcc -c -g
-CCCFLAGS=-fPIC -I/usr/local/include/python3.0 -I. -DPy_DEBUG
+CCCFLAGS=-fPIC -I/usr/local/include/python3.0 -I. -DPy_DEBUG -UPYCXX_DEBUG
 LDSHARED=g++ -g -shared
 LDLIBS=
 PYTHON=python3.0
