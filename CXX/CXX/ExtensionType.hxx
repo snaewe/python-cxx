@@ -38,7 +38,6 @@
 #ifndef __CXX_ExtensionClass__h
 #define __CXX_ExtensionClass__h
 
-extern void bpt();
 
 namespace Py
 {
