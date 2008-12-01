@@ -18,8 +18,6 @@
 #include <assert.h>
 #include <map>
 
-extern void bpt( void );
-
 template<TEMPLATE_TYPENAME T>
 class EnumString
 {

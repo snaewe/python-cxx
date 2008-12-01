@@ -39,12 +39,23 @@
 
 #include <assert.h>
 
+#ifdef PYCXX_DEBUG
+//
+//  Functions useful when debugging PyCXX
+//
 void bpt( void )
-{}
+{
+}
+
+void printRefCount( PyObject *obj )
+{
+    std::cout << "RefCount of " << reinterpret_cast< unsigned int >( obj ) << " is " << Py_REFCNT( obj ) << std::endl;
+}
+#endif
+
 
 namespace Py 
 {
-
 
 void Object::validate()
 {

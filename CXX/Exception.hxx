@@ -41,6 +41,7 @@
 #include "CXX/WrapPython.h"
 #include "CXX/Version.hxx"
 #include "CXX/Config.hxx"
+#include "CXX/CxxDebug.hxx"
 #include "CXX/IndirectPythonInterface.hxx"
 
 #include <string>

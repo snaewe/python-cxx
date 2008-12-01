@@ -48,6 +48,7 @@
 #include "CXX/WrapPython.h"
 #include "CXX/Version.hxx"
 #include "CXX/Config.hxx"
+#include "CXX/CxxDebug.hxx"
 #include "CXX/Objects.hxx"
 
 extern "C" { extern PyObject py_object_initializer; }
