@@ -73,7 +73,7 @@ namespace Py
 #ifdef PYCXX_PYTHON_2TO3
         virtual int print( FILE *, int );
 #endif
-        virtual Object getattr( const char * ) = 0;
+        virtual Object getattr( const char * );
         virtual int setattr( const char *, const Object & );
         virtual Object getattro( const Object & );
         virtual int setattro( const Object &, const Object & );

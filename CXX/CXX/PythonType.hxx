@@ -80,6 +80,7 @@ namespace Py
         PythonType &set_tp_dealloc( void (*tp_dealloc)( PyObject * ) );
         PythonType &set_tp_init( int (*tp_init)( PyObject *self, PyObject *args, PyObject *kwds ) );
         PythonType &set_tp_new( PyObject *(*tp_new)( PyTypeObject *subtype, PyObject *args, PyObject *kwds ) );
+        PythonType &set_methods( PyMethodDef *methods );
 
         // call once all support functions have been called to ready the type
         bool readyType();
