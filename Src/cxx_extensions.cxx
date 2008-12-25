@@ -530,6 +530,12 @@ PythonType &PythonType::set_tp_new( PyObject *(*tp_new)( PyTypeObject *subtype, 
     return *this;
 }
 
+PythonType &PythonType::set_methods( PyMethodDef *methods )
+{
+    table->tp_methods = methods;
+    return *this;
+}
+
 PythonType &PythonType::supportClass()
 {
     table->tp_flags |= Py_TPFLAGS_BASETYPE;
@@ -621,7 +627,7 @@ PythonExtensionBase *getPythonExtensionBase( PyObject *self )
     if( self->ob_type->tp_flags&Py_TPFLAGS_BASETYPE )
     {
         PythonClassInstance *instance = reinterpret_cast<PythonClassInstance *>( self );
-        return instance->cxx_object;
+        return instance->m_pycxx_object;
     }
     else
     {
@@ -1294,6 +1300,12 @@ int PythonExtensionBase::print( FILE *, int )
     return -1;
 }
 #endif
+
+Py::Object PythonExtensionBase::getattr( const char * )
+{
+    missing_method( getattr );
+    return Py::None();
+}
 
 int PythonExtensionBase::setattr( const char*, const Py::Object & )
 { 

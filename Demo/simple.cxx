@@ -42,20 +42,14 @@ public:
     {
         behaviors().name( "new_style_class" );
         behaviors().doc( "documentation for new_style_class class" );
-        behaviors().supportGetattr();
+        //behaviors().supportGetattr();
 
-        add_noargs_method( "new_style_class_func_noargs", &new_style_class::new_style_class_func_noargs );
-        add_varargs_method( "new_style_class_func_varargs", &new_style_class::new_style_class_func_varargs );
-        add_keyword_method( "new_style_class_func_keyword", &new_style_class::new_style_class_func_keyword );
+        PYCXX_ADD_NOARGS_METHOD( new_style_class_func_noargs, "docs for new_style_class_func_noargs" );
+        PYCXX_ADD_VARARGS_METHOD( new_style_class_func_varargs, "docs for new_style_class_func_varargs" );
+        PYCXX_ADD_KEYWORDS_METHOD( new_style_class_func_keyword, "docs for new_style_class_func_keyword" );
 
         // Call to make the type ready for use
         behaviors().readyType();
-    }
-
-    // override functions from PythonExtension
-    virtual Py::Object getattr( const char *name )
-    {
-        return getattr_methods( name );
     }
 
     Py::Object new_style_class_func_noargs( void )
@@ -63,12 +57,14 @@ public:
         std::cout << "new_style_class_func_noargs Called." << std::endl;
         return Py::None();
     }
+    PYCXX_NOARGS_METHOD_DECL( new_style_class, new_style_class_func_noargs )
 
     Py::Object new_style_class_func_varargs( const Py::Tuple &args )
     {
         std::cout << "new_style_class_func_varargs Called with " << args.length() << " normal arguments." << std::endl;
         return Py::None();
     }
+    PYCXX_VARARGS_METHOD_DECL( new_style_class, new_style_class_func_varargs )
 
     Py::Object new_style_class_func_keyword( const Py::Tuple &args, const Py::Dict &kwds )
     {
@@ -82,6 +78,7 @@ public:
         }
         return Py::None();
     }
+    PYCXX_KEYWORDS_METHOD_DECL( new_style_class, new_style_class_func_keyword )
 };
 
 
