@@ -1,40 +1,21 @@
-<html>
-
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<meta HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=windows-1252">
-<title>Writing Python Extensions in C++</title>
-<style>
-H1, H2, H3, H4 {color: #000099;
-        background-color: lightskyblue}
-h3 {position: relative; left: 20px}
-
-p {position: relative; left: 20px; margin-right: 20px}
-pre {color: #0000cc; background-color: #eeeeee; position: relative; left: 40px; margin-right: 80px;
-        border-style: solid; border-color: black; border-width: thin}
-kbd {color: #990000}
-p cite, ol cite, ul cite {font-family: monospace; font-style: normal; font-size: normal}
-li var, pre var, p var, kbd var {color: #009900; font-style: italic}
-li samp, pre samp, p samp, kbd samp {color: #009900; font-weight: bold}
-li p {position: relative; left: 0}
-table { position: relative; left: 20px; border: solid #888888 1px; background-color: #eeeeee}
-table th {border: solid #888888 1px; background-color: #88dd88; color: black}
-table td {border: solid #888888 1px}
-table td.code {border: solid #888888 1px;font-family: monospace; font-style: normal; font-size: normal}
-p.param {background-color: #eeeeee; border-top: lightskyblue solid 4}
-</style>
-
+<title>Writing Python Extensions in C++ with PyCXX</title>
+<link rel="stylesheet" type="text/css" href="style.css" />
 </head>
 
-<body bgcolor="#FFFFFF">
+<body>
 
-<h1 ALIGN="center">Writing Python Extensions in C++</h1>
+<h1>Writing Python Extensions in C++</h1>
 
-<p ALIGN="CENTER">Barry Scott<br>
+<p>Barry Scott<br>
 Reading, Berkshire, England<br>
 <a href="mailto:barry@barrys-emacs.org">barry@barrys-emacs.org</a><br>
 </p>
 
-<p ALIGN="CENTER">Paul F. Dubois, <a href="mailto:dubois1@llnl.gov">dubois1@llnl.gov</a><br>
+<p>Paul F. Dubois, <a href="mailto:dubois1@llnl.gov">dubois1@llnl.gov</a><br>
 Lawrence Livermore National Laboratory<br>
 Livermore, California, U.S.A.</p>
 
@@ -51,11 +32,11 @@ integrates Python with C++ in these ways: </p>
 <ul>
   <li>C++ exception handling is relied on to detect errors and clean up. In a complicated
     function this is often a tremendous problem when writing in C. With PyCXX, we let the
-    compiler keep track of what objects need to be dereferenced when an error occurs.
+    compiler keep track of what objects need to be dereferenced when an error occurs.</li>
   <li>The Standard Template Library (STL) and its many algorithms plug and play with Python
-    containers such as lists and tuples.
+    containers such as lists and tuples.</li>
   <li>The optional CXX_Extensions facility allows you to replace the clumsy C tables with
-    objects and method calls that define your modules and extension objects.
+    objects and method calls that define your modules and extension objects.</li>
 </ul>
 
 <h3>Download and Installation</h3>
@@ -63,13 +44,13 @@ integrates Python with C++ in these ways: </p>
 <p>Download PyCXX from <a href="http://sourceforge.net/projects/cxx/">http://sourceforge.net/projects/cxx/</a>.</p>
 
 <p>The distribution layout is:</p>
-<table>
+<table cellspacing="0" cellpadding="3px">
 <tr><th>Directory</th><th>Description</th></tr>
-<tr><td class=code>.</td><td>Makefile for Unix and Windows, Release documentation</td>
-<tr><td class=code>./CXX</td><td>Header files</td>
-<tr><td class=code>./Src</td><td>Source files</td>
-<tr><td class=code>./Doc</td><td>Documentation</td>
-<tr><td class=code>./Demo</td><td>Testing and Demonstartion files</td>
+<tr><td class="code">.</td><td>Makefile for Unix and Windows, Release documentation</td>
+<tr><td class="code">./CXX</td><td>Header files</td>
+<tr><td class="code">./Src</td><td>Source files</td>
+<tr><td class="code">./Doc</td><td>Documentation</td>
+<tr><td class="code">./Demo</td><td>Testing and Demonstartion files</td>
 </table>
 
 <p>To use PyCXX you use its include files and add its source routines to your module.</p>
@@ -98,9 +79,9 @@ the Py:: prefix when referring to them, or include the statement:</p>
 
 <p>using namespace Py;</p>
 
-<h2>Wrappers for standard objects: CXX_Objects.h</h2>
+<h2>Wrappers for standard objects: CXX/Objects.hxx</h2>
 
-<p>Header file CXX_Objects.h requires adding file Src/cxxsupport.cxx to
+<p>Header file CXX/Objects.hxx requires adding file Src/cxxsupport.cxx to
 your module sources. CXX_Objects provides a set of wrapper classes that allow you access
 to most of the Python C API using a C++ notation that closely resembles Python. For
 example, this Python:</p>
@@ -327,224 +308,224 @@ returns an <cite>Object</cite> created using the owned reference. For example, t
 and its descendents, you probably will not use asObject all that often.</p>
 <h3>Table 1: Class Object</h3>
 
-<table cellspacing=0 cellpadding=3px width="95%">
+<table cellspacing="0" cellpadding="3px">
 <tr>
 <th>Returns</th>
 <th>Name(signature)</th>
 <th>Comment</th>
 </tr>
 <tr>
-<td colspan="3"><p align="center"><strong>Basic Methods</strong></td>
+<td colspan="3"><p><strong>Basic Methods</strong></td>
 </tr>
 <tr>
-<td class=code>explicit </td>
-<td class=code>Object (PyObject* pyob=Py_None, bool owned=false) </td>
+<td class="code">explicit </td>
+<td class="code">Object (PyObject* pyob=Py_None, bool owned=false) </td>
 <td>Construct from pointer. </td>
 </tr>
 <tr>
-<td class=code>explicit</td>
-<td class=code>Object (const Object&amp; ob)</td>
+<td class="code">explicit</td>
+<td class="code">Object (const Object&amp; ob)</td>
 <td>Copycons; acquires an owned reference.</td>
 </tr>
 <tr>
-<td class=code>Object&amp;</td>
-<td class=code>operator= (const Object&amp; rhs) </td>
+<td class="code">Object&amp;</td>
+<td class="code">operator= (const Object&amp; rhs) </td>
 <td>Acquires an owned reference.</td>
 </tr>
 <tr>
-<td class=code>Object&amp;</td>
-<td class=code>operator= (PyObject* rhsp) </td>
+<td class="code">Object&amp;</td>
+<td class="code">operator= (PyObject* rhsp) </td>
 <td>Acquires an owned reference.</td>
 </tr>
 <tr>
-<td class=code>virtual</td>
-<td class=code>~Object () </td>
+<td class="code">virtual</td>
+<td class="code">~Object () </td>
 <td>Releases the reference.</td>
 </tr>
 <tr>
-<td class=code>void</td>
-<td class=code>increment_reference_count() </td>
+<td class="code">void</td>
+<td class="code">increment_reference_count() </td>
 <td>Explicitly increment the count</td>
 </tr>
 <tr>
-<td class=code>void</td>
-<td class=code>decrement_reference_count()</td>
+<td class="code">void</td>
+<td class="code">decrement_reference_count()</td>
 <td>Explicitly decrement count but not to zero</td>
 </tr>
 <tr>
-<td class=code>PyObject*</td>
-<td class=code>operator* () const</td>
+<td class="code">PyObject*</td>
+<td class="code">operator* () const</td>
 <td>Lends the pointer</td>
 </tr>
 <tr>
-<td class=code>PyObject*</td>
-<td class=code>ptr () const</td>
+<td class="code">PyObject*</td>
+<td class="code">ptr () const</td>
 <td>Lends the pointer</td>
 </tr>
 <tr>
-<td class=code>virtual bool</td>
-<td class=code>accepts (PyObject *pyob) const</td>
+<td class="code">virtual bool</td>
+<td class="code">accepts (PyObject *pyob) const</td>
 <td>Would assignment of pyob to this object succeed?</td>
 </tr>
 <tr>
-<td class=code>std::string</td>
-<td class=code>as_string() const</td>
+<td class="code">std::string</td>
+<td class="code">as_string() const</td>
 <td>str() representation</td>
 </tr>
 <tr>
-<td colspan="3" align="center"><strong>Python API Interface</strong></td>
+<td colspan="3"><strong>Python API Interface</strong></td>
 </tr>
 <tr>
-<td class=code>int</td>
-<td class=code>reference_count () const </td>
+<td class="code">int</td>
+<td class="code">reference_count () const </td>
 <td>reference count</td>
 </tr>
 <tr>
-<td class=code>Type</td>
-<td class=code>type () const</td>
+<td class="code">Type</td>
+<td class="code">type () const</td>
 <td>associated type object</td>
 </tr>
 <tr>
-<td class=code>String</td>
-<td class=code>str () const</td>
+<td class="code">String</td>
+<td class="code">str () const</td>
 <td>str() representation</td>
 </tr>
 <tr>
-<td class=code>String</td>
-<td class=code>repr () const</td>
+<td class="code">String</td>
+<td class="code">repr () const</td>
 <td>repr () representation</td>
 </tr>
 <tr>
-<td class=code>bool</td>
-<td class=code>hasAttr (const std::string&amp; s) const</td>
+<td class="code">bool</td>
+<td class="code">hasAttr (const std::string&amp; s) const</td>
 <td>hasattr(this, s)</td>
 </tr>
 <tr>
-<td class=code>Object</td>
-<td class=code>getAttr (const std::string&amp; s) const</td>
+<td class="code">Object</td>
+<td class="code">getAttr (const std::string&amp; s) const</td>
 <td>getattr(this, s)</td>
 </tr>
 <tr>
-<td class=code>Object</td>
-<td class=code>getItem (const Object&amp; key) const</td>
+<td class="code">Object</td>
+<td class="code">getItem (const Object&amp; key) const</td>
 <td>getitem(this, key)</td>
 </tr>
 <tr>
-<td class=code>long</td>
-<td class=code>hashValue () const</td>
+<td class="code">long</td>
+<td class="code">hashValue () const</td>
 <td>hash(this)</td>
 </tr>
 <tr>
-<td class=code>void</td>
-<td class=code>setAttr (const std::string&amp; s,<br>const Object&amp; value)</td>
+<td class="code">void</td>
+<td class="code">setAttr (const std::string&amp; s,<br>const Object&amp; value)</td>
 <td>this.s = value</td>
 </tr>
 <tr>
-<td class=code>void</td>
-<td class=code>delAttr (const std::string&amp; s) </td>
+<td class="code">void</td>
+<td class="code">delAttr (const std::string&amp; s) </td>
 <td>del this.s</td>
 </tr>
 <tr>
-<td class=code>void</td>
-<td class=code>delItem (const Object&amp; key) </td>
+<td class="code">void</td>
+<td class="code">delItem (const Object&amp; key) </td>
 <td>del this[key]</td>
 </tr>
 <tr>
-<td class=code>bool</td>
-<td class=code>isCallable () const</td>
+<td class="code">bool</td>
+<td class="code">isCallable () const</td>
 <td>does this have callable behavior?</td>
 </tr>
 <tr>
-<td class=code>bool</td>
-<td class=code>isList () const</td>
+<td class="code">bool</td>
+<td class="code">isList () const</td>
 <td>is this a Python list?</td>
 </tr>
 <tr>
-<td class=code>bool</td>
-<td class=code>isMapping () const</td>
+<td class="code">bool</td>
+<td class="code">isMapping () const</td>
 <td>does this have mapping behaviors?</td>
 </tr>
 <tr>
-<td class=code>bool</td>
-<td class=code>isNumeric () const</td>
+<td class="code">bool</td>
+<td class="code">isNumeric () const</td>
 <td>does this have numeric behaviors?</td>
 </tr>
 <tr>
-<td class=code>bool</td>
-<td class=code>isSequence () const </td>
+<td class="code">bool</td>
+<td class="code">isSequence () const </td>
 <td>does this have sequence behaviors?</td>
 </tr>
 <tr>
-<td class=code>bool</td>
-<td class=code>isTrue () const</td>
+<td class="code">bool</td>
+<td class="code">isTrue () const</td>
 <td>is this true in the Python sense?</td>
 </tr>
 <tr>
-<td class=code>bool</td>
-<td class=code>isType (const Type&amp; t) const</td>
+<td class="code">bool</td>
+<td class="code">isType (const Type&amp; t) const</td>
 <td>is type(this) == t?</td>
 </tr>
 <tr>
-<td class=code>bool</td>
-<td class=code>isTuple() const</td>
+<td class="code">bool</td>
+<td class="code">isTuple() const</td>
 <td>is this a Python tuple?</td>
 </tr>
 <tr>
-<td class=code>bool</td>
-<td class=code>isString() const</td>
+<td class="code">bool</td>
+<td class="code">isString() const</td>
 <td>is this a Python string?</td>
 </tr>
 <tr>
-<td class=code>bool</td>
-<td class=code>isUnicode() const</td>
+<td class="code">bool</td>
+<td class="code">isUnicode() const</td>
 <td>is this a Python Unicode string?</td>
 </tr>
 <tr>
-<td class=code>bool</td>
-<td class=code>isDict() const</td>
+<td class="code">bool</td>
+<td class="code">isDict() const</td>
 <td>is this a Python dictionary?</td>
 </tr>
 <tr>
-<td colspan="3" align="center"><strong>Comparison Operators</strong></td>
+<td colspan="3"><strong>Comparison Operators</strong></td>
 </tr>
 <tr>
-<td class=code>bool</td>
-<td class=code>is(PyObject* pother) const</td>
+<td class="code">bool</td>
+<td class="code">is(PyObject* pother) const</td>
 <td>test for identity</td>
 </tr>
 <tr>
-<td class=code>bool</td>
-<td class=code>is(const Object&amp; other) const</td>
+<td class="code">bool</td>
+<td class="code">is(const Object&amp; other) const</td>
 <td>test for identity</td>
 </tr>
 <tr>
-<td class=code>bool </td>
-<td class=code>operator==(const Object&amp; o2) const</td>
+<td class="code">bool </td>
+<td class="code">operator==(const Object&amp; o2) const</td>
 <td>Comparisons use Python cmp</td>
 </tr>
 <tr>
-<td class=code>bool</td>
-<td class=code>operator!=(const Object&amp; o2) const</td>
+<td class="code">bool</td>
+<td class="code">operator!=(const Object&amp; o2) const</td>
 <td>Comparisons use Python cmp</td>
 </tr>
 <tr>
-<td class=code>bool</td>
-<td class=code>operator&gt;=(const Object&amp; o2) const</td>
+<td class="code">bool</td>
+<td class="code">operator&gt;=(const Object&amp; o2) const</td>
 <td>Comparisons use Python cmp</td>
 </tr>
 <tr>
-<td class=code>bool</td>
-<td class=code>operator&lt;=(const Object&amp; o2) const </td>
+<td class="code">bool</td>
+<td class="code">operator&lt;=(const Object&amp; o2) const </td>
 <td>Comparisons use Python cmp</td>
 </tr>
 <tr>
-<td class=code>bool</td>
-<td class=code>operator&lt;(const Object&amp; o2) const</td>
+<td class="code">bool</td>
+<td class="code">operator&lt;(const Object&amp; o2) const</td>
 <td>Comparisons use Python cmp</td>
 </tr>
 <tr>
-<td class=code>bool</td>
-<td class=code>operator&gt;(const Object&amp; o2) const</td>
+<td class="code">bool</td>
+<td class="code">operator&gt;(const Object&amp; o2) const</td>
 <td>Comparisons use Python cmp</td>
 </tr>
 </table>
@@ -562,40 +543,40 @@ in a class, the name is underlined. </p>
 
 <h3>Table 2: class Type</h3>
 
-<table cellspacing=0 cellpadding=3px width="95%">
+<table cellspacing="0" cellpadding="3px">
 <tr>
 <th>Returns</th>
 <th>Name and Signature</th>
 <th>Comments</th>
 </tr>
 <tr>
-<td class=code>explicit</td>
-<td class=code>Type (PyObject* pyob, bool owned = false)</td>
+<td class="code">explicit</td>
+<td class="code">Type (PyObject* pyob, bool owned = false)</td>
 <td>Constructor</td>
 </tr>
 <tr>
-<td class=code>explicit</td>
-<td class=code>Type (const Object&amp; ob)</td>
+<td class="code">explicit</td>
+<td class="code">Type (const Object&amp; ob)</td>
 <td>Constructor</td>
 </tr>
 <tr>
-<td class=code>explicit</td>
-<td class=code>Type(const Type&amp; t)</td>
+<td class="code">explicit</td>
+<td class="code">Type(const Type&amp; t)</td>
 <td>Copycons</td>
 </tr>
 <tr>
-<td class=code>Type&amp;</td>
-<td class=code>operator= (const Object&amp; rhs) </td>
+<td class="code">Type&amp;</td>
+<td class="code">operator= (const Object&amp; rhs) </td>
 <td>Assignment</td>
 </tr>
 <tr>
-<td class=code>Type&amp;</td>
-<td class=code>operator= (PyObject* rhsp) </td>
+<td class="code">Type&amp;</td>
+<td class="code">operator= (PyObject* rhsp) </td>
 <td>Assignment</td>
 </tr>
 <tr>
-<td class=code>virtual bool</td>
-<td class=code><u>accepts</u> (PyObject *pyob) const</td>
+<td class="code">virtual bool</td>
+<td class="code"><u>accepts</u> (PyObject *pyob) const</td>
 <td>Uses PyType_Check</td>
 </tr>
 </table>
@@ -610,65 +591,65 @@ creates a Python int zero.</p>
 <h3>Table 3: class Int</h3>
 
 
-<table cellspacing=0 cellpadding=3px width="95%">
+<table cellspacing="0" cellpadding="3px">
 <tr>
 <th>Returns</td>
 <th>Name and Signature</td>
 <th>Comments</td>
 </tr>
 <tr>
-<td class=code>explicit</td>
-<td class=code>Int (PyObject *pyob, bool owned= false, bool owned = false)</td>
+<td class="code">explicit</td>
+<td class="code">Int (PyObject *pyob, bool owned= false, bool owned = false)</td>
 <td>Constructor</td>
 </tr>
 <tr>
-<td class=code>explicit</td>
-<td class=code>Int (const Int&amp; ob)</td>
+<td class="code">explicit</td>
+<td class="code">Int (const Int&amp; ob)</td>
 <td>Constructor</td>
 </tr>
 <tr>
-<td class=code>explicit</td>
-<td class=code>Int (long v = 0L)</td>
+<td class="code">explicit</td>
+<td class="code">Int (long v = 0L)</td>
 <td>Construct from long</td>
 </tr>
 <tr>
-<td class=code>explicit</td>
-<td class=code>Int (int v)</td>
+<td class="code">explicit</td>
+<td class="code">Int (int v)</td>
 <td>Contruct from int</td>
 </tr>
 <tr>
-<td class=code>explicit</td>
-<td class=code>Int (const Object&amp; ob)</td>
+<td class="code">explicit</td>
+<td class="code">Int (const Object&amp; ob)</td>
 <td>Copycons</td>
 </tr>
 <tr>
-<td class=code>Int&amp;</td>
-<td class=code>operator= (const Object&amp; rhs)</td>
+<td class="code">Int&amp;</td>
+<td class="code">operator= (const Object&amp; rhs)</td>
 <td>Assignment</td>
 </tr>
 <tr>
-<td class=code>Int&amp;</td>
-<td class=code>operator= (PyObject* rhsp)</td>
+<td class="code">Int&amp;</td>
+<td class="code">operator= (PyObject* rhsp)</td>
 <td>Assignment</td>
 </tr>
 <tr>
-<td class=code>virtual bool&nbsp;&nbsp; </td>
-<td class=code> (PyObject *pyob) const </td>
+<td class="code">virtual bool&nbsp;&nbsp; </td>
+<td class="code"> (PyObject *pyob) const </td>
 <td>Based on PyInt_Check</td>
 </tr>
 <tr>
-<td class=code>long</td>
-<td class=code>operator long() const </td>
+<td class="code">long</td>
+<td class="code">operator long() const </td>
 <td><em>Implicit</em> conversion to long int</td>
 </tr>
 <tr>
-<td class=code>Int&amp;</td>
-<td class=code>operator= (int v)</td>
+<td class="code">Int&amp;</td>
+<td class="code">operator= (int v)</td>
 <td>Assign from int</td>
 </tr>
 <tr>
-<td class=code>Int&amp;</td>
-<td class=code>operator= (long v) </td>
+<td class="code">Int&amp;</td>
+<td class="code">operator= (long v) </td>
 <td>Assign from long</td>
 </tr>
 </table>
@@ -685,70 +666,70 @@ constructors are explicit. The default constructor produces a Python long zero.<
 
 <h3>Table 4: Class Long</h3>
 
-<table cellspacing=0 cellpadding=3px width="95%">
+<table cellspacing="0" cellpadding="3px">
 <tr>
 <th>Returns</td>
 <th>Name and Signature</td>
 <th>Comments</td>
 </tr>
 <tr>
-<td class=code>explicit</td>
-<td class=code>Long (PyObject *pyob</a>, bool owned = false)</td>
+<td class="code">explicit</td>
+<td class="code">Long (PyObject *pyob</a>, bool owned = false)</td>
 <td>Constructor</td>
 </tr>
 <tr>
-<td class=code>explicit</td>
-<td class=code>Long (const Int&amp; ob)</td>
+<td class="code">explicit</td>
+<td class="code">Long (const Int&amp; ob)</td>
 <td>Constructor</td>
 </tr>
 <tr>
-<td class=code>explicit</td>
-<td class=code>Long (long v = 0L)</td>
+<td class="code">explicit</td>
+<td class="code">Long (long v = 0L)</td>
 <td>Construct from long</td>
 </tr>
 <tr>
-<td class=code>explicit</td>
-<td class=code>Long (int v)</td>
+<td class="code">explicit</td>
+<td class="code">Long (int v)</td>
 <td>Contruct from int</td>
 </tr>
 <tr>
-<td class=code>explicit</td>
-<td class=code>Long (const Object&amp; ob)</td>
+<td class="code">explicit</td>
+<td class="code">Long (const Object&amp; ob)</td>
 <td>Copycons</td>
 </tr>
 <tr>
-<td class=code>Long&amp;</td>
-<td class=code>operator= (const Object&amp; rhs)</td>
+<td class="code">Long&amp;</td>
+<td class="code">operator= (const Object&amp; rhs)</td>
 <td>Assignment</td>
 </tr>
 <tr>
-<td class=code>Long&amp;</td>
-<td class=code>operator= (PyObject* rhsp)</td>
+<td class="code">Long&amp;</td>
+<td class="code">operator= (PyObject* rhsp)</td>
 <td>Assignment</td>
 </tr>
 <tr>
-<td class=code>virtual bool</td>
-<td class=code>(PyObject *pyob) const </td>
+<td class="code">virtual bool</td>
+<td class="code">(PyObject *pyob) const </td>
 <td>Based on PyLong_Check</td>
 </tr>
 <tr>
-<td class=code>double</td>
-<td class=code>operator double() const </td>
+<td class="code">double</td>
+<td class="code">operator double() const </td>
 <td><em>Implicit</em> conversion to double</td>
 </tr>
 <tr>
-<td class=code>long</td>
-<td class=code>operator long() const</td>
+<td class="code">long</td>
+<td class="code">operator long() const</td>
 <td><em>Implicit</em> conversion to long</td>
 </tr>
 <tr>
-<td class=code>Long&amp;</td>
-<td class=code>operator= (int v)</td>
+<td class="code">Long&amp;</td>
+<td class="code">operator= (int v)</td>
 <td>Assign from int</td>
 </tr>
 <tr>
-<td class=code>Long&amp;</td>
-<td class=code>operator= (long v) </td>
+<td class="code">Long&amp;</td>
+<td class="code">operator= (long v) </td>
 <td>Assign from long</td>
 </tr>
 </table>
@@ -760,71 +741,71 @@ default constructor produces the Python float 0.0. </p>
 
 <h3>Table 5: Class Float</h3>
 
-<table cellspacing=0 cellpadding=3px width="95%">
+<table cellspacing="0" cellpadding="3px">
 <tr>
 <th>Returns</td>
 <th>Name and Signature</td>
 <th>Comments</td>
 </tr>
 <tr>
-<td class=code>explicit</td>
-<td class=code>Float (PyObject *pyob</a>, bool owned = false)
+<td class="code">explicit</td>
+<td class="code">Float (PyObject *pyob</a>, bool owned = false)
 </td>
 <td>Constructor</td>
 </tr>
 <tr>
-<td class=code></td>
-<td class=code>Float (const Float&amp; f)&nbsp;&nbsp; </td>
+<td class="code"></td>
+<td class="code">Float (const Float&amp; f)&nbsp;&nbsp; </td>
 <td>Construct from float</td>
 </tr>
 <tr>
-<td class=code>explicit</td>
-<td class=code>Float (double v=0.0)</td>
+<td class="code">explicit</td>
+<td class="code">Float (double v=0.0)</td>
 <td>Construct from double</td>
 </tr>
 <tr>
-<td class=code>explicit</td>
-<td class=code>Float (const Object&amp; ob)</td>
+<td class="code">explicit</td>
+<td class="code">Float (const Object&amp; ob)</td>
 <td>Copycons</td>
 </tr>
 <tr>
-<td class=code>Float&amp;</td>
-<td class=code>operator= (const Object&amp; rhs)</td>
+<td class="code">Float&amp;</td>
+<td class="code">operator= (const Object&amp; rhs)</td>
 <td>Assignment</td>
 </tr>
 <tr>
-<td class=code>Float&amp;</td>
-<td class=code>operator= (PyObject* rhsp)</td>
+<td class="code">Float&amp;</td>
+<td class="code">operator= (PyObject* rhsp)</td>
 <td>Assignment</td>
 </tr>
 <tr>
-<td class=code>virtual bool </td>
-<td class=code>accepts (PyObject *pyob) const</td>
+<td class="code">virtual bool </td>
+<td class="code">accepts (PyObject *pyob) const</td>
 <td>Based on PyFloat_Check</td>
 </tr>
 <tr>
-<td class=code>double </td>
-<td class=code>operator double () const</td>
+<td class="code">double </td>
+<td class="code">operator double () const</td>
 <td><em>Implicit</em> conversion to double</td>
 </tr>
 <tr>
-<td class=code>Float&amp; </td>
-<td class=code>operator= (double v)</td>
+<td class="code">Float&amp; </td>
+<td class="code">operator= (double v)</td>
 <td>Assign from double</td>
 </tr>
 <tr>
-<td class=code>Float&amp; </td>
-<td class=code>operator= (int v)</td>
+<td class="code">Float&amp; </td>
+<td class="code">operator= (int v)</td>
 <td>Assign from int</td>
 </tr>
 <tr>
-<td class=code>Float&amp; </td>
-<td class=code>operator= (long v)</td>
+<td class="code">Float&amp; </td>
+<td class="code">operator= (long v)</td>
 <td>Assign from long</td>
 </tr>
 <tr>
-<td class=code>Float&amp; </td>
-<td class=code>operator= (const Int&amp; iob)</td>
+<td class="code">Float&amp; </td>
+<td class="code">operator= (const Int&amp; iob)</td>
 <td>Assign from Int</td>
 </tr>
 </table>
@@ -904,153 +885,153 @@ which makes the desired implicit conversion, explicit.</p>
 
 <p>Each sequence class provides the following interface. The class seqref&lt;T&gt; is the
 proxy class. We omit the details of the iterator, const_iterator, and seqref&lt;T&gt;
-here. See CXX_Objects.h if necessary. The purpose of most of this interface is to satisfy
+here. See CXX/Objects.hxx if necessary. The purpose of most of this interface is to satisfy
 requirements of the STL.</p>
 
 <h3>The SeqBase&lt;T&gt; Interface</h3>
 
 <p>SeqBase&lt;T&gt; inherits from Object.</p>
 
-<table cellspacing=0 cellpadding=3px width="95%">
+<table cellspacing="0" cellpadding="3px">
 <tr>
 <th>Type</td>
 <th>Name</td>
 </tr>
 <tr>
-<td class=code>typedef int </td>
-<td class=code>size_type</td>
+<td class="code">typedef int </td>
+<td class="code">size_type</td>
 </tr>
 <tr>
-<td class=code>typedef seqref&lt;T&gt;</td>
-<td class=code>reference</td>
+<td class="code">typedef seqref&lt;T&gt;</td>
+<td class="code">reference</td>
 </tr>
 <tr>
-<td class=code>typedef T </td>
-<td class=code>const_reference</td>
+<td class="code">typedef T </td>
+<td class="code">const_reference</td>
 </tr>
 <tr>
-<td class=code>typedef seqref&lt;T&gt;*</td>
-<td class=code>pointer</td>
+<td class="code">typedef seqref&lt;T&gt;*</td>
+<td class="code">pointer</td>
 </tr>
 <tr>
-<td class=code>typedef int </td>
-<td class=code>difference_type</td>
+<td class="code">typedef int </td>
+<td class="code">difference_type</td>
 </tr>
 <tr>
-<td class=code>virtual size_type</td>
-<td class=code>max_size() const</td>
+<td class="code">virtual size_type</td>
+<td class="code">max_size() const</td>
 </tr>
 <tr>
-<td class=code>virtual size_type </td>
-<td class=code>capacity() const;</td>
+<td class="code">virtual size_type </td>
+<td class="code">capacity() const;</td>
 </tr>
 <tr>
-<td class=code>virtual void </td>
-<td class=code>swap(SeqBase&lt;T&gt;&amp; c);</td>
+<td class="code">virtual void </td>
+<td class="code">swap(SeqBase&lt;T&gt;&amp; c);</td>
 </tr>
 <tr>
-<td class=code>virtual size_type </td>
-<td class=code>size () const;</td>
+<td class="code">virtual size_type </td>
+<td class="code">size () const;</td>
 </tr>
 <tr>
-<td class=code>explicit </td>
-<td class=code>SeqBase&lt;T&gt; ();</td>
+<td class="code">explicit </td>
+<td class="code">SeqBase&lt;T&gt; ();</td>
 </tr>
 <tr>
-<td class=code>explicit </td>
-<td class=code>SeqBase&lt;T&gt; (PyObject* pyob, bool owned = false);</td>
+<td class="code">explicit </td>
+<td class="code">SeqBase&lt;T&gt; (PyObject* pyob, bool owned = false);</td>
 </tr>
 <tr>
-<td class=code>explicit </td>
-<td class=code>SeqBase&lt;T&gt; (const Object&amp; ob);</td>
+<td class="code">explicit </td>
+<td class="code">SeqBase&lt;T&gt; (const Object&amp; ob);</td>
 </tr>
 <tr>
-<td class=code>SeqBase&lt;T&gt;&amp; </td>
-<td class=code>operator= (const Object&amp; rhs);</td>
+<td class="code">SeqBase&lt;T&gt;&amp; </td>
+<td class="code">operator= (const Object&amp; rhs);</td>
 </tr>
 <tr>
-<td class=code>SeqBase&lt;T&gt;&amp; </td>
-<td class=code>operator= (PyObject* rhsp);</td>
+<td class="code">SeqBase&lt;T&gt;&amp; </td>
+<td class="code">operator= (PyObject* rhsp);</td>
 </tr>
 <tr>
-<td class=code>virtual bool </td>
-<td class=code>accepts (PyObject *pyob) const;</td>
+<td class="code">virtual bool </td>
+<td class="code">accepts (PyObject *pyob) const;</td>
 </tr>
 <tr>
-<td class=code>size_type </td>
-<td class=code>length () const ;</td>
+<td class="code">size_type </td>
+<td class="code">length () const ;</td>
 </tr>
 <tr>
-<td class=code>const T </td>
-<td class=code>operator[](size_type index) const; </td>
+<td class="code">const T </td>
+<td class="code">operator[](size_type index) const; </td>
 </tr>
 <tr>
-<td class=code>seqref&lt;T&gt; </td>
-<td class=code>operator[](size_type index); </td>
+<td class="code">seqref&lt;T&gt; </td>
+<td class="code">operator[](size_type index); </td>
 </tr>
 <tr>
-<td class=code>virtual T </td>
-<td class=code>getItem (size_type i) const;</td>
+<td class="code">virtual T </td>
+<td class="code">getItem (size_type i) const;</td>
 </tr>
 <tr>
-<td class=code>virtual void </td>
-<td class=code>setItem (size_type i, const T&amp; ob);</td>
+<td class="code">virtual void </td>
+<td class="code">setItem (size_type i, const T&amp; ob);</td>
 </tr>
 <tr>
-<td class=code>SeqBase&lt;T&gt; </td>
-<td class=code>repeat (int count) const;</td>
+<td class="code">SeqBase&lt;T&gt; </td>
+<td class="code">repeat (int count) const;</td>
 </tr>
 <tr>
-<td class=code>SeqBase&lt;T&gt; </td>
-<td class=code>concat (const SeqBase&lt;T&gt;&amp; other) const ;</td>
+<td class="code">SeqBase&lt;T&gt; </td>
+<td class="code">concat (const SeqBase&lt;T&gt;&amp; other) const ;</td>
 </tr>
 <tr>
-<td class=code>const T </td>
-<td class=code>front () const;</td>
+<td class="code">const T </td>
+<td class="code">front () const;</td>
 </tr>
 <tr>
-<td class=code>seqref&lt;T&gt; </td>
-<td class=code>front();</td>
+<td class="code">seqref&lt;T&gt; </td>
+<td class="code">front();</td>
 </tr>
 <tr>
-<td class=code>const T </td>
-<td class=code>back () const;</td>
+<td class="code">const T </td>
+<td class="code">back () const;</td>
 </tr>
 <tr>
-<td class=code>seqref&lt;T&gt; </td>
-<td class=code>back(); </td>
+<td class="code">seqref&lt;T&gt; </td>
+<td class="code">back(); </td>
 </tr>
 <tr>
-<td class=code>void </td>
-<td class=code>verify_length(size_type required_size);</td>
+<td class="code">void </td>
+<td class="code">verify_length(size_type required_size);</td>
 </tr>
 <tr>
-<td class=code>void </td>
-<td class=code>verify_length(size_type min_size, size_type max_size);</td>
+<td class="code">void </td>
+<td class="code">verify_length(size_type min_size, size_type max_size);</td>
 </tr>
 <tr>
-<td class=code>class</td>
-<td class=code>iterator;</td>
+<td class="code">class</td>
+<td class="code">iterator;</td>
 </tr>
 <tr>
-<td class=code>iterator </td>
-<td class=code>begin (); </td>
+<td class="code">iterator </td>
+<td class="code">begin (); </td>
 </tr>
 <tr>
-<td class=code>iterator </td>
-<td class=code>end ();</td>
+<td class="code">iterator </td>
+<td class="code">end ();</td>
 </tr>
 <tr>
-<td class=code>class </td>
-<td class=code>const_iterator;</td>
+<td class="code">class </td>
+<td class="code">const_iterator;</td>
 </tr>
 <tr>
-<td class=code>const_iterator </td>
-<td class=code>begin () const;</td>
+<td class="code">const_iterator </td>
+<td class="code">begin () const;</td>
 </tr>
 <tr>
-<td class=code>const_iterator </td>
-<td class=code>end () const;</td>
+<td class="code">const_iterator </td>
+<td class="code">end () const;</td>
 </tr>
 </table>
 
@@ -1076,54 +1057,54 @@ sequence.</p>
 
 <p>Char inherits from Object.</p>
 
-<table cellspacing=0 cellpadding=3px width="95%">
+<table cellspacing="0" cellpadding="3px">
 <tr>
 <th>Type</td>
 <th>Name</td>
 </tr>
 <tr>
-<td class=code>explicit</td>
-<td class=code>Char (PyObject *pyob, bool owned = false)</td>
+<td class="code">explicit</td>
+<td class="code">Char (PyObject *pyob, bool owned = false)</td>
 </tr>
 <tr>
-<td class=code></td>
-<td class=code>Char (const Object&amp; ob) </td>
+<td class="code"></td>
+<td class="code">Char (const Object&amp; ob) </td>
 </tr>
 <tr>
-<td class=code></td>
-<td class=code>Char (const std::string&amp; v = &quot;&quot;) </td>
+<td class="code"></td>
+<td class="code">Char (const std::string&amp; v = &quot;&quot;) </td>
 </tr>
 <tr>
-<td class=code></td>
-<td class=code>Char (char v)</td>
+<td class="code"></td>
+<td class="code">Char (char v)</td>
 </tr>
 <tr>
-<td class=code></td>
-<td class=code>Char (Py_UNICODE v)</td>
+<td class="code"></td>
+<td class="code">Char (Py_UNICODE v)</td>
 </tr>
 <tr>
-<td class=code>Char&amp;</td>
-<td class=code>operator= (const std::string&amp; v)</td>
+<td class="code">Char&amp;</td>
+<td class="code">operator= (const std::string&amp; v)</td>
 </tr>
 <tr>
-<td class=code>Char&amp;</td>
-<td class=code>operator= (char v) </td>
+<td class="code">Char&amp;</td>
+<td class="code">operator= (char v) </td>
 </tr>
 <tr>
-<td class=code>Char&amp;</td>
-<td class=code>operator= (Py_UNICODE v) </td>
+<td class="code">Char&amp;</td>
+<td class="code">operator= (Py_UNICODE v) </td>
 </tr>
 <tr>
-<td class=code>Char&amp;</td>
-<td class=code>operator= (std::basic_string<Py_UNICODE> v) </td>
+<td class="code">Char&amp;</td>
+<td class="code">operator= (std::basic_string<Py_UNICODE> v) </td>
 </tr>
 <tr>
-<td class=code></td>
-<td class=code>operator String() const</td>
+<td class="code"></td>
+<td class="code">operator String() const</td>
 </tr>
 <tr>
-<td class=code></td>
-<td class=code>operator std::string () const </td>
+<td class="code"></td>
+<td class="code">operator std::string () const </td>
 </tr>
 </table>
 
@@ -1131,66 +1112,66 @@ sequence.</p>
 
 <p>String inherits from SeqBase&lt;Char&gt;.</p>
 
-<table cellspacing=0 cellpadding=3px width="95%">
+<table cellspacing="0" cellpadding="3px">
 <tr>
 <th>Type</td>
 <th>Name</td>
 </tr>
 <tr>
-<td class=code>explicit </td>
-<td class=code>String (PyObject *pyob, bool owned = false)</td>
+<td class="code">explicit </td>
+<td class="code">String (PyObject *pyob, bool owned = false)</td>
 </tr>
 <tr>
-<td class=code> </td>
-<td class=code>String (const Object&amp; ob)</td>
+<td class="code"> </td>
+<td class="code">String (const Object&amp; ob)</td>
 </tr>
 <tr>
-<td class=code> </td>
-<td class=code>String (const std::string&amp; v = &quot;&quot;)</td>
+<td class="code"> </td>
+<td class="code">String (const std::string&amp; v = &quot;&quot;)</td>
 </tr>
 <tr>
-<td class=code> </td>
-<td class=code>String (const std::string&amp; v, const char *encoding, const char *error=&quot;strict&quot;)</td>
+<td class="code"> </td>
+<td class="code">String (const std::string&amp; v, const char *encoding, const char *error=&quot;strict&quot;)</td>
 </tr>
 <tr>
-<td class=code> </td>
-<td class=code>String (const char *s, const char *encoding, const char *error=&quot;strict&quot;)</td>
+<td class="code"> </td>
+<td class="code">String (const char *s, const char *encoding, const char *error=&quot;strict&quot;)</td>
 </tr>
 <tr>
-<td class=code> </td>
-<td class=code>String (const char *s, int len, const char *encoding, const char *error=&quot;strict&quot;)</td>
+<td class="code"> </td>
+<td class="code">String (const char *s, int len, const char *encoding, const char *error=&quot;strict&quot;)</td>
 </tr>
 <tr>
-<td class=code> </td>
-<td class=code>String (const std::string&amp; v, std::string::size_type vsize)</td>
+<td class="code"> </td>
+<td class="code">String (const std::string&amp; v, std::string::size_type vsize)</td>
 </tr>
 <tr>
-<td class=code> </td>
-<td class=code>String (const char* v)</td>
+<td class="code"> </td>
+<td class="code">String (const char* v)</td>
 </tr>
 <tr>
-<td class=code>String&amp;</td>
-<td class=code>operator= (const std::string&amp; v) </td>
+<td class="code">String&amp;</td>
+<td class="code">operator= (const std::string&amp; v) </td>
 </tr>
 <tr>
-<td class=code>std::string</td>
-<td class=code>operator std::string () const</td>
+<td class="code">std::string</td>
+<td class="code">operator std::string () const</td>
 </tr>
 <tr>
-<td class=code>String</td>
-<td class=code>encode( const char *encoding, const char *error=&quot;strict&quot; )</td>
+<td class="code">String</td>
+<td class="code">encode( const char *encoding, const char *error=&quot;strict&quot; )</td>
 </tr>
 <tr>
-<td class=code>String</td>
-<td class=code>decode( const char *encoding, const char *error=&quot;strict&quot; )</td>
+<td class="code">String</td>
+<td class="code">decode( const char *encoding, const char *error=&quot;strict&quot; )</td>
 </tr>
 <tr>
-<td class=code>std::string</td>
-<td class=code>as_std_string() const</td>
+<td class="code">std::string</td>
+<td class="code">as_std_string() const</td>
 </tr>
 <tr>
-<td class=code>unicodestring</td>
-<td class=code>as_unicodestring() const</td>
+<td class="code">unicodestring</td>
+<td class="code">as_unicodestring() const</td>
 </tr>
 </table>
 
@@ -1223,51 +1204,51 @@ Tuple t(d.keys())</pre>
 <p>Tuple inherits from Sequence.. Special run-time checks prevent modification if the
 reference count is greater than one.</p>
 
-<table cellspacing=0 cellpadding=3px width="95%">
+<table cellspacing="0" cellpadding="3px">
 <tr>
 <th>Type</td>
 <th>Name</td>
 <th>Comment</td>
 </tr>
 <tr>
-<td class=code>virtual void</td>
-<td class=code>setItem (int offset, const Object&amp;ob) </td>
+<td class="code">virtual void</td>
+<td class="code">setItem (int offset, const Object&amp;ob) </td>
 <td>setItem is overriden to handle tuples properly. </td>
 </tr>
 <tr>
-<td class=code>explicit</td>
-<td class=code>Tuple (PyObject *pyob, bool owned = false)</td>
+<td class="code">explicit</td>
+<td class="code">Tuple (PyObject *pyob, bool owned = false)</td>
 <td></td>
 </tr>
 <tr>
-<td class=code> </td>
-<td class=code>Tuple (const Object&amp; ob)</td>
+<td class="code"> </td>
+<td class="code">Tuple (const Object&amp; ob)</td>
 <td></td>
 </tr>
 <tr>
-<td class=code>explicit</td>
-<td class=code>Tuple (int size = 0)</td>
+<td class="code">explicit</td>
+<td class="code">Tuple (int size = 0)</td>
 <td>Create a tuple of the given size. Items initialize to Py_None. Default is an empty
 tuple.</td>
 </tr>
 <tr>
-<td class=code>explicit</td>
-<td class=code>Tuple (const Sequence&amp; s)</td>
+<td class="code">explicit</td>
+<td class="code">Tuple (const Sequence&amp; s)</td>
 <td>Create a tuple from any sequence.</td>
 </tr>
 <tr>
-<td class=code>Tuple&amp;</td>
-<td class=code>operator= (const Object&amp; rhs)</td>
+<td class="code">Tuple&amp;</td>
+<td class="code">operator= (const Object&amp; rhs)</td>
 <td></td>
 </tr>
 <tr>
-<td class=code>Tuple&amp;</td>
-<td class=code>operator= (PyObject* rhsp)</td>
+<td class="code">Tuple&amp;</td>
+<td class="code">operator= (PyObject* rhsp)</td>
 <td></td>
 </tr>
 <tr>
-<td class=code>Tuple</td>
-<td class=code>getSlice (int i, int j) const </td>
+<td class="code">Tuple</td>
+<td class="code">getSlice (int i, int j) const </td>
 <td>Equivalent to python's t[i:j]</td>
 </tr>
 </table>
@@ -1281,71 +1262,71 @@ Python API for lists. A List is a Sequence.</p>
 
 <p>List inherits from Sequence.</p>
 
-<table cellspacing=0 cellpadding=3px width="95%">
+<table cellspacing="0" cellpadding="3px">
 <tr>
 <th>Type</td>
 <th>Name</td>
 <th>Comment</td>
 </tr>
 <tr>
-<td class=code>explicit</td>
-<td class=code>List (PyObject *pyob, bool owned = false)</td>
+<td class="code">explicit</td>
+<td class="code">List (PyObject *pyob, bool owned = false)</td>
 <td></td>
 </tr>
 <tr>
-<td class=code> </td>
-<td class=code>List (const Object&amp; ob)</td>
+<td class="code"> </td>
+<td class="code">List (const Object&amp; ob)</td>
 <td></td>
 </tr>
 <tr>
-<td class=code> </td>
-<td class=code>List (int size = 0)</td>
+<td class="code"> </td>
+<td class="code">List (int size = 0)</td>
 <td>Create a list of the given size. Items initialized to Py_None. Default is an empty list.</td>
 </tr>
 <tr>
-<td class=code> </td>
-<td class=code>List (const Sequence&amp; s)</td>
+<td class="code"> </td>
+<td class="code">List (const Sequence&amp; s)</td>
 <td>Create a list from any sequence.</td>
 </tr>
 <tr>
-<td class=code>List&amp;</td>
-<td class=code>operator= (const Object&amp; rhs)</td>
+<td class="code">List&amp;</td>
+<td class="code">operator= (const Object&amp; rhs)</td>
 <td></td>
 </tr>
 <tr>
-<td class=code>List&amp;</td>
-<td class=code>operator= (PyObject* rhsp)</td>
+<td class="code">List&amp;</td>
+<td class="code">operator= (PyObject* rhsp)</td>
 <td></td>
 </tr>
 <tr>
-<td class=code>List</td>
-<td class=code>getSlice (int i, int j) const</td>
+<td class="code">List</td>
+<td class="code">getSlice (int i, int j) const</td>
 <td></td>
 </tr>
 <tr>
-<td class=code>void</td>
-<td class=code>setSlice (int i, int j, const Object&amp; v) </td>
+<td class="code">void</td>
+<td class="code">setSlice (int i, int j, const Object&amp; v) </td>
 <td></td>
 </tr>
 <tr>
-<td class=code>void</td>
-<td class=code>append (const Object&amp; ob)</td>
+<td class="code">void</td>
+<td class="code">append (const Object&amp; ob)</td>
 <td></td>
 </tr>
 <tr>
-<td class=code>void</td>
-<td class=code>insert (int i, const Object&amp; ob)</td>
+<td class="code">void</td>
+<td class="code">insert (int i, const Object&amp; ob)</td>
 <td></td>
 </tr>
 <tr>
-<td class=code>void</td>
-<td class=code>sort ()</td>
+<td class="code">void</td>
+<td class="code">sort ()</td>
 <td>Sorts the list in place, using Python's member function. You can also use
 the STL sort function on any List instance.</td>
 </tr>
 <tr>
-<td class=code>void</td>
-<td class=code>reverse ()</td>
+<td class="code">void</td>
+<td class="code">reverse ()</td>
 <td>Reverses the list in place, using Python's member function.</td>
 </tr>
 </table>
@@ -1364,65 +1345,65 @@ behavior for both use and assignment.</p>
 <p>MapBase&lt;T&gt; inherits from Object. T should be chosen to reflect the kind of
 element returned by the mapping.</p>
 
-<table cellspacing=0 cellpadding=3px width="95%">
+<table cellspacing="0" cellpadding="3px">
 <tr>
 <th>Type</td>
 <th>Name</td>
 <th>Comment</td>
 </tr>
 <tr>
-<td class=code>T</td>
-<td class=code>operator[](const std::string&amp; key) const</td>
+<td class="code">T</td>
+<td class="code">operator[](const std::string&amp; key) const</td>
 <td></td>
 </tr>
 <tr>
-<td class=code>mapref&lt;T&gt; </td>
-<td class=code>operator[](const std::string&amp; key)</td>
+<td class="code">mapref&lt;T&gt; </td>
+<td class="code">operator[](const std::string&amp; key)</td>
 <td></td>
 </tr>
 <tr>
-<td class=code>int</td>
-<td class=code>length () const</td>
+<td class="code">int</td>
+<td class="code">length () const</td>
 <td>Number of entries.</td>
 </tr>
 <tr>
-<td class=code>int</td>
-<td class=code>hasKey (const std::string&amp; s) const </td>
+<td class="code">int</td>
+<td class="code">hasKey (const std::string&amp; s) const </td>
 <td>Is m[s] defined?</td>
 </tr>
 <tr>
-<td class=code>T</td>
-<td class=code>getItem (const std::string&amp; s) const</td>
+<td class="code">T</td>
+<td class="code">getItem (const std::string&amp; s) const</td>
 <td>m[s]</td>
 </tr>
 <tr>
-<td class=code>virtual void</td>
-<td class=code>setItem (const std::string&amp; s, const Object&amp; ob)</td>
+<td class="code">virtual void</td>
+<td class="code">setItem (const std::string&amp; s, const Object&amp; ob)</td>
 <td>m[s] = ob</td>
 </tr>
 <tr>
-<td class=code>void</td>
-<td class=code>delItem (const std::string&amp; s)</td>
+<td class="code">void</td>
+<td class="code">delItem (const std::string&amp; s)</td>
 <td>del m[s]</td>
 </tr>
 <tr>
-<td class=code>void</td>
-<td class=code>delItem (const Object&amp; s)</td>
+<td class="code">void</td>
+<td class="code">delItem (const Object&amp; s)</td>
 <td></td>
 </tr>
 <tr>
-<td class=code>List</td>
-<td class=code>keys () const</td>
+<td class="code">List</td>
+<td class="code">keys () const</td>
 <td>A list of the keys.</td>
 </tr>
 <tr>
-<td class=code>List</td>
-<td class=code>values () const</td>
+<td class="code">List</td>
+<td class="code">values () const</td>
 <td>A list of the values.</td>
 </tr>
 <tr>
-<td class=code>List</td>
-<td class=code>items () const</td>
+<td class="code">List</td>
+<td class="code">items () const</td>
 <td>Each item is a key-value pair.</td>
 </tr>
 </table>
@@ -1439,35 +1420,35 @@ d[&quot;Paul Dubois&quot;] = &quot;(925)-422-5426&quot;</pre>
 
 <p>Dict inherits from MapBase&lt;Object&gt;.</p>
 
-<table cellspacing=0 cellpadding=3px width="95%">
+<table cellspacing="0" cellpadding="3px">
 <tr>
 <th>Type</td>
 <th>Name</td>
 <th>Comment</td>
 </tr>
 <tr>
-<td class=code>explicit</td>
-<td class=code>Dict (PyObject *pyob</a>, bool owned = false)</td>
+<td class="code">explicit</td>
+<td class="code">Dict (PyObject *pyob</a>, bool owned = false)</td>
 <td></td>
 </tr>
 <tr>
-<td class=code> </td>
-<td class=code>Dict (const Dict&amp; ob)</td>
+<td class="code"> </td>
+<td class="code">Dict (const Dict&amp; ob)</td>
 <td></td>
 </tr>
 <tr>
-<td class=code> </td>
-<td class=code>Dict () </td>
+<td class="code"> </td>
+<td class="code">Dict () </td>
 <td>Creates an empty dictionary</td>
 </tr>
 <tr>
-<td class=code>Dict&amp;</td>
-<td class=code>operator= (const Object&amp; rhs)</td>
+<td class="code">Dict&amp;</td>
+<td class="code">operator= (const Object&amp; rhs)</td>
 <td></td>
 </tr>
 <tr>
-<td class=code>Dict&amp;</td>
-<td class=code>operator= (PyObject* rhsp)</td>
+<td class="code">Dict&amp;</td>
+<td class="code">operator= (PyObject* rhsp)</td>
 <td></td>
 </tr>
 </table>
@@ -1480,70 +1461,70 @@ module, however, see the extension facility. There is a large set of numeric ope
 
 <h3>Interface to class Callable</h3>
 
-<table cellspacing=0 cellpadding=3px width="95%">
+<table cellspacing="0" cellpadding="3px">
 <tr>
 <th>Type</td>
 <th>Name</td>
 <th>Comment</td>
 </tr>
 <tr>
-<td class=code>explicit</td>
-<td class=code>Callable (PyObject *pyob</a>, bool owned = false)</td>
+<td class="code">explicit</td>
+<td class="code">Callable (PyObject *pyob</a>, bool owned = false)</td>
 <td></td>
 </tr>
 <tr>
-<td class=code>Callable&amp; </td>
-<td class=code>operator= (const Object&amp; rhs)</td>
+<td class="code">Callable&amp; </td>
+<td class="code">operator= (const Object&amp; rhs)</td>
 <td></td>
 </tr>
 <tr>
-<td class=code>Callable&amp; </td>
-<td class=code>operator= (PyObject* rhsp)</td>
+<td class="code">Callable&amp; </td>
+<td class="code">operator= (PyObject* rhsp)</td>
 <td></td>
 </tr>
 <tr>
-<td class=code>Object</td>
-<td class=code>apply(const Tuple&amp; args) const</td>
+<td class="code">Object</td>
+<td class="code">apply(const Tuple&amp; args) const</td>
 <td>Call the object with the given arguments</td>
 </tr>
 <tr>
-<td class=code>Object</td>
-<td class=code>apply(PyObject* pargs = 0) const </td>
+<td class="code">Object</td>
+<td class="code">apply(PyObject* pargs = 0) const </td>
 <td>Call the object with args as the arguments. Checks that pargs is a tuple.</td>
 </tr>
 </table>
 
 <h3>Interface to class Module</h3>
 
-<table cellspacing=0 cellpadding=3px width="95%">
+<table cellspacing="0" cellpadding="3px">
 <tr>
 <th>Type</td>
 <th>Name</td>
 <th>Comment</td>
 </tr>
 <tr>
-<td class=code>explicit</td>
-<td class=code>Module (PyObject* pyob, bool owned = false)</td>
+<td class="code">explicit</td>
+<td class="code">Module (PyObject* pyob, bool owned = false)</td>
 <td></td>
 </tr>
 <tr>
-<td class=code>explicit</td>
-<td class=code>Module (const std::string name)</td>
+<td class="code">explicit</td>
+<td class="code">Module (const std::string name)</td>
 <td>Construct from name of module; does the import if needed.</td>
 </tr>
 <tr>
-<td class=code></td>
-<td class=code>Module (const Module&amp; ob) </td>
+<td class="code"></td>
+<td class="code">Module (const Module&amp; ob) </td>
 <td>Copy constructor</td>
 </tr>
 <tr>
-<td class=code>Module&amp;</td>
-<td class=code>operator= (const Object&amp; rhs) </td>
+<td class="code">Module&amp;</td>
+<td class="code">operator= (const Object&amp; rhs) </td>
 <td>Assignment</td>
 </tr>
 <tr>
-<td class=code>Module&amp;</td>
-<td class=code>operator= (PyObject* rhsp) </td>
+<td class="code">Module&amp;</td>
+<td class="code">operator= (PyObject* rhsp) </td>
 <td>Assignment</td>
 </tr>
 </table>
@@ -1590,78 +1571,78 @@ merely throw Exception.</p>
 <p>The exception hierarchy mirrors the Python exception hierarchy. The concrete exception
 classes are shown here.</p>
 
-<table cellspacing=0 cellpadding=3px width="95%">
+<table cellspacing="0" cellpadding="3px">
 <tr>
 <th>Type</th>
 <th>Interface for class Exception</th>
 </tr>
 <tr>
-<td class=code>explicit </td>
-<td class=code>Exception()</td>
+<td class="code">explicit </td>
+<td class="code">Exception()</td>
 </tr>
 <tr>
-<td class=code> </td>
-<td class=code>Exception (const std::string&amp; reason) </td>
+<td class="code"> </td>
+<td class="code">Exception (const std::string&amp; reason) </td>
 </tr>
 <tr>
-<td class=code> </td>
-<td class=code>Exception (PyObject* exception, const std::string&amp; reason) </td>
+<td class="code"> </td>
+<td class="code">Exception (PyObject* exception, const std::string&amp; reason) </td>
 </tr>
 <tr>
-<td class=code>void </td>
-<td class=code>clear()</td>
+<td class="code">void </td>
+<td class="code">clear()</td>
 </tr>
 <tr>
-<td class=code></td>
+<td class="code"></td>
 <td>Constructors for other children of class Exception</td>
 </tr>
 <tr>
-<td class=code> </td>
-<td class=code>TypeError (const std::string&amp; reason)</td>
+<td class="code"> </td>
+<td class="code">TypeError (const std::string&amp; reason)</td>
 </tr>
 <tr>
-<td class=code> </td>
-<td class=code>IndexError (const std::string&amp; reason)</td>
+<td class="code"> </td>
+<td class="code">IndexError (const std::string&amp; reason)</td>
 </tr>
 <tr>
-<td class=code> </td>
-<td class=code>AttributeError (const std::string&amp; reason)</td>
+<td class="code"> </td>
+<td class="code">AttributeError (const std::string&amp; reason)</td>
 </tr>
 <tr>
-<td class=code> </td>
-<td class=code>NameError (const std::string&amp; reason)</td>
+<td class="code"> </td>
+<td class="code">NameError (const std::string&amp; reason)</td>
 </tr>
 <tr>
-<td class=code> </td>
-<td class=code>RuntimeError (const std::string&amp; reason)</td>
+<td class="code"> </td>
+<td class="code">RuntimeError (const std::string&amp; reason)</td>
 </tr>
 <tr>
-<td class=code> </td>
-<td class=code>SystemError (const std::string&amp; reason)</td>
+<td class="code"> </td>
+<td class="code">SystemError (const std::string&amp; reason)</td>
 </tr>
 <tr>
-<td class=code> </td>
-<td class=code>KeyError (const std::string&amp; reason)</td>
+<td class="code"> </td>
+<td class="code">KeyError (const std::string&amp; reason)</td>
 </tr>
 <tr>
-<td class=code> </td>
-<td class=code>ValueError (const std::string&amp; reason)</td>
+<td class="code"> </td>
+<td class="code">ValueError (const std::string&amp; reason)</td>
 </tr>
 <tr>
-<td class=code> </td>
-<td class=code>OverflowError (const std::string&amp; reason)</td>
+<td class="code"> </td>
+<td class="code">OverflowError (const std::string&amp; reason)</td>
 </tr>
 <tr>
-<td class=code> </td>
-<td class=code>ZeroDivisionError (const std::string&amp; reason)</td>
+<td class="code"> </td>
+<td class="code">ZeroDivisionError (const std::string&amp; reason)</td>
 </tr>
 <tr>
-<td class=code> </td>
-<td class=code>MemoryError (const std::string&amp; reason)</td>
+<td class="code"> </td>
+<td class="code">MemoryError (const std::string&amp; reason)</td>
 </tr>
 <tr>
-<td class=code> </td>
-<td class=code>SystemExit (const std::string&amp; reason)</td>
+<td class="code"> </td>
+<td class="code">SystemExit (const std::string&amp; reason)</td>
 </tr>
 </table>
 
@@ -1798,45 +1779,45 @@ return its dictionary.</p>
 
 <h3>Interface to class ExtensionModule</h3>
 
-<table cellspacing=0 cellpadding=3px width="95%">
+<table cellspacing="0" cellpadding="3px">
 <tr>
 <th>Type</td>
 <th>Name</td>
 <th>Comment</td>
 </tr>
 <tr>
-<td class=code>explicit</td>
-<td class=code>ExtensionModule (char* name)   </td>
+<td class="code">explicit</td>
+<td class="code">ExtensionModule (char* name)   </td>
 <td>Create an extension module named &quot;name&quot;</td>
 </tr>
 <tr>
-<td class=code>virtual   </td>
-<td class=code>~ExtensionModule ()   </td>
+<td class="code">virtual   </td>
+<td class="code">~ExtensionModule ()   </td>
 <td>Destructor</td>
 </tr>
 <tr>
-<td class=code>Dict</td>
-<td class=code>moduleDictionary() const</td>
+<td class="code">Dict</td>
+<td class="code">moduleDictionary() const</td>
 <td>Returns the module dictionary; module must be initialized.</td>
 </tr>
 <tr>
-<td class=code>Module</td>
-<td class=code>module() const</td>
+<td class="code">Module</td>
+<td class="code">module() const</td>
 <td>This module as a Module.</td>
 </tr>
 <tr>
-<td class=code>void   </td>
-<td class=code>add_varargs_method (char *name,  method_varargs_function_t method, char *documentation=&quot;&quot;)</td>
+<td class="code">void   </td>
+<td class="code">add_varargs_method (char *name,  method_varargs_function_t method, char *documentation=&quot;&quot;)</td>
 <td>Add a method to the module.</td>
 </tr>
 <tr>
-<td class=code>void </td>
-<td class=code>add_keyword_method (char *name,  method_keyword_function_t method, char *documentation=&quot;&quot;</td>
+<td class="code">void </td>
+<td class="code">add_keyword_method (char *name,  method_keyword_function_t method, char *documentation=&quot;&quot;</td>
 <td>Add a method that takes keywords</td>
 </tr>
 <tr>
-<td class=code>void</td>
-<td class=code>initialize() (protected, call from constructor)</td>
+<td class="code">void</td>
+<td class="code">initialize() (protected, call from constructor)</td>
 <td>Initialize the module once all methods have been added. </td>
 </tr>
 </table>
@@ -1951,48 +1932,48 @@ a method in some module that can create range objects, too.</p>
 
 <p>Your extension class T inherits PythonExtension&lt;T&gt;.</p>
 
-<table cellspacing=0 cellpadding=3px width="95%">
+<table cellspacing="0" cellpadding="3px">
 <tr>
 <th>Type</td>
 <th>Name</td>
 <th>Comment</td>
 </tr>
 <tr>
-<td class=code>virtual   </td>
-<td class=code>~PythonExtension&lt;T&gt;()   </td>
+<td class="code">virtual   </td>
+<td class="code">~PythonExtension&lt;T&gt;()   </td>
 <td>Destructor</td>
 </tr>
 <tr>
-<td class=code>PyTypeObject* </td>
-<td class=code>type_object() const</td>
+<td class="code">PyTypeObject* </td>
+<td class="code">type_object() const</td>
 <td>Returns the object type object.</td>
 </tr>
 <tr>
-<td class=code>int</td>
-<td class=code>check (PyObject* p)</td>
+<td class="code">int</td>
+<td class="code">check (PyObject* p)</td>
 <td>Is p a T?</td>
 </tr>
 <tr>
 <td colspan="3"><strong>Protected </strong></td>
 </tr>
 <tr>
-<td class=code>void </td>
-<td class=code>add_varargs_method (char *name,  method_keyword_function_t method, char *documentation=&quot;&quot;</td>
+<td class="code">void </td>
+<td class="code">add_varargs_method (char *name,  method_keyword_function_t method, char *documentation=&quot;&quot;</td>
 <td>Add a method that takes arguments</td>
 </tr>
 <tr>
-<td class=code>void </td>
-<td class=code>add_keyword_method (char *name,  method_keyword_function_t method, char *documentation=&quot;&quot;</td>
+<td class="code">void </td>
+<td class="code">add_keyword_method (char *name,  method_keyword_function_t method, char *documentation=&quot;&quot;</td>
 <td>Add a method that takes keywords</td>
 </tr>
 <tr>
-<td class=code>static PythonType&amp;</td>
-<td class=code>behaviors()</td>
+<td class="code">static PythonType&amp;</td>
+<td class="code">behaviors()</td>
 <td>The type object</td>
 </tr>
 <tr>
-<td class=code>void</td>
-<td class=code>initialize() (protected, call from constructor)</td>
+<td class="code">void</td>
+<td class="code">initialize() (protected, call from constructor)</td>
 <td>Initialize the module once all methods have been added. </td>
 </tr>
 </table>
