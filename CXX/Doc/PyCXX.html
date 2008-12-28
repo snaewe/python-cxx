@@ -1,46 +1,28 @@
-<html>
-
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-<meta HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=windows-1252">
-<title>Writing Python Extensions in C++</title>
-<style>
-H1, H2, H3, H4 {color: #000099;
-        background-color: lightskyblue}
-h3 {position: relative; left: 20px}
-
-p {position: relative; left: 20px; margin-right: 20px}
-pre {color: #0000cc; background-color: #eeeeee; position: relative; left: 40px; margin-right: 80px;
-        border-style: solid; border-color: black; border-width: thin}
-kbd {color: #990000}
-p cite, ol cite, ul cite {font-family: monospace; font-style: normal; font-size: normal}
-li var, pre var, p var, kbd var {color: #009900; font-style: italic}
-li samp, pre samp, p samp, kbd samp {color: #009900; font-weight: bold}
-li p {position: relative; left: 0}
-table { position: relative; left: 20px; border: solid #888888 1px; background-color: #eeeeee}
-table th {border: solid #888888 1px; background-color: #88dd88; color: black}
-table td {border: solid #888888 1px}
-table td.code {border: solid #888888 1px;font-family: monospace; font-style: normal; font-size: normal}
-p.param {background-color: #eeeeee; border-top: lightskyblue solid 4}
-</style>
-
+<link rel="stylesheet" type="text/css" href="style.css" />
 </head>
+<body>
+<h1>Writing Python Extensions in C++ with PyCXX</h1>
 
-<body bgcolor="#FFFFFF">
+<div>Barry Scott</div>
+<div><a href="mailto:barry@barrys-emacs.org">barry@barrys-emacs.org</a></div>
 
-<h1 ALIGN="center">Writing Python Extensions in C++</h1>
+<h2>Acknowledgments</h2>
 
-<p ALIGN="CENTER">Barry Scott<br>
-Reading, Berkshire, England<br>
-<a href="mailto:barry@barrys-emacs.org">barry@barrys-emacs.org</a><br>
-</p>
+<p>Thank you to Geoffrey Furnish for patiently teaching me the finer points of C++ and its
+template facility, and his critique of PyCXX in particular. With version 4 I welcome Barry
+Scott as co-author. -- Paul Dubois</p>
 
-<p ALIGN="CENTER">Paul F. Dubois, <a href="mailto:dubois1@llnl.gov">dubois1@llnl.gov</a><br>
-Lawrence Livermore National Laboratory<br>
-Livermore, California, U.S.A.</p>
+<p>Paul is no longer contributing to PyCXX. Thanks for all your great work on PyCXX Paul. -- Barry Scott.</p>
 
+<h2>Overview</h2>
 
 <p>PyCXX is designed to make it easier to extend Python with C++</p>
 
+<p>Use PyCXX Version 5 with Python 2 and PyCXX Version 6 with Python 3.</p>
 
 <p>PyCXX is a set of C++ facilities to make it easier to write Python extensions.
 The chief way in which PyCXX makes it easier to write Python extensions is that it greatly
@@ -51,11 +33,11 @@ integrates Python with C++ in these ways: </p>
 <ul>
   <li>C++ exception handling is relied on to detect errors and clean up. In a complicated
     function this is often a tremendous problem when writing in C. With PyCXX, we let the
-    compiler keep track of what objects need to be dereferenced when an error occurs.
+    compiler keep track of what objects need to be dereferenced when an error occurs.</li>
   <li>The Standard Template Library (STL) and its many algorithms plug and play with Python
-    containers such as lists and tuples.
-  <li>The optional CXX_Extensions facility allows you to replace the clumsy C tables with
-    objects and method calls that define your modules and extension objects.
+    containers such as lists and tuples.</li>
+  <li>The optional CXX/Extensions.hxx facility allows you to replace the clumsy C tables with
+    objects and method calls that define your modules and extension objects.</li>
 </ul>
 
 <h3>Download and Installation</h3>
@@ -63,33 +45,52 @@ integrates Python with C++ in these ways: </p>
 <p>Download PyCXX from <a href="http://sourceforge.net/projects/cxx/">http://sourceforge.net/projects/cxx/</a>.</p>
 
 <p>The distribution layout is:</p>
-<table>
+<table cellspacing="0" cellpadding="3px">
 <tr><th>Directory</th><th>Description</th></tr>
-<tr><td class=code>.</td><td>Makefile for Unix and Windows, Release documentation</td>
-<tr><td class=code>./CXX</td><td>Header files</td>
-<tr><td class=code>./Src</td><td>Source files</td>
-<tr><td class=code>./Doc</td><td>Documentation</td>
-<tr><td class=code>./Demo</td><td>Testing and Demonstartion files</td>
+<tr><td class="code">.</td><td>Makefile for Unix and Windows, Release documentation</td>
+<tr><td class="code">./CXX</td><td>Header files</td>
+<tr><td class="code">./Src</td><td>Source files</td>
+<tr><td class="code">./Doc</td><td>Documentation</td>
+<tr><td class="code">./Demo</td><td>Testing and Demonstartion files</td>
 </table>
 
 <p>To use PyCXX you use its include files and add its source routines to your module.</p>
 
 <p>Installation:</p>
 <ul>
-<li>Install the PyCXX files into a directory of your choice. For example:<br>
-Windows: <cite>C:\PyCXX</cite><br>
+<li>Install the PyCXX files into a directory of your choice. For example:<br />
+Windows: <cite>C:\PyCXX</cite><br />
 Unix: <cite>/usr/local/PyCXX</cite>
-<li>Tell your compiler where the PyCXX header files are:<br>
-Windows: <cite>cl /I=C:\PyCXX ...</cite><br>
+<li>Tell your compiler where the PyCXX header files are:<br />
+Windows: <cite>cl /I=C:\PyCXX ...</cite><br />
 Unix: <cite>g++ -I/usr/local/PyCXX ...</cite>
-<li>Include PyCXX headers files in your code using the CXX prefix:<br>
-<cite>#include &quot;CXX/Object.hxx&quot;</cite>
+<li>Include PyCXX headers files in your code using the CXX prefix:<br />
+<cite>#include &quot;CXX/Objects.hxx&quot;</cite>
 </ul>
 
 <p>The header file CXX/config.h may need to be adjusted for the
 compiler you use. As of this writing, only a fairly obscure reference to part of the
 standard library needs this adjustment. Unlike prior releases, PyCXX now assumes namespace
 support and a standard C++ library. </p>
+
+<h2>Example code</h2>
+
+<p>The Demo directory of the distribution contains examples of how to use many
+of the facilities in PyCXX.</p>
+
+<p>In the top level folder of the PyCXX distributions are a number of makefiles that
+can be used to build and run the example code.</p>
+
+<p>For example on Linux example_linux_py30.mak will build and run the example code.</p>
+<pre>make -f example_linux_py30.mak clean test</pre>
+
+<table cellspacing="0" cellpadding="3px">
+<tr><th>Source</th><th>Description</th></tr>
+<tr><td>Demo/test_simple.py, Demo/simple.cxx</td><td>The simplest code needed to create a module and classes in C++.</td></tr>
+<tr><td>Demo/test_example.py, Demo/example.cxx</td><td>The original PyCXX example code. It is now the main test suite for PyCXX.</td></tr>
+<tr><td>Demo/range.hxx, Demo/range.cxx</td><td>Impliments the range object use by example.cxx.</td></tr>
+</tr>
+</table>
 
 <h3>Use of namespaces</h3>
 
@@ -98,25 +99,25 @@ the Py:: prefix when referring to them, or include the statement:</p>
 
 <p>using namespace Py;</p>
 
-<h2>Wrappers for standard objects: CXX_Objects.h</h2>
+<h2>Wrapper for standard objects: &lt;CXX/Objects.hxx&gt;</h2>
 
-<p>Header file CXX_Objects.h requires adding file Src/cxxsupport.cxx to
-your module sources. CXX_Objects provides a set of wrapper classes that allow you access
+<p>Header file CXX/Objects.hxx requires adding file Src/cxxsupport.cxx to
+your module sources. CXX/Objects.hxx provides a set of wrapper classes that allow you access
 to most of the Python C API using a C++ notation that closely resembles Python. For
 example, this Python:</p>
 
 <pre>d = {}
-d["a"] = 1
-d["b"] = 2
+d[ "a" ] = 1
+d[ "b" ] = 2
 alist = d.keys()
 print alist</pre>
 
 <p>Can be written in C++:</p>
 
-<pre>Dict d;
-List alist;
-d["a"] = Int(1);
-d["b"] = Int(2);
+<pre>Py::Dict d;
+Py::List alist;
+d[ "a" ] = Py::Long( 1 );
+d[ "b" ] = Py::Long( 2 );
 alist = d.keys();
 std::cout &lt;&lt; alist &lt;&lt; std::endl;
 </pre>
@@ -127,7 +128,7 @@ to define Python extension modules and extension objects.</p>
 <h3>We avoid programming with Python object pointers</h3>
 
 <p>The essential idea is that we avoid, as much as possible, programming with pointers to
-Python objects, that is, variables of type <cite>PyObject*</cite>. Instead,
+Python objects, that is, variables of type <cite>PyObject *</cite>. Instead,
 we use instances of a family of C++ classes that represent the
 usual Python objects. This family is easily extendible to include new kinds of Python
 objects.</p>
@@ -137,26 +138,26 @@ integer argument, that will create a Python <cite>dict</cite>
  and insert into it that the integer plus one under the key <cite>value</cite>.
  In C we might do that as follows:</p>
 
-<pre>static PyObject* mymodule_addvalue (PyObject* self, PyObject* args)
+<pre>static PyObject *mymodule_addvalue( PyObject *self, PyObject *args )
 {
     PyObject *d;
-    PyObject* f;
+    PyObject *f;
     int k;
-    PyArgs_ParseTuple(args, &quot;i&quot;, &amp;k);
+    PyArgs_ParseTuple( args, &quot;i&quot;, &amp;k );
     d = PyDict_New();
-    if (!d)
+    if( !d )
         return NULL;
 
-    f = PyInt_NEW(k+1);
-    if(!f)
+    f = PyInt_NEW( k+1 );
+    if( !f )
     {
-        Py_DECREF(d); /* have to get rid of d first */
+        Py_DECREF( d ); /* have to get rid of d first */
         return NULL;
     }
-    if(PyDict_SetItemString(d, &quot;value&quot;, f) == -1)
+    if( PyDict_SetItemString( d, &quot;value&quot;, f ) == -1 )
     {
-        Py_DECREF(f);
-        Py_DECREF(d);
+        Py_DECREF( f );
+        Py_DECREF( d );
         return NULL;
     }
 
@@ -165,23 +166,23 @@ integer argument, that will create a Python <cite>dict</cite>
 
 <p>If you have written a significant Python extension, this tedium looks all too familiar.
 The vast bulk of the coding is error checking and cleanup. Now compare the same thing
-written in C++ using CXX/Objects.hxx. The things with Python-like names (Int, Dict, Tuple) are
+written in C++ using CXX/Objects.hxx. The things with Python-like names ( Long, Dict, Tuple ) are
 from CXX/Objects.hxx.</p>
 
-<pre>static PyObject* mymodule_addvalue (PyObject* self, PyObject* pargs)
+<pre>static PyObject *mymodule_addvalue( PyObject *self, PyObject *pargs )
 { 
     try
     {
-        Tuple args(pargs); 
-        args.verify_length(1); 
+        Tuple args( pargs ); 
+        args.verify_length( 1 ); 
 
         Dict d; 
-        Int k = args[0]; 
+        Long k = args[0]; 
         d[&quot;value&quot;] = k + 1;
 
-        return new_reference_to(d); 
+        return new_reference_to( d ); 
     } 
-    catch (const PyException&amp;)
+    catch( const PyException &amp; )
     { 
         return NULL;
     }
@@ -191,19 +192,19 @@ from CXX/Objects.hxx.</p>
 integer, an exception is thrown. In this case we choose to catch it and convert it into a
 Python exception. The C++ exception handling mechanism takes care all the cleanup.</p>
 
-<p>Note that the creation of the <cite>Int k</cite> got the first argument <em>and</em> verified
-that it is an <cite>Int</cite>.</p>
+<p>Note that the creation of the <cite>Long k</cite> got the first argument <em>and</em> verified
+that it is an <cite>Long</cite>.</p>
 
 <p>Just to peek ahead, if you wrote this method in an
 ExtensionModule-derived module of your own, it would be a method and it could be written
 even more simply:</p>
 
 <pre>
-Object addvalue (Object &amp; self, const Tuple &amp; args)
+Object addvalue( Object &amp; self, const Tuple &amp; args )
 {
-    args.verify_length(1);
+    args.verify_length( 1 );
     Dict d;
-    Int k = args[0];
+    Long k = args[0];
     d["value"] = k + 1;
     return d;
 }
@@ -233,7 +234,6 @@ that represent Python objects inherit from it.</p>
 
 <pre>Object
 Type
-Int
 Float
 Long
 Complex
@@ -248,30 +248,71 @@ Callable
 Module</pre>
 
 <p>There are several constructors for each of these classes. For example, you can create
-an <cite>Int</cite> from an integer as in</p>
+an <cite>Long</cite> from an integer as in</p>
 
-<pre>Int s(3)</pre>
+<pre>Long s( 3 )</pre>
 
 <p>However, you can also create an instance of one of these classes using any <cite>PyObject*</cite> or
 another <cite>Object</cite>. If the corresponding Python object does not actually have the type
 desired, an exception is thrown. This is accomplished as follows. Class <cite>Object</cite> defines a
 virtual function <cite>accepts</cite>:</p>
 
-<pre>virtual bool accepts(PyObject* p)</pre>
+<pre>virtual bool accepts( PyObject *p )</pre>
 
 <p>The base class version of <cite>accepts</cite> returns true for any pointer p except 0. This means
 we can create an Object using any <cite>PyObject *</cite>, or from any other
-<cite>Object</cite>. However, if we attempt to create an <cite>Int</cite> from a <cite>PyObject *</cite>,
+<cite>Object</cite>. However, if we attempt to create an <cite>Long</cite> from a <cite>PyObject *</cite>,
 the overridding version
-of <cite>accepts</cite> in class <cite>Int</cite> will only accept pointers that correspond to Python ints.
+of <cite>accepts</cite> in class <cite>Long</cite> will only accept pointers that correspond to Python ints.
 Therefore if we have a <cite>Tuple t</cite> and we wish to get the first element and be sure it is an
-<cite>Int</cite>, we do</p>
+<cite>Long</cite>, we do</p>
 
-<pre>Int first_element = t[0]</pre>
+<pre>Long first_element = t[0]</pre>
 
 <p>This will not only accomplish the goal of extracting the first element of the <cite>Tuple t</cite>,
-but it will ensure that the result is an <cite>Int</cite>. If not, an exception is thrown. The
+but it will ensure that the result is an <cite>Long</cite>. If not, an exception is thrown. The
 exception mechanism is discussed later.</p>
+
+<h2>global methods</h2>
+
+<table cellspacing="0" cellpadding="3px">
+<tr>
+<th>Returns</th>
+<th>Name( signature )</th>
+<th>Comment</th>
+</tr>
+<tr><td class="code">Object</td><td class="code">asObject( PyObject *p )</td><td>Convert an owned Python pointer into a PyCXX Object</td></tr>
+<tr><td class="code">PyObject *</td><td class="code">Null()</td><td>return (PyObject *)NULL</td></tr>
+<tr><td class="code">PyObject *</td><td class="code">new_reference_to( PyObject *p )</td><td>Increment the reference count of <i>p</i></td></tr>
+<tr><td class="code">PyObject *</td><td class="code">new_reference_to( const Object &g )</td><td>Increment the reference count of <i>g</i></td></tr>
+<tr><td class="code">Object</td><td class="code">None()</td><td>Return the Python None opject</td></tr>
+<tr><td class="code">Object</td><td class="code">True()</td><td>Return the Python True opject</td></tr>
+<tr><td class="code">Object</td><td class="code">False()</td><td>Return the Python False opject</td></tr>
+</table>
+
+<h2>Comparisons</h2>
+
+<p>PyCXX implements a full set of comparison operators (==, !=, &gt;=, &gt;, &lt; &lt;=) for the PyCXX objects.</p>
+
+<table cellspacing="0" cellpadding="3px">
+<tr><th>Between</th><th>And</th></tr>
+<tr><td>Object</td><td>Object</td></tr>
+<tr><td>Long</td><td>Long</td></tr>
+<tr><td>Long</td><td>long</td></tr>
+<tr><td>Long</td><td>int</td></tr>
+<tr><td>Long</td><td>PY_LONG_LONG</td></tr>
+<tr><td>Float</td><td>Float</td></tr>
+<tr><td>Float</td><td>double</td></tr>
+<tr><td>SeqBase<T>::iterator</td><td>SeqBase<T>::iterator</td></tr>
+<tr><td>SeqBase<T>::const_iterator</td><td>SeqBase<T>::const_iterator</td></tr>
+<tr><td>Sequence::iterator</td><td>Sequence::iterator</td></tr>
+<tr><td>Sequence::const_iterator</td><td>Sequence::const_iterator</td></tr>
+<tr><td>MapBase<T>::iterator</td><td>MapBase<T>::iterator</td></tr>
+<tr><td>MapBase<T>::const_iterator</td><td>MapBase<T>::const_iterator</td></tr>
+<tr><td>Mapping::iterator</td><td>Mapping::iterator</td></tr>
+<tr><td>Mapping::const_iterator</td><td>Mapping::const_iterator</td></tr>
+</table>
+
 
 <h2>Class Object</h2>
 
@@ -309,15 +350,15 @@ unowned references are returned.</p>
 of the Python C API calls.</p>
 
 <p>If p is an owned reference, you can add the boolean <cite>true</cite> as an extra
-argument in the creation routine, <cite>Object(p, true)</cite>, or use the function <cite>asObject(p)</cite> which
+argument in the creation routine, <cite>Object( p, true )</cite>, or use the function <cite>asObject( p )</cite> which
 returns an <cite>Object</cite> created using the owned reference. For example, the routine
 <cite>PyString_FromString</cite> returns an owned reference to a Python string object. You could write:</p>
 
-<pre>Object w = asObject( PyString_FromString("my string") );</pre>
+<pre>Object w = asObject( PyString_FromString( "my string" ) );</pre>
 
 <p>or using the constructor,</p>
 
-<pre>Object w( PyString_FromString("my string"), true );</pre>
+<pre>Object w( PyString_FromString( "my string" ), true );</pre>
 
 <p>In fact, you would never do this, since PyCXX has a class String and you can just say: </p>
 
@@ -327,224 +368,224 @@ returns an <cite>Object</cite> created using the owned reference. For example, t
 and its descendents, you probably will not use asObject all that often.</p>
 <h3>Table 1: Class Object</h3>
 
-<table cellspacing=0 cellpadding=3px width="95%">
+<table cellspacing="0" cellpadding="3px">
 <tr>
 <th>Returns</th>
-<th>Name(signature)</th>
+<th>Name( signature )</th>
 <th>Comment</th>
 </tr>
 <tr>
-<td colspan="3"><p align="center"><strong>Basic Methods</strong></td>
+<td colspan="3"><p><strong>Basic Methods</strong></td>
 </tr>
 <tr>
-<td class=code>explicit </td>
-<td class=code>Object (PyObject* pyob=Py_None, bool owned=false) </td>
+<td class="code">explicit </td>
+<td class="code">Object( PyObject *pyob=Py_None, bool owned=false ) </td>
 <td>Construct from pointer. </td>
 </tr>
 <tr>
-<td class=code>explicit</td>
-<td class=code>Object (const Object&amp; ob)</td>
+<td class="code">explicit</td>
+<td class="code">Object( const Object &amp;ob )</td>
 <td>Copycons; acquires an owned reference.</td>
 </tr>
 <tr>
-<td class=code>Object&amp;</td>
-<td class=code>operator= (const Object&amp; rhs) </td>
+<td class="code">Object &amp;</td>
+<td class="code">operator=( const Object &amp;rhs ) </td>
 <td>Acquires an owned reference.</td>
 </tr>
 <tr>
-<td class=code>Object&amp;</td>
-<td class=code>operator= (PyObject* rhsp) </td>
+<td class="code">Object &amp;</td>
+<td class="code">operator=( PyObject *rhsp ) </td>
 <td>Acquires an owned reference.</td>
 </tr>
 <tr>
-<td class=code>virtual</td>
-<td class=code>~Object () </td>
+<td class="code">virtual</td>
+<td class="code">~Object() </td>
 <td>Releases the reference.</td>
 </tr>
 <tr>
-<td class=code>void</td>
-<td class=code>increment_reference_count() </td>
+<td class="code">void</td>
+<td class="code">increment_reference_count() </td>
 <td>Explicitly increment the count</td>
 </tr>
 <tr>
-<td class=code>void</td>
-<td class=code>decrement_reference_count()</td>
+<td class="code">void</td>
+<td class="code">decrement_reference_count()</td>
 <td>Explicitly decrement count but not to zero</td>
 </tr>
 <tr>
-<td class=code>PyObject*</td>
-<td class=code>operator* () const</td>
+<td class="code">PyObject*</td>
+<td class="code">operator*() const</td>
 <td>Lends the pointer</td>
 </tr>
 <tr>
-<td class=code>PyObject*</td>
-<td class=code>ptr () const</td>
+<td class="code">PyObject*</td>
+<td class="code">ptr() const</td>
 <td>Lends the pointer</td>
 </tr>
 <tr>
-<td class=code>virtual bool</td>
-<td class=code>accepts (PyObject *pyob) const</td>
+<td class="code">virtual bool</td>
+<td class="code">accepts( PyObject *pyob ) const</td>
 <td>Would assignment of pyob to this object succeed?</td>
 </tr>
 <tr>
-<td class=code>std::string</td>
-<td class=code>as_string() const</td>
+<td class="code">std::string</td>
+<td class="code">as_string() const</td>
 <td>str() representation</td>
 </tr>
 <tr>
-<td colspan="3" align="center"><strong>Python API Interface</strong></td>
+<td colspan="3"><strong>Python API Interface</strong></td>
 </tr>
 <tr>
-<td class=code>int</td>
-<td class=code>reference_count () const </td>
+<td class="code">int</td>
+<td class="code">reference_count() const </td>
 <td>reference count</td>
 </tr>
 <tr>
-<td class=code>Type</td>
-<td class=code>type () const</td>
+<td class="code">Type</td>
+<td class="code">type() const</td>
 <td>associated type object</td>
 </tr>
 <tr>
-<td class=code>String</td>
-<td class=code>str () const</td>
+<td class="code">String</td>
+<td class="code">str() const</td>
 <td>str() representation</td>
 </tr>
 <tr>
-<td class=code>String</td>
-<td class=code>repr () const</td>
-<td>repr () representation</td>
+<td class="code">String</td>
+<td class="code">repr() const</td>
+<td>repr() representation</td>
 </tr>
 <tr>
-<td class=code>bool</td>
-<td class=code>hasAttr (const std::string&amp; s) const</td>
-<td>hasattr(this, s)</td>
+<td class="code">bool</td>
+<td class="code">hasAttr( const std::string &amp;s ) const</td>
+<td>hasattr( this, s )</td>
 </tr>
 <tr>
-<td class=code>Object</td>
-<td class=code>getAttr (const std::string&amp; s) const</td>
-<td>getattr(this, s)</td>
+<td class="code">Object</td>
+<td class="code">getAttr( const std::string &amp;s ) const</td>
+<td>getattr( this, s )</td>
 </tr>
 <tr>
-<td class=code>Object</td>
-<td class=code>getItem (const Object&amp; key) const</td>
-<td>getitem(this, key)</td>
+<td class="code">Object</td>
+<td class="code">getItem( const Object &amp;key ) const</td>
+<td>getitem( this, key )</td>
 </tr>
 <tr>
-<td class=code>long</td>
-<td class=code>hashValue () const</td>
-<td>hash(this)</td>
+<td class="code">long</td>
+<td class="code">hashValue() const</td>
+<td>hash( this )</td>
 </tr>
 <tr>
-<td class=code>void</td>
-<td class=code>setAttr (const std::string&amp; s,<br>const Object&amp; value)</td>
+<td class="code">void</td>
+<td class="code">setAttr( const std::string &amp;s,<br />const Object &amp;value )</td>
 <td>this.s = value</td>
 </tr>
 <tr>
-<td class=code>void</td>
-<td class=code>delAttr (const std::string&amp; s) </td>
+<td class="code">void</td>
+<td class="code">delAttr( const std::string &amp;s ) </td>
 <td>del this.s</td>
 </tr>
 <tr>
-<td class=code>void</td>
-<td class=code>delItem (const Object&amp; key) </td>
+<td class="code">void</td>
+<td class="code">delItem( const Object &amp;key ) </td>
 <td>del this[key]</td>
 </tr>
 <tr>
-<td class=code>bool</td>
-<td class=code>isCallable () const</td>
+<td class="code">bool</td>
+<td class="code">isCallable() const</td>
 <td>does this have callable behavior?</td>
 </tr>
 <tr>
-<td class=code>bool</td>
-<td class=code>isList () const</td>
+<td class="code">bool</td>
+<td class="code">isList() const</td>
 <td>is this a Python list?</td>
 </tr>
 <tr>
-<td class=code>bool</td>
-<td class=code>isMapping () const</td>
+<td class="code">bool</td>
+<td class="code">isMapping() const</td>
 <td>does this have mapping behaviors?</td>
 </tr>
 <tr>
-<td class=code>bool</td>
-<td class=code>isNumeric () const</td>
+<td class="code">bool</td>
+<td class="code">isNumeric() const</td>
 <td>does this have numeric behaviors?</td>
 </tr>
 <tr>
-<td class=code>bool</td>
-<td class=code>isSequence () const </td>
+<td class="code">bool</td>
+<td class="code">isSequence() const </td>
 <td>does this have sequence behaviors?</td>
 </tr>
 <tr>
-<td class=code>bool</td>
-<td class=code>isTrue () const</td>
+<td class="code">bool</td>
+<td class="code">isTrue() const</td>
 <td>is this true in the Python sense?</td>
 </tr>
 <tr>
-<td class=code>bool</td>
-<td class=code>isType (const Type&amp; t) const</td>
-<td>is type(this) == t?</td>
+<td class="code">bool</td>
+<td class="code">isType( const Type &amp;t ) const</td>
+<td>is type( this ) == t?</td>
 </tr>
 <tr>
-<td class=code>bool</td>
-<td class=code>isTuple() const</td>
+<td class="code">bool</td>
+<td class="code">isTuple() const</td>
 <td>is this a Python tuple?</td>
 </tr>
 <tr>
-<td class=code>bool</td>
-<td class=code>isString() const</td>
+<td class="code">bool</td>
+<td class="code">isString() const</td>
 <td>is this a Python string?</td>
 </tr>
 <tr>
-<td class=code>bool</td>
-<td class=code>isUnicode() const</td>
+<td class="code">bool</td>
+<td class="code">isUnicode() const</td>
 <td>is this a Python Unicode string?</td>
 </tr>
 <tr>
-<td class=code>bool</td>
-<td class=code>isDict() const</td>
+<td class="code">bool</td>
+<td class="code">isDict() const</td>
 <td>is this a Python dictionary?</td>
 </tr>
 <tr>
-<td colspan="3" align="center"><strong>Comparison Operators</strong></td>
+<td colspan="3"><strong>Comparison Operators</strong></td>
 </tr>
 <tr>
-<td class=code>bool</td>
-<td class=code>is(PyObject* pother) const</td>
+<td class="code">bool</td>
+<td class="code">is( PyObject *pother ) const</td>
 <td>test for identity</td>
 </tr>
 <tr>
-<td class=code>bool</td>
-<td class=code>is(const Object&amp; other) const</td>
+<td class="code">bool</td>
+<td class="code">is( const Object &amp;other ) const</td>
 <td>test for identity</td>
 </tr>
 <tr>
-<td class=code>bool </td>
-<td class=code>operator==(const Object&amp; o2) const</td>
+<td class="code">bool </td>
+<td class="code">operator==( const Object &amp;o2 ) const</td>
 <td>Comparisons use Python cmp</td>
 </tr>
 <tr>
-<td class=code>bool</td>
-<td class=code>operator!=(const Object&amp; o2) const</td>
+<td class="code">bool</td>
+<td class="code">operator!=( const Object &amp;o2 ) const</td>
 <td>Comparisons use Python cmp</td>
 </tr>
 <tr>
-<td class=code>bool</td>
-<td class=code>operator&gt;=(const Object&amp; o2) const</td>
+<td class="code">bool</td>
+<td class="code">operator&gt;=( const Object &amp;o2 ) const</td>
 <td>Comparisons use Python cmp</td>
 </tr>
 <tr>
-<td class=code>bool</td>
-<td class=code>operator&lt;=(const Object&amp; o2) const </td>
+<td class="code">bool</td>
+<td class="code">operator&lt;=( const Object &amp;o2 ) const </td>
 <td>Comparisons use Python cmp</td>
 </tr>
 <tr>
-<td class=code>bool</td>
-<td class=code>operator&lt;(const Object&amp; o2) const</td>
+<td class="code">bool</td>
+<td class="code">operator&lt;( const Object &amp;o2 ) const</td>
 <td>Comparisons use Python cmp</td>
 </tr>
 <tr>
-<td class=code>bool</td>
-<td class=code>operator&gt;(const Object&amp; o2) const</td>
+<td class="code">bool</td>
+<td class="code">operator&gt;( const Object &amp;o2 ) const</td>
 <td>Comparisons use Python cmp</td>
 </tr>
 </table>
@@ -562,193 +603,117 @@ in a class, the name is underlined. </p>
 
 <h3>Table 2: class Type</h3>
 
-<table cellspacing=0 cellpadding=3px width="95%">
+<table cellspacing="0" cellpadding="3px">
 <tr>
 <th>Returns</th>
 <th>Name and Signature</th>
 <th>Comments</th>
 </tr>
 <tr>
-<td class=code>explicit</td>
-<td class=code>Type (PyObject* pyob, bool owned = false)</td>
+<td class="code">explicit</td>
+<td class="code">Type( PyObject *pyob, bool owned = false )</td>
 <td>Constructor</td>
 </tr>
 <tr>
-<td class=code>explicit</td>
-<td class=code>Type (const Object&amp; ob)</td>
+<td class="code">explicit</td>
+<td class="code">Type( const Object &amp;ob )</td>
 <td>Constructor</td>
 </tr>
 <tr>
-<td class=code>explicit</td>
-<td class=code>Type(const Type&amp; t)</td>
+<td class="code">explicit</td>
+<td class="code">Type( const Type &amp;t )</td>
 <td>Copycons</td>
 </tr>
 <tr>
-<td class=code>Type&amp;</td>
-<td class=code>operator= (const Object&amp; rhs) </td>
+<td class="code">Type&amp;</td>
+<td class="code">operator=( const Object &amp;rhs ) </td>
 <td>Assignment</td>
 </tr>
 <tr>
-<td class=code>Type&amp;</td>
-<td class=code>operator= (PyObject* rhsp) </td>
+<td class="code">Type&amp;</td>
+<td class="code">operator=( PyObject *rhsp ) </td>
 <td>Assignment</td>
 </tr>
 <tr>
-<td class=code>virtual bool</td>
-<td class=code><u>accepts</u> (PyObject *pyob) const</td>
+<td class="code">virtual bool</td>
+<td class="code"><u>accepts</u>( PyObject *pyob ) const</td>
 <td>Uses PyType_Check</td>
 </tr>
 </table>
 
-<h2>Class Int</h2>
-
-<p>Class Int, derived publically from Object, corresponds to Python ints. Note that the
-latter correspond to C long ints. Class Int has an implicit user-defined conversion to
-long int. All constructors, on the other hand, are explicit. The default constructor
-creates a Python int zero.</p>
-
-<h3>Table 3: class Int</h3>
-
-
-<table cellspacing=0 cellpadding=3px width="95%">
-<tr>
-<th>Returns</td>
-<th>Name and Signature</td>
-<th>Comments</td>
-</tr>
-<tr>
-<td class=code>explicit</td>
-<td class=code>Int (PyObject *pyob, bool owned= false, bool owned = false)</td>
-<td>Constructor</td>
-</tr>
-<tr>
-<td class=code>explicit</td>
-<td class=code>Int (const Int&amp; ob)</td>
-<td>Constructor</td>
-</tr>
-<tr>
-<td class=code>explicit</td>
-<td class=code>Int (long v = 0L)</td>
-<td>Construct from long</td>
-</tr>
-<tr>
-<td class=code>explicit</td>
-<td class=code>Int (int v)</td>
-<td>Contruct from int</td>
-</tr>
-<tr>
-<td class=code>explicit</td>
-<td class=code>Int (const Object&amp; ob)</td>
-<td>Copycons</td>
-</tr>
-<tr>
-<td class=code>Int&amp;</td>
-<td class=code>operator= (const Object&amp; rhs)</td>
-<td>Assignment</td>
-</tr>
-<tr>
-<td class=code>Int&amp;</td>
-<td class=code>operator= (PyObject* rhsp)</td>
-<td>Assignment</td>
-</tr>
-<tr>
-<td class=code>virtual bool&nbsp;&nbsp; </td>
-<td class=code> (PyObject *pyob) const </td>
-<td>Based on PyInt_Check</td>
-</tr>
-<tr>
-<td class=code>long</td>
-<td class=code>operator long() const </td>
-<td><em>Implicit</em> conversion to long int</td>
-</tr>
-<tr>
-<td class=code>Int&amp;</td>
-<td class=code>operator= (int v)</td>
-<td>Assign from int</td>
-</tr>
-<tr>
-<td class=code>Int&amp;</td>
-<td class=code>operator= (long v) </td>
-<td>Assign from long</td>
-</tr>
-</table>
-
-<hr>
-
 <h2>Class Long</h2>
 
 <p>Class Long, derived publically from Object, corresponds to Python type long. In Python,
-a long is an integer type of unlimited size, and is usually used for applications such as
-cryptography, not as a normal integer. Implicit conversions to both double and long are
+a long is an integer type of unlimited size. Implicit conversions to both double and long are
 provided, although the latter may of course fail if the number is actually too big. All
 constructors are explicit. The default constructor produces a Python long zero.</p>
 
 <h3>Table 4: Class Long</h3>
 
-<table cellspacing=0 cellpadding=3px width="95%">
+<table cellspacing="0" cellpadding="3px">
 <tr>
 <th>Returns</td>
 <th>Name and Signature</td>
 <th>Comments</td>
 </tr>
 <tr>
-<td class=code>explicit</td>
-<td class=code>Long (PyObject *pyob</a>, bool owned = false)</td>
+<td class="code">explicit</td>
+<td class="code">Long( PyObject *pyob</a>, bool owned = false )</td>
 <td>Constructor</td>
 </tr>
 <tr>
-<td class=code>explicit</td>
-<td class=code>Long (const Int&amp; ob)</td>
+<td class="code">explicit</td>
+<td class="code">Long( const Long &amp;ob )</td>
 <td>Constructor</td>
 </tr>
 <tr>
-<td class=code>explicit</td>
-<td class=code>Long (long v = 0L)</td>
+<td class="code">explicit</td>
+<td class="code">Long( long v = 0L )</td>
 <td>Construct from long</td>
 </tr>
 <tr>
-<td class=code>explicit</td>
-<td class=code>Long (int v)</td>
+<td class="code">explicit</td>
+<td class="code">Long( int v )</td>
 <td>Contruct from int</td>
 </tr>
 <tr>
-<td class=code>explicit</td>
-<td class=code>Long (const Object&amp; ob)</td>
+<td class="code">explicit</td>
+<td class="code">Long( const Object &amp;ob )</td>
 <td>Copycons</td>
 </tr>
 <tr>
-<td class=code>Long&amp;</td>
-<td class=code>operator= (const Object&amp; rhs)</td>
+<td class="code">Long&amp;</td>
+<td class="code">operator=( const Object &amp;rhs )</td>
 <td>Assignment</td>
 </tr>
 <tr>
-<td class=code>Long&amp;</td>
-<td class=code>operator= (PyObject* rhsp)</td>
+<td class="code">Long&amp;</td>
+<td class="code">operator=( PyObject *rhsp )</td>
 <td>Assignment</td>
 </tr>
 <tr>
-<td class=code>virtual bool</td>
-<td class=code>(PyObject *pyob) const </td>
+<td class="code">virtual bool</td>
+<td class="code">( PyObject *pyob ) const </td>
 <td>Based on PyLong_Check</td>
 </tr>
 <tr>
-<td class=code>double</td>
-<td class=code>operator double() const </td>
+<td class="code">double</td>
+<td class="code">operator double() const </td>
 <td><em>Implicit</em> conversion to double</td>
 </tr>
 <tr>
-<td class=code>long</td>
-<td class=code>operator long() const</td>
+<td class="code">long</td>
+<td class="code">operator long() const</td>
 <td><em>Implicit</em> conversion to long</td>
 </tr>
 <tr>
-<td class=code>Long&amp;</td>
-<td class=code>operator= (int v)</td>
+<td class="code">Long&amp;</td>
+<td class="code">operator=( int v )</td>
 <td>Assign from int</td>
 </tr>
 <tr>
-<td class=code>Long&amp;</td>
-<td class=code>operator= (long v) </td>
+<td class="code">Long&amp;</td>
+<td class="code">operator=( long v ) </td>
 <td>Assign from long</td>
 </tr>
 </table>
@@ -760,72 +725,72 @@ default constructor produces the Python float 0.0. </p>
 
 <h3>Table 5: Class Float</h3>
 
-<table cellspacing=0 cellpadding=3px width="95%">
+<table cellspacing="0" cellpadding="3px">
 <tr>
 <th>Returns</td>
 <th>Name and Signature</td>
 <th>Comments</td>
 </tr>
 <tr>
-<td class=code>explicit</td>
-<td class=code>Float (PyObject *pyob</a>, bool owned = false)
+<td class="code">explicit</td>
+<td class="code">Float( PyObject *pyob</a>, bool owned = false )
 </td>
 <td>Constructor</td>
 </tr>
 <tr>
-<td class=code></td>
-<td class=code>Float (const Float&amp; f)&nbsp;&nbsp; </td>
+<td class="code"></td>
+<td class="code">Float( const Float &amp;f )&nbsp;&nbsp; </td>
 <td>Construct from float</td>
 </tr>
 <tr>
-<td class=code>explicit</td>
-<td class=code>Float (double v=0.0)</td>
+<td class="code">explicit</td>
+<td class="code">Float( double v=0.0 )</td>
 <td>Construct from double</td>
 </tr>
 <tr>
-<td class=code>explicit</td>
-<td class=code>Float (const Object&amp; ob)</td>
+<td class="code">explicit</td>
+<td class="code">Float( const Object &amp;ob )</td>
 <td>Copycons</td>
 </tr>
 <tr>
-<td class=code>Float&amp;</td>
-<td class=code>operator= (const Object&amp; rhs)</td>
+<td class="code">Float&amp;</td>
+<td class="code">operator=( const Object &amp;rhs )</td>
 <td>Assignment</td>
 </tr>
 <tr>
-<td class=code>Float&amp;</td>
-<td class=code>operator= (PyObject* rhsp)</td>
+<td class="code">Float&amp;</td>
+<td class="code">operator=( PyObject *rhsp )</td>
 <td>Assignment</td>
 </tr>
 <tr>
-<td class=code>virtual bool </td>
-<td class=code>accepts (PyObject *pyob) const</td>
+<td class="code">virtual bool </td>
+<td class="code">accepts( PyObject *pyob ) const</td>
 <td>Based on PyFloat_Check</td>
 </tr>
 <tr>
-<td class=code>double </td>
-<td class=code>operator double () const</td>
+<td class="code">double </td>
+<td class="code">operator double() const</td>
 <td><em>Implicit</em> conversion to double</td>
 </tr>
 <tr>
-<td class=code>Float&amp; </td>
-<td class=code>operator= (double v)</td>
+<td class="code">Float &amp;</td>
+<td class="code">operator=( double v )</td>
 <td>Assign from double</td>
 </tr>
 <tr>
-<td class=code>Float&amp; </td>
-<td class=code>operator= (int v)</td>
+<td class="code">Float &amp;</td>
+<td class="code">operator=( int v )</td>
 <td>Assign from int</td>
 </tr>
 <tr>
-<td class=code>Float&amp; </td>
-<td class=code>operator= (long v)</td>
+<td class="code">Float &amp;</td>
+<td class="code">operator=( long v )</td>
 <td>Assign from long</td>
 </tr>
 <tr>
-<td class=code>Float&amp; </td>
-<td class=code>operator= (const Int&amp; iob)</td>
-<td>Assign from Int</td>
+<td class="code">Float &amp;</td>
+<td class="code">operator=( const Long &amp;iob )</td>
+<td>Assign from Long</td>
 </tr>
 </table>
 
@@ -842,8 +807,8 @@ be able to use STL-style iterators and STL algorithms across the elements of the
 <p>Sequences are implemented in terms of a templated base class, SeqBase&lt;T&gt;. The
 parameter T is the answer to the question, sequence of what? For Lists, for example, T is
 Object, because the most specific thing we know about an element of a List is simply that
-it is an Object. (Class List is defined below; it is a descendent of Object that holds a
-pointer to a Python list). For strings, T is Char, which is a wrapper in turn of Python
+it is an Object.( Class List is defined below; it is a descendent of Object that holds a
+pointer to a Python list ). For strings, T is Char, which is a wrapper in turn of Python
 strings whose length is one.</p>
 
 <p>For convenience, the word <strong>Sequence</strong> is a typedef of SeqBase&lt;Object&gt;.</p>
@@ -855,16 +820,16 @@ be any kind of Python sequence, and you wish to return the length of that sequen
 might write:</p>
 
 <pre>static PyObject*
-my_module_seqlen (PyObject *self, PyObject* args) {
+my_module_seqlen( PyObject *self, PyObject *args ) {
 try
     {
-    Tuple t(args);       // set up a Tuple pointing to the arguments.
-    if(t.length() != 1) 
-         throw PyException(&quot;Incorrect number of arguments to seqlen.&quot;);
+    Tuple t( args );       // set up a Tuple pointing to the arguments.
+    if( t.length() != 1 ) 
+         throw PyException( &quot;Incorrect number of arguments to seqlen.&quot; );
     Sequence s = t[0];   // get argument and be sure it is a sequence
-    return new_reference_to(Int(s.length()));
+    return new_reference_to( Long( s.length() ) );
     }
-catch(const PyException&amp;)
+catch( const PyException  &amp;)
     {
     return Py_Null;
     }
@@ -897,167 +862,167 @@ created by the s[2], and that assignment operator stuffs the result into the 2 c
 of s.</p>
 
 <p>It is possible to fool this mechanism and end up with a compiler failing to admit that
-a s[i] is an Object. If that happens, you can work around it by writing Object(s[i]),
+a s[i] is an Object. If that happens, you can work around it by writing Object( s[i] ),
 which makes the desired implicit conversion, explicit.</p>
 
 <h3>Iterators</h3>
 
 <p>Each sequence class provides the following interface. The class seqref&lt;T&gt; is the
 proxy class. We omit the details of the iterator, const_iterator, and seqref&lt;T&gt;
-here. See CXX_Objects.h if necessary. The purpose of most of this interface is to satisfy
+here. See CXX/Objects.hxx if necessary. The purpose of most of this interface is to satisfy
 requirements of the STL.</p>
 
 <h3>The SeqBase&lt;T&gt; Interface</h3>
 
 <p>SeqBase&lt;T&gt; inherits from Object.</p>
 
-<table cellspacing=0 cellpadding=3px width="95%">
+<table cellspacing="0" cellpadding="3px">
 <tr>
 <th>Type</td>
 <th>Name</td>
 </tr>
 <tr>
-<td class=code>typedef int </td>
-<td class=code>size_type</td>
+<td class="code">typedef int </td>
+<td class="code">size_type</td>
 </tr>
 <tr>
-<td class=code>typedef seqref&lt;T&gt;</td>
-<td class=code>reference</td>
+<td class="code">typedef seqref&lt;T&gt;</td>
+<td class="code">reference</td>
 </tr>
 <tr>
-<td class=code>typedef T </td>
-<td class=code>const_reference</td>
+<td class="code">typedef T </td>
+<td class="code">const_reference</td>
 </tr>
 <tr>
-<td class=code>typedef seqref&lt;T&gt;*</td>
-<td class=code>pointer</td>
+<td class="code">typedef seqref&lt;T&gt;*</td>
+<td class="code">pointer</td>
 </tr>
 <tr>
-<td class=code>typedef int </td>
-<td class=code>difference_type</td>
+<td class="code">typedef int </td>
+<td class="code">difference_type</td>
 </tr>
 <tr>
-<td class=code>virtual size_type</td>
-<td class=code>max_size() const</td>
+<td class="code">virtual size_type</td>
+<td class="code">max_size() const</td>
 </tr>
 <tr>
-<td class=code>virtual size_type </td>
-<td class=code>capacity() const;</td>
+<td class="code">virtual size_type </td>
+<td class="code">capacity() const;</td>
 </tr>
 <tr>
-<td class=code>virtual void </td>
-<td class=code>swap(SeqBase&lt;T&gt;&amp; c);</td>
+<td class="code">virtual void </td>
+<td class="code">swap( SeqBase&lt;T&gt; &amp;c );</td>
 </tr>
 <tr>
-<td class=code>virtual size_type </td>
-<td class=code>size () const;</td>
+<td class="code">virtual size_type </td>
+<td class="code">size() const;</td>
 </tr>
 <tr>
-<td class=code>explicit </td>
-<td class=code>SeqBase&lt;T&gt; ();</td>
+<td class="code">explicit </td>
+<td class="code">SeqBase&lt;T&gt;();</td>
 </tr>
 <tr>
-<td class=code>explicit </td>
-<td class=code>SeqBase&lt;T&gt; (PyObject* pyob, bool owned = false);</td>
+<td class="code">explicit </td>
+<td class="code">SeqBase&lt;T&gt;( PyObject *pyob, bool owned = false );</td>
 </tr>
 <tr>
-<td class=code>explicit </td>
-<td class=code>SeqBase&lt;T&gt; (const Object&amp; ob);</td>
+<td class="code">explicit </td>
+<td class="code">SeqBase&lt;T&gt;( const Object &amp;ob );</td>
 </tr>
 <tr>
-<td class=code>SeqBase&lt;T&gt;&amp; </td>
-<td class=code>operator= (const Object&amp; rhs);</td>
+<td class="code">SeqBase&lt;T&gt; &amp;</td>
+<td class="code">operator=( const Object &amp;rhs );</td>
 </tr>
 <tr>
-<td class=code>SeqBase&lt;T&gt;&amp; </td>
-<td class=code>operator= (PyObject* rhsp);</td>
+<td class="code">SeqBase&lt;T&gt; &amp;</td>
+<td class="code">operator=( PyObject *rhsp );</td>
 </tr>
 <tr>
-<td class=code>virtual bool </td>
-<td class=code>accepts (PyObject *pyob) const;</td>
+<td class="code">virtual bool </td>
+<td class="code">accepts( PyObject *pyob ) const;</td>
 </tr>
 <tr>
-<td class=code>size_type </td>
-<td class=code>length () const ;</td>
+<td class="code">size_type </td>
+<td class="code">length() const ;</td>
 </tr>
 <tr>
-<td class=code>const T </td>
-<td class=code>operator[](size_type index) const; </td>
+<td class="code">const T </td>
+<td class="code">operator[]( size_type index ) const; </td>
 </tr>
 <tr>
-<td class=code>seqref&lt;T&gt; </td>
-<td class=code>operator[](size_type index); </td>
+<td class="code">seqref&lt;T&gt; </td>
+<td class="code">operator[]( size_type index ); </td>
 </tr>
 <tr>
-<td class=code>virtual T </td>
-<td class=code>getItem (size_type i) const;</td>
+<td class="code">virtual T </td>
+<td class="code">getItem( size_type i ) const;</td>
 </tr>
 <tr>
-<td class=code>virtual void </td>
-<td class=code>setItem (size_type i, const T&amp; ob);</td>
+<td class="code">virtual void </td>
+<td class="code">setItem( size_type i, const T &amp;ob );</td>
 </tr>
 <tr>
-<td class=code>SeqBase&lt;T&gt; </td>
-<td class=code>repeat (int count) const;</td>
+<td class="code">SeqBase&lt;T&gt; </td>
+<td class="code">repeat( int count ) const;</td>
 </tr>
 <tr>
-<td class=code>SeqBase&lt;T&gt; </td>
-<td class=code>concat (const SeqBase&lt;T&gt;&amp; other) const ;</td>
+<td class="code">SeqBase&lt;T&gt; </td>
+<td class="code">concat( const SeqBase&lt;T&gt; &amp;other ) const ;</td>
 </tr>
 <tr>
-<td class=code>const T </td>
-<td class=code>front () const;</td>
+<td class="code">const T </td>
+<td class="code">front() const;</td>
 </tr>
 <tr>
-<td class=code>seqref&lt;T&gt; </td>
-<td class=code>front();</td>
+<td class="code">seqref&lt;T&gt; </td>
+<td class="code">front();</td>
 </tr>
 <tr>
-<td class=code>const T </td>
-<td class=code>back () const;</td>
+<td class="code">const T </td>
+<td class="code">back() const;</td>
 </tr>
 <tr>
-<td class=code>seqref&lt;T&gt; </td>
-<td class=code>back(); </td>
+<td class="code">seqref&lt;T&gt; </td>
+<td class="code">back(); </td>
 </tr>
 <tr>
-<td class=code>void </td>
-<td class=code>verify_length(size_type required_size);</td>
+<td class="code">void </td>
+<td class="code">verify_length( size_type required_size );</td>
 </tr>
 <tr>
-<td class=code>void </td>
-<td class=code>verify_length(size_type min_size, size_type max_size);</td>
+<td class="code">void </td>
+<td class="code">verify_length( size_type min_size, size_type max_size );</td>
 </tr>
 <tr>
-<td class=code>class</td>
-<td class=code>iterator;</td>
+<td class="code">class</td>
+<td class="code">iterator;</td>
 </tr>
 <tr>
-<td class=code>iterator </td>
-<td class=code>begin (); </td>
+<td class="code">iterator </td>
+<td class="code">begin(); </td>
 </tr>
 <tr>
-<td class=code>iterator </td>
-<td class=code>end ();</td>
+<td class="code">iterator </td>
+<td class="code">end();</td>
 </tr>
 <tr>
-<td class=code>class </td>
-<td class=code>const_iterator;</td>
+<td class="code">class </td>
+<td class="code">const_iterator;</td>
 </tr>
 <tr>
-<td class=code>const_iterator </td>
-<td class=code>begin () const;</td>
+<td class="code">const_iterator </td>
+<td class="code">begin() const;</td>
 </tr>
 <tr>
-<td class=code>const_iterator </td>
-<td class=code>end () const;</td>
+<td class="code">const_iterator </td>
+<td class="code">end() const;</td>
 </tr>
 </table>
 
 <p>Any heir of class Object that has a sequence behavior should inherit from class
 SeqBase&lt;T&gt;, where T is specified as the type of object that represents the
 individual elements of the sequence. The requirements on T are that it has a constructor
-that takes a PyObject* as an argument, that it has a default constructor, a copy
+that takes a PyObject *as an argument, that it has a default constructor, a copy
 constructor, and an assignment operator. In short, any properly defined heir of Object
 will work. </p>
 
@@ -1074,130 +1039,319 @@ sequence.</p>
 
 <h3>The Char interface</h3>
 
-<p>Char inherits from Object.</p>
+<p>Char inherits from Object. Char holds a single Unicode character.</p>
 
-<table cellspacing=0 cellpadding=3px width="95%">
+<p>unicodestring is a typedef for std::basic_string&lt;Py_UNICODE&gt;</p>
+
+<table cellspacing="0" cellpadding="3px">
 <tr>
 <th>Type</td>
 <th>Name</td>
 </tr>
 <tr>
-<td class=code>explicit</td>
-<td class=code>Char (PyObject *pyob, bool owned = false)</td>
+<td class="code">explicit</td>
+<td class="code">Char( PyObject *pyob, bool owned = false )</td>
 </tr>
 <tr>
-<td class=code></td>
-<td class=code>Char (const Object&amp; ob) </td>
+<td class="code"></td>
+<td class="code">Char( const Object &amp;ob )</td>
 </tr>
 <tr>
-<td class=code></td>
-<td class=code>Char (const std::string&amp; v = &quot;&quot;) </td>
+<td class="code"></td>
+<td class="code">Char( int v )</td>
 </tr>
 <tr>
-<td class=code></td>
-<td class=code>Char (char v)</td>
+<td class="code"></td>
+<td class="code">Char( Py_UNICODE v )</td>
 </tr>
 <tr>
-<td class=code></td>
-<td class=code>Char (Py_UNICODE v)</td>
+<td class="code"></td>
+<td class="code">Char( const unicodestring &v )</td>
 </tr>
 <tr>
-<td class=code>Char&amp;</td>
-<td class=code>operator= (const std::string&amp; v)</td>
+<td class="code">Char &amp;</td>
+<td class="code">operator=( const Object &amp;o ) </td>
 </tr>
 <tr>
-<td class=code>Char&amp;</td>
-<td class=code>operator= (char v) </td>
+<td class="code">Char &amp;</td>
+<td class="code">operator=( PyObject *p ) </td>
 </tr>
 <tr>
-<td class=code>Char&amp;</td>
-<td class=code>operator= (Py_UNICODE v) </td>
+<td class="code">Char &amp;</td>
+<td class="code">operator=( int v ) </td>
 </tr>
 <tr>
-<td class=code>Char&amp;</td>
-<td class=code>operator= (std::basic_string<Py_UNICODE> v) </td>
+<td class="code">Char &amp;</td>
+<td class="code">operator=( Py_UNICODE v ) </td>
 </tr>
 <tr>
-<td class=code></td>
-<td class=code>operator String() const</td>
+<td class="code">Char &amp;</td>
+<td class="code">operator=( unicodestring &v ) </td>
 </tr>
 <tr>
-<td class=code></td>
-<td class=code>operator std::string () const </td>
+<td class="code"></td>
+<td class="code">operator String() const</td>
 </tr>
 </table>
 
 <h3>The String Interface</h3>
 
-<p>String inherits from SeqBase&lt;Char&gt;.</p>
+<p>String inherits from SeqBase&lt;Char&gt;. String holds a sequence of Unicode characters.</p>
 
-<table cellspacing=0 cellpadding=3px width="95%">
+<p>The following is taken from Pythons's unicode.h.
+</p>
+
+<p>Many of these APIs take two arguments encoding and errors. These
+parameters encoding and errors have the same semantics as the ones
+of the builtin unicode() API. 
+</p>
+
+<p>Setting encoding to NULL causes the default encoding to be used.
+</p>
+
+<p>Error handling is set by errors which may also be set to NULL
+meaning to use the default handling defined for the codec. Default
+error handling for all builtin codecs is "strict" (ValueErrors are
+raised).
+</p>
+
+<p>The codecs all use a similar interface. Only deviation from the
+generic ones are documented.
+</p>
+
+
+<table cellspacing="0" cellpadding="3px">
 <tr>
 <th>Type</td>
 <th>Name</td>
 </tr>
 <tr>
-<td class=code>explicit </td>
-<td class=code>String (PyObject *pyob, bool owned = false)</td>
+<td class="code">explicit </td>
+<td class="code">String( PyObject *pyob, bool owned = false )</td>
 </tr>
 <tr>
-<td class=code> </td>
-<td class=code>String (const Object&amp; ob)</td>
+<td class="code"> </td>
+<td class="code">String( const Object &amp;ob )</td>
 </tr>
 <tr>
-<td class=code> </td>
-<td class=code>String (const std::string&amp; v = &quot;&quot;)</td>
+<td class="code"> </td>
+<td class="code">String()</td>
 </tr>
 <tr>
-<td class=code> </td>
-<td class=code>String (const std::string&amp; v, const char *encoding, const char *error=&quot;strict&quot;)</td>
+<td class="code"> </td>
+<td class="code">String( const char *latin1 )</td>
 </tr>
 <tr>
-<td class=code> </td>
-<td class=code>String (const char *s, const char *encoding, const char *error=&quot;strict&quot;)</td>
+<td class="code"> </td>
+<td class="code">String( const char *latin1, Py_ssize_t size )</td>
 </tr>
 <tr>
-<td class=code> </td>
-<td class=code>String (const char *s, int len, const char *encoding, const char *error=&quot;strict&quot;)</td>
+<td class="code"> </td>
+<td class="code">String( const std::string &amp;latin1 )</td>
 </tr>
 <tr>
-<td class=code> </td>
-<td class=code>String (const std::string&amp; v, std::string::size_type vsize)</td>
+<tr>
+<td class="code"> </td>
+<td class="code">String( const std::string &amp;v, const char *encoding, const char *error=NULL )</td>
 </tr>
 <tr>
-<td class=code> </td>
-<td class=code>String (const char* v)</td>
+<td class="code"> </td>
+<td class="code">String( const char *s, const char *encoding, const char *error=NULL )</td>
 </tr>
 <tr>
-<td class=code>String&amp;</td>
-<td class=code>operator= (const std::string&amp; v) </td>
+<td class="code"> </td>
+<td class="code">String( const char *s, Py_ssize_t len, const char *encoding, const char *error=NULL )</td>
+</tr>
+
+
+<tr>
+<td class="code">String &amp;</td>
+<td class="code">operator=( const Object &amp;o ) </td>
 </tr>
 <tr>
-<td class=code>std::string</td>
-<td class=code>operator std::string () const</td>
+<td class="code">String &amp;</td>
+<td class="code">operator=( PyObject *p ) </td>
 </tr>
 <tr>
-<td class=code>String</td>
-<td class=code>encode( const char *encoding, const char *error=&quot;strict&quot; )</td>
+<td class="code">String &amp;</td>
+<td class="code">operator=( const unicodestring &amp;v ) </td>
+</tr>
+
+<tr>
+<td class="code">size_type</td>
+<td class="code">size() const</td>
 </tr>
 <tr>
-<td class=code>String</td>
-<td class=code>decode( const char *encoding, const char *error=&quot;strict&quot; )</td>
+<td class="code">size_type</td>
+<td class="code">capacity() const</td>
+</tr>
+
+<tr>
+<td class="code">unicodestring</td>
+<td class="code">as_unicodestring() const</td>
 </tr>
 <tr>
-<td class=code>std::string</td>
-<td class=code>as_std_string() const</td>
+<td class="code">std::string</td>
+<td class="code">operator std::string() const</td>
 </tr>
 <tr>
-<td class=code>unicodestring</td>
-<td class=code>as_unicodestring() const</td>
+<td class="code">String</td>
+<td class="code">encode( const char *encoding, const char *error=&quot;strict&quot; )</td>
+</tr>
+<tr>
+<td class="code">std::string</td>
+<td class="code">as_std_string( const char *encoding=NULL, const char *error=&quot;strict&quot; ) const</td>
+</tr>
+</table>
+
+<h2>Classes Byte and Bytes</h2>
+
+<p>Bytes corresponds to the Python type byte.</p>
+
+<h3>The Byte interface</h3>
+
+<p>Byte inherits from Object. Byte holds a single 8-bit byte of data.</p>
+
+<table cellspacing="0" cellpadding="3px">
+<tr>
+<th>Type</td>
+<th>Name</td>
+</tr>
+<tr>
+<td class="code">explicit</td>
+<td class="code">Byte( PyObject *pyob, bool owned = false )</td>
+</tr>
+<tr>
+<td class="code"></td>
+<td class="code">Byte( const Object &amp;ob )</td>
+</tr>
+<tr>
+<td class="code"></td>
+<td class="code">Byte( const std::string &v )</td>
+</tr>
+<tr>
+<td class="code"></td>
+<td class="code">Byte( char v )</td>
+</tr>
+
+<tr>
+<td class="code">Byte &amp;</td>
+<td class="code">operator=( const Object &amp;o ) </td>
+</tr>
+<tr>
+<td class="code">Byte &amp;</td>
+<td class="code">operator=( PyObject *p ) </td>
+</tr>
+<tr>
+<td class="code">Byte &amp;</td>
+<td class="code">operator=( const std::string &v ) </td>
+</tr>
+<tr>
+<td class="code">Byte &amp;</td>
+<td class="code">operator=( char v ) </td>
+</tr>
+<tr>
+<td class="code"></td>
+<td class="code">operator Bytes() const</td>
+</tr>
+</table>
+
+<h3>The Bytes Interface</h3>
+
+<p>Bytes inherits from SeqBase&lt;Byte&gt;. Bytes holds a sequence of 8-bit data.</p>
+
+
+<table cellspacing="0" cellpadding="3px">
+<tr>
+<th>Type</td>
+<th>Name</td>
+</tr>
+<tr>
+<td class="code">explicit </td>
+<td class="code">Bytes( PyObject *pyob, bool owned = false )</td>
+</tr>
+<tr>
+<td class="code"> </td>
+<td class="code">Bytes( const Object &amp;ob )</td>
+</tr>
+<tr>
+<td class="code"> </td>
+<td class="code">Bytes()</td>
+</tr>
+<tr>
+<td class="code"> </td>
+<td class="code">Bytes( const char *v )</td>
+</tr>
+<tr>
+<td class="code"> </td>
+<td class="code">Bytes( const char *v, Py_ssize_t size )</td>
+</tr>
+<tr>
+<td class="code"> </td>
+<td class="code">Bytes( const std::string &amp;v )</td>
+</tr>
+<tr>
+<td class="code"> </td>
+<td class="code">Bytes( const std::string &amp;v, Py_ssize_t size )</td>
+</tr>
+<tr>
+
+<tr>
+<td class="code"> </td>
+<td class="code">Bytes( const char *v )</td>
+</tr>
+<tr>
+<td class="code"> </td>
+<td class="code">Bytes( const char *v, Py_ssize_t size )</td>
+</tr>
+<tr>
+
+
+<tr>
+<td class="code">Bytes &amp;</td>
+<td class="code">operator=( const Object &amp;o ) </td>
+</tr>
+<tr>
+<td class="code">Bytes &amp;</td>
+<td class="code">operator=( PyObject *p ) </td>
+</tr>
+<tr>
+<td class="code">Bytes &amp;</td>
+<td class="code">operator=( const std::string &amp;v ) </td>
+</tr>
+
+<tr>
+<td class="code">size_type</td>
+<td class="code">size() const</td>
+</tr>
+<tr>
+<td class="code">size_type</td>
+<td class="code">capacity() const</td>
+</tr>
+
+<tr>
+<td class="code">String</td>
+<td class="code">decode( const char *encoding, const char *error="strict" )</td>
+</tr>
+
+<tr>
+<td class="code">std::string</td>
+<td class="code">operator std::string() const</td>
+</tr>
+<tr>
+<td class="code">Bytes</td>
+<td class="code">encode( const char *encoding, const char *error=&quot;strict&quot; )</td>
+</tr>
+<tr>
+<td class="code">std::string</td>
+<td class="code">as_std_string() const</td>
 </tr>
 </table>
 
 <h2>Class Tuple</h2>
 
 <p>Class Tuple represents Python tuples. A Tuple is a Sequence. There are two kinds of
-constructors: one takes a PyObject* as usual, the other takes an integer number as an
+constructors: one takes a PyObject *as usual, the other takes an integer number as an
 argument and returns a Tuple of that length, each component initialized to Py_None. The
 default constructor produces an empty Tuple. </p>
 
@@ -1205,69 +1359,69 @@ default constructor produces an empty Tuple. </p>
 reference count is not 1. That is, it is safe to set the elements of a Tuple you have just
 made, but not thereafter.</p>
 
-<p>Example: create a Tuple containing (1, 2, 4)</p>
+<p>Example: create a Tuple containing( 1, 2, 4 )</p>
 
-<pre>Tuple t(3)
-t[0] = Int(1)
-t[1] = Int(2)
-t[2] = Int(4)</pre>
+<pre>Tuple t( 3 )
+t[0] = Long( 1 )
+t[1] = Long( 2 )
+t[2] = Long( 4 )</pre>
 
 <p>Example: create a Tuple from a list:</p>
 
 <pre>Dict d
 ...
-Tuple t(d.keys())</pre>
+Tuple t( d.keys() )</pre>
 
 <h3>The Tuple Interface</h3>
 
 <p>Tuple inherits from Sequence.. Special run-time checks prevent modification if the
 reference count is greater than one.</p>
 
-<table cellspacing=0 cellpadding=3px width="95%">
+<table cellspacing="0" cellpadding="3px" width="95%">
 <tr>
 <th>Type</td>
 <th>Name</td>
 <th>Comment</td>
 </tr>
 <tr>
-<td class=code>virtual void</td>
-<td class=code>setItem (int offset, const Object&amp;ob) </td>
+<td class="code">virtual void</td>
+<td class="code">setItem( int offset, const Object &amp;ob ) </td>
 <td>setItem is overriden to handle tuples properly. </td>
 </tr>
 <tr>
-<td class=code>explicit</td>
-<td class=code>Tuple (PyObject *pyob, bool owned = false)</td>
+<td class="code">explicit</td>
+<td class="code">Tuple( PyObject *pyob, bool owned = false )</td>
 <td></td>
 </tr>
 <tr>
-<td class=code> </td>
-<td class=code>Tuple (const Object&amp; ob)</td>
+<td class="code"> </td>
+<td class="code">Tuple( const Object &amp;ob )</td>
 <td></td>
 </tr>
 <tr>
-<td class=code>explicit</td>
-<td class=code>Tuple (int size = 0)</td>
+<td class="code">explicit</td>
+<td class="code">Tuple( int size = 0 )</td>
 <td>Create a tuple of the given size. Items initialize to Py_None. Default is an empty
 tuple.</td>
 </tr>
 <tr>
-<td class=code>explicit</td>
-<td class=code>Tuple (const Sequence&amp; s)</td>
+<td class="code">explicit</td>
+<td class="code">Tuple( const Sequence &amp;s )</td>
 <td>Create a tuple from any sequence.</td>
 </tr>
 <tr>
-<td class=code>Tuple&amp;</td>
-<td class=code>operator= (const Object&amp; rhs)</td>
+<td class="code">Tuple&amp;</td>
+<td class="code">operator=( const Object &amp;rhs )</td>
 <td></td>
 </tr>
 <tr>
-<td class=code>Tuple&amp;</td>
-<td class=code>operator= (PyObject* rhsp)</td>
+<td class="code">Tuple&amp;</td>
+<td class="code">operator=( PyObject *rhsp )</td>
 <td></td>
 </tr>
 <tr>
-<td class=code>Tuple</td>
-<td class=code>getSlice (int i, int j) const </td>
+<td class="code">Tuple</td>
+<td class="code">getSlice( int i, int j ) const </td>
 <td>Equivalent to python's t[i:j]</td>
 </tr>
 </table>
@@ -1281,71 +1435,71 @@ Python API for lists. A List is a Sequence.</p>
 
 <p>List inherits from Sequence.</p>
 
-<table cellspacing=0 cellpadding=3px width="95%">
+<table cellspacing="0" cellpadding="3px" width="95%">
 <tr>
 <th>Type</td>
 <th>Name</td>
 <th>Comment</td>
 </tr>
 <tr>
-<td class=code>explicit</td>
-<td class=code>List (PyObject *pyob, bool owned = false)</td>
+<td class="code">explicit</td>
+<td class="code">List( PyObject *pyob, bool owned = false )</td>
 <td></td>
 </tr>
 <tr>
-<td class=code> </td>
-<td class=code>List (const Object&amp; ob)</td>
+<td class="code"> </td>
+<td class="code">List( const Object &amp;ob )</td>
 <td></td>
 </tr>
 <tr>
-<td class=code> </td>
-<td class=code>List (int size = 0)</td>
+<td class="code"> </td>
+<td class="code">List( int size = 0 )</td>
 <td>Create a list of the given size. Items initialized to Py_None. Default is an empty list.</td>
 </tr>
 <tr>
-<td class=code> </td>
-<td class=code>List (const Sequence&amp; s)</td>
+<td class="code"> </td>
+<td class="code">List( const Sequence &amp;s )</td>
 <td>Create a list from any sequence.</td>
 </tr>
 <tr>
-<td class=code>List&amp;</td>
-<td class=code>operator= (const Object&amp; rhs)</td>
+<td class="code">List&amp;</td>
+<td class="code">operator=( const Object &amp;rhs )</td>
 <td></td>
 </tr>
 <tr>
-<td class=code>List&amp;</td>
-<td class=code>operator= (PyObject* rhsp)</td>
+<td class="code">List&amp;</td>
+<td class="code">operator=( PyObject *rhsp )</td>
 <td></td>
 </tr>
 <tr>
-<td class=code>List</td>
-<td class=code>getSlice (int i, int j) const</td>
+<td class="code">List</td>
+<td class="code">getSlice( int i, int j ) const</td>
 <td></td>
 </tr>
 <tr>
-<td class=code>void</td>
-<td class=code>setSlice (int i, int j, const Object&amp; v) </td>
+<td class="code">void</td>
+<td class="code">setSlice( int i, int j, const Object &amp;v ) </td>
 <td></td>
 </tr>
 <tr>
-<td class=code>void</td>
-<td class=code>append (const Object&amp; ob)</td>
+<td class="code">void</td>
+<td class="code">append( const Object &amp;ob )</td>
 <td></td>
 </tr>
 <tr>
-<td class=code>void</td>
-<td class=code>insert (int i, const Object&amp; ob)</td>
+<td class="code">void</td>
+<td class="code">insert( int i, const Object &amp;ob )</td>
 <td></td>
 </tr>
 <tr>
-<td class=code>void</td>
-<td class=code>sort ()</td>
+<td class="code">void</td>
+<td class="code">sort()</td>
 <td>Sorts the list in place, using Python's member function. You can also use
 the STL sort function on any List instance.</td>
 </tr>
 <tr>
-<td class=code>void</td>
-<td class=code>reverse ()</td>
+<td class="code">void</td>
+<td class="code">reverse()</td>
 <td>Reverses the list in place, using Python's member function.</td>
 </tr>
 </table>
@@ -1364,65 +1518,65 @@ behavior for both use and assignment.</p>
 <p>MapBase&lt;T&gt; inherits from Object. T should be chosen to reflect the kind of
 element returned by the mapping.</p>
 
-<table cellspacing=0 cellpadding=3px width="95%">
+<table cellspacing="0" cellpadding="3px" width="95%">
 <tr>
 <th>Type</td>
 <th>Name</td>
 <th>Comment</td>
 </tr>
 <tr>
-<td class=code>T</td>
-<td class=code>operator[](const std::string&amp; key) const</td>
+<td class="code">T</td>
+<td class="code">operator[]( const std::string &amp;key ) const</td>
 <td></td>
 </tr>
 <tr>
-<td class=code>mapref&lt;T&gt; </td>
-<td class=code>operator[](const std::string&amp; key)</td>
+<td class="code">mapref&lt;T&gt; </td>
+<td class="code">operator[]( const std::string &amp;key )</td>
 <td></td>
 </tr>
 <tr>
-<td class=code>int</td>
-<td class=code>length () const</td>
+<td class="code">int</td>
+<td class="code">length() const</td>
 <td>Number of entries.</td>
 </tr>
 <tr>
-<td class=code>int</td>
-<td class=code>hasKey (const std::string&amp; s) const </td>
+<td class="code">int</td>
+<td class="code">hasKey( const std::string &amp;s ) const </td>
 <td>Is m[s] defined?</td>
 </tr>
 <tr>
-<td class=code>T</td>
-<td class=code>getItem (const std::string&amp; s) const</td>
+<td class="code">T</td>
+<td class="code">getItem( const std::string &amp;s ) const</td>
 <td>m[s]</td>
 </tr>
 <tr>
-<td class=code>virtual void</td>
-<td class=code>setItem (const std::string&amp; s, const Object&amp; ob)</td>
+<td class="code">virtual void</td>
+<td class="code">setItem( const std::string &amp;s, const Object &amp;ob )</td>
 <td>m[s] = ob</td>
 </tr>
 <tr>
-<td class=code>void</td>
-<td class=code>delItem (const std::string&amp; s)</td>
+<td class="code">void</td>
+<td class="code">delItem( const std::string &amp;s )</td>
 <td>del m[s]</td>
 </tr>
 <tr>
-<td class=code>void</td>
-<td class=code>delItem (const Object&amp; s)</td>
+<td class="code">void</td>
+<td class="code">delItem( const Object &amp;s )</td>
 <td></td>
 </tr>
 <tr>
-<td class=code>List</td>
-<td class=code>keys () const</td>
+<td class="code">List</td>
+<td class="code">keys() const</td>
 <td>A list of the keys.</td>
 </tr>
 <tr>
-<td class=code>List</td>
-<td class=code>values () const</td>
+<td class="code">List</td>
+<td class="code">values() const</td>
 <td>A list of the values.</td>
 </tr>
 <tr>
-<td class=code>List</td>
-<td class=code>items () const</td>
+<td class="code">List</td>
+<td class="code">items() const</td>
 <td>Each item is a key-value pair.</td>
 </tr>
 </table>
@@ -1433,41 +1587,41 @@ element returned by the mapping.</p>
 subscripts can be used to set the components.</p>
 
 <pre>Dict d
-d[&quot;Paul Dubois&quot;] = &quot;(925)-422-5426&quot;</pre>
+d[&quot;Paul Dubois&quot;] = &quot;( 925 )-422-5426&quot;</pre>
 
 <h3>Interface for Class Dict</h3>
 
 <p>Dict inherits from MapBase&lt;Object&gt;.</p>
 
-<table cellspacing=0 cellpadding=3px width="95%">
+<table cellspacing="0" cellpadding="3px" width="95%">
 <tr>
 <th>Type</td>
 <th>Name</td>
 <th>Comment</td>
 </tr>
 <tr>
-<td class=code>explicit</td>
-<td class=code>Dict (PyObject *pyob</a>, bool owned = false)</td>
+<td class="code">explicit</td>
+<td class="code">Dict( PyObject *pyob</a>, bool owned = false )</td>
 <td></td>
 </tr>
 <tr>
-<td class=code> </td>
-<td class=code>Dict (const Dict&amp; ob)</td>
+<td class="code"> </td>
+<td class="code">Dict( const Dict &amp;ob )</td>
 <td></td>
 </tr>
 <tr>
-<td class=code> </td>
-<td class=code>Dict () </td>
+<td class="code"> </td>
+<td class="code">Dict() </td>
 <td>Creates an empty dictionary</td>
 </tr>
 <tr>
-<td class=code>Dict&amp;</td>
-<td class=code>operator= (const Object&amp; rhs)</td>
+<td class="code">Dict&amp;</td>
+<td class="code">operator=( const Object &amp;rhs )</td>
 <td></td>
 </tr>
 <tr>
-<td class=code>Dict&amp;</td>
-<td class=code>operator= (PyObject* rhsp)</td>
+<td class="code">Dict&amp;</td>
+<td class="code">operator=( PyObject *rhsp )</td>
 <td></td>
 </tr>
 </table>
@@ -1480,70 +1634,70 @@ module, however, see the extension facility. There is a large set of numeric ope
 
 <h3>Interface to class Callable</h3>
 
-<table cellspacing=0 cellpadding=3px width="95%">
+<table cellspacing="0" cellpadding="3px" width="95%">
 <tr>
 <th>Type</td>
 <th>Name</td>
 <th>Comment</td>
 </tr>
 <tr>
-<td class=code>explicit</td>
-<td class=code>Callable (PyObject *pyob</a>, bool owned = false)</td>
+<td class="code">explicit</td>
+<td class="code">Callable( PyObject *pyob</a>, bool owned = false )</td>
 <td></td>
 </tr>
 <tr>
-<td class=code>Callable&amp; </td>
-<td class=code>operator= (const Object&amp; rhs)</td>
+<td class="code">Callable &amp;</td>
+<td class="code">operator=( const Object &amp;rhs )</td>
 <td></td>
 </tr>
 <tr>
-<td class=code>Callable&amp; </td>
-<td class=code>operator= (PyObject* rhsp)</td>
+<td class="code">Callable &amp;</td>
+<td class="code">operator=( PyObject *rhsp )</td>
 <td></td>
 </tr>
 <tr>
-<td class=code>Object</td>
-<td class=code>apply(const Tuple&amp; args) const</td>
+<td class="code">Object</td>
+<td class="code">apply( const Tuple &amp;args ) const</td>
 <td>Call the object with the given arguments</td>
 </tr>
 <tr>
-<td class=code>Object</td>
-<td class=code>apply(PyObject* pargs = 0) const </td>
+<td class="code">Object</td>
+<td class="code">apply( PyObject *pargs = 0 ) const </td>
 <td>Call the object with args as the arguments. Checks that pargs is a tuple.</td>
 </tr>
 </table>
 
 <h3>Interface to class Module</h3>
 
-<table cellspacing=0 cellpadding=3px width="95%">
+<table cellspacing="0" cellpadding="3px" width="95%">
 <tr>
 <th>Type</td>
 <th>Name</td>
 <th>Comment</td>
 </tr>
 <tr>
-<td class=code>explicit</td>
-<td class=code>Module (PyObject* pyob, bool owned = false)</td>
+<td class="code">explicit</td>
+<td class="code">Module( PyObject *pyob, bool owned = false )</td>
 <td></td>
 </tr>
 <tr>
-<td class=code>explicit</td>
-<td class=code>Module (const std::string name)</td>
+<td class="code">explicit</td>
+<td class="code">Module( const std::string name )</td>
 <td>Construct from name of module; does the import if needed.</td>
 </tr>
 <tr>
-<td class=code></td>
-<td class=code>Module (const Module&amp; ob) </td>
+<td class="code"></td>
+<td class="code">Module( const Module &amp;ob ) </td>
 <td>Copy constructor</td>
 </tr>
 <tr>
-<td class=code>Module&amp;</td>
-<td class=code>operator= (const Object&amp; rhs) </td>
+<td class="code">Module&amp;</td>
+<td class="code">operator=( const Object &amp;rhs ) </td>
 <td>Assignment</td>
 </tr>
 <tr>
-<td class=code>Module&amp;</td>
-<td class=code>operator= (PyObject* rhsp) </td>
+<td class="code">Module&amp;</td>
+<td class="code">operator=( PyObject *rhsp ) </td>
 <td>Assignment</td>
 </tr>
 </table>
@@ -1551,21 +1705,21 @@ module, however, see the extension facility. There is a large set of numeric ope
 <h3>Numeric interface</h3>
 
 <p>Unary operators for plus and minus, and binary operators +, -, *, /, and % are defined
-for pairs of objects and for objects with scalar integers or doubles (in either
-order). Functions abs(ob) and coerce(o1, o2) are also defined. </p>
+for pairs of objects and for objects with scalar integers or doubles( in either
+order ). Functions abs( ob ) and coerce( o1, o2 ) are also defined. </p>
 
 <p>The signature for coerce is:</p>
 
-<pre>inline std::pair&lt;Object,Object&gt; coerce(const Object&amp; a, const Object&amp; b)</pre>
+<pre>inline std::pair&lt;Object,Object&gt; coerce( const Object &amp;a, const Object &amp;b )</pre>
 
 <p>Unlike the C API function, this simply returns the pair after coercion.</p>
 
 <h3>Stream I/O</h3>
 
-<p>Any object can be printed using stream I/O, using std::ostream&amp; operator&lt;&lt;
-(std::ostream&amp; os, const Object&amp; ob). The object's str() representation is
-converted to a standard string which is passed to std::ostream&amp; operator&lt;&lt;
-(std::ostream&amp; os, const std::string&amp;).</p>
+<p>Any object can be printed using stream I/O, using std::ostream &amp;operator&lt;&lt;
+( std::ostream &amp;os, const Object &amp;ob ). The object's str() representation is
+converted to a standard string which is passed to std::ostream &amp;operator&lt;&lt;
+( std::ostream &amp;os, const std::string  &amp;).</p>
 
 <h2>Exceptions</h2>
 
@@ -1576,10 +1730,10 @@ of try/catch blocks in the bodies of extension objects and module functions.</p>
 
 <p>A set of classes is provided. Each is derived from class Exception, and represents a
 particular sort of Python exception, such as IndexError, RuntimeError, ValueError. Each of
-them (other than Exception) has a constructor which takes an explanatory string as an
+them( other than Exception ) has a constructor which takes an explanatory string as an
 argument, and is used in a throw statement such as:</p>
 
-<pre>throw IndexError(&quot;Index too large in MyObject access.&quot;);</pre>
+<pre>throw IndexError( &quot;Index too large in MyObject access.&quot; );</pre>
 
 <p>If in using a routine from the Python API, you discover that it has returned a NULL
 indicating an error, then Python has already set the error message. In that case you
@@ -1590,78 +1744,78 @@ merely throw Exception.</p>
 <p>The exception hierarchy mirrors the Python exception hierarchy. The concrete exception
 classes are shown here.</p>
 
-<table cellspacing=0 cellpadding=3px width="95%">
+<table cellspacing="0" cellpadding="3px" width="95%">
 <tr>
 <th>Type</th>
 <th>Interface for class Exception</th>
 </tr>
 <tr>
-<td class=code>explicit </td>
-<td class=code>Exception()</td>
+<td class="code">explicit </td>
+<td class="code">Exception()</td>
 </tr>
 <tr>
-<td class=code> </td>
-<td class=code>Exception (const std::string&amp; reason) </td>
+<td class="code"> </td>
+<td class="code">Exception( const std::string &amp;reason ) </td>
 </tr>
 <tr>
-<td class=code> </td>
-<td class=code>Exception (PyObject* exception, const std::string&amp; reason) </td>
+<td class="code"> </td>
+<td class="code">Exception( PyObject *exception, const std::string &amp;reason ) </td>
 </tr>
 <tr>
-<td class=code>void </td>
-<td class=code>clear()</td>
+<td class="code">void </td>
+<td class="code">clear()</td>
 </tr>
 <tr>
-<td class=code></td>
+<td class="code"></td>
 <td>Constructors for other children of class Exception</td>
 </tr>
 <tr>
-<td class=code> </td>
-<td class=code>TypeError (const std::string&amp; reason)</td>
+<td class="code"> </td>
+<td class="code">TypeError( const std::string &amp;reason )</td>
 </tr>
 <tr>
-<td class=code> </td>
-<td class=code>IndexError (const std::string&amp; reason)</td>
+<td class="code"> </td>
+<td class="code">IndexError( const std::string &amp;reason )</td>
 </tr>
 <tr>
-<td class=code> </td>
-<td class=code>AttributeError (const std::string&amp; reason)</td>
+<td class="code"> </td>
+<td class="code">AttributeError( const std::string &amp;reason )</td>
 </tr>
 <tr>
-<td class=code> </td>
-<td class=code>NameError (const std::string&amp; reason)</td>
+<td class="code"> </td>
+<td class="code">NameError( const std::string &amp;reason )</td>
 </tr>
 <tr>
-<td class=code> </td>
-<td class=code>RuntimeError (const std::string&amp; reason)</td>
+<td class="code"> </td>
+<td class="code">RuntimeError( const std::string &amp;reason )</td>
 </tr>
 <tr>
-<td class=code> </td>
-<td class=code>SystemError (const std::string&amp; reason)</td>
+<td class="code"> </td>
+<td class="code">SystemError( const std::string &amp;reason )</td>
 </tr>
 <tr>
-<td class=code> </td>
-<td class=code>KeyError (const std::string&amp; reason)</td>
+<td class="code"> </td>
+<td class="code">KeyError( const std::string &amp;reason )</td>
 </tr>
 <tr>
-<td class=code> </td>
-<td class=code>ValueError (const std::string&amp; reason)</td>
+<td class="code"> </td>
+<td class="code">ValueError( const std::string &amp;reason )</td>
 </tr>
 <tr>
-<td class=code> </td>
-<td class=code>OverflowError (const std::string&amp; reason)</td>
+<td class="code"> </td>
+<td class="code">OverflowError( const std::string &amp;reason )</td>
 </tr>
 <tr>
-<td class=code> </td>
-<td class=code>ZeroDivisionError (const std::string&amp; reason)</td>
+<td class="code"> </td>
+<td class="code">ZeroDivisionError( const std::string &amp;reason )</td>
 </tr>
 <tr>
-<td class=code> </td>
-<td class=code>MemoryError (const std::string&amp; reason)</td>
+<td class="code"> </td>
+<td class="code">MemoryError( const std::string &amp;reason )</td>
 </tr>
 <tr>
-<td class=code> </td>
-<td class=code>SystemExit (const std::string&amp; reason)</td>
+<td class="code"> </td>
+<td class="code">SystemExit( const std::string &amp;reason )</td>
 </tr>
 </table>
 
@@ -1685,15 +1839,15 @@ other exceptions, not in the Exception family, in the same way. If so, you need 
 sure you set the error in Python before returning.</p>
 
 <pre>static PyObject *
-some_module_method(PyObject* self, PyObject* args)
+some_module_method( PyObject *self, PyObject *args )
 {
     Tuple a( args ); // we know args is a Tuple
     try
     {
         ...calculate something from a...
-        return ...something, usually of the form new_reference_to(some Object);
+        return ...something, usually of the form new_reference_to( some Object );
     }
-    catch( const Exception&amp; )
+    catch( const Exception  &amp;)
     {
         //Exception caught, passing it on to Python
         return None();
@@ -1707,7 +1861,7 @@ some_module_method(PyObject* self, PyObject* args)
 the catch phrase to set a reference to an Exception, and use the method clear() from class
 Exception to clear it.:</p>
 
-<pre>catch( Exception&amp; e )
+<pre>catch( Exception &amp;e )
 {
     e.clear();
     ...now decide what to do about it...
@@ -1747,8 +1901,8 @@ the initialization function, as in initexample below.</li>
 
 <p>To create an extension module, you inherit from class ExtensionModule templated on
 yourself: In the constructor, you make calls to register methods of this class with Python
-as extension module methods. In this example, two methods are added (this is a simplified
-form of the example in Demo/example.cxx):</p>
+as extension module methods. In this example, two methods are added( this is a simplified
+form of the example in Demo/example.cxx ):</p>
 
 <pre>class example_module : public ExtensionModule&lt;example_module&gt;
 {
@@ -1756,8 +1910,8 @@ public:
     example_module()
     : ExtensionModule&lt;example_module&gt;( &quot;example&quot; )
     {
-        add_varargs_method(&quot;sum&quot;, &amp;example_module::ex_sum, &quot;sum(arglist) = sum of arguments&quot;);
-        add_varargs_method(&quot;test&quot;, &amp;example_module::ex_test, &quot;test(arglist) runs a test suite&quot;);
+        add_varargs_method( &quot;sum&quot;, &amp;example_module::ex_sum, &quot;sum( arglist ) = sum of arguments&quot; );
+        add_varargs_method( &quot;test&quot;, &amp;example_module::ex_test, &quot;test( arglist ) runs a test suite&quot; );
 
         initialize( &quot;documentation for the example module&quot; );
     }
@@ -1765,13 +1919,13 @@ public:
     virtual ~example_module() {}
 
 private:
-    Object ex_sum(const Tuple &amp;a) { ... }
-    Object ex_test(const Tuple &amp;a) { ... }
+    Object ex_sum( const Tuple &amp;a ) { ... }
+    Object ex_test( const Tuple &amp;a ) { ... }
 };
 </pre>
 
-<p>To initialize the extension, you just instantiate one static instance (static so it
-does not destroy itself!):</p>
+<p>To initialize the extension, you just instantiate one static instance( static so it
+does not destroy itself! ):</p>
 
 <pre>void initexample()
 {
@@ -1782,12 +1936,12 @@ does not destroy itself!):</p>
 exceptions occur they are trapped for you and a Python exception is generated. So, for
 example, the implementation of ex_sum might be:</p>
 
-<pre>Object ex_sum (const Tuple &amp;a)
+<pre>Object ex_sum( const Tuple &amp;a )
 {
-    Float f(0.0);
+    Float f( 0.0 );
     for( int i = 0; i &lt; a.length(); i++ )
     {
-        Float g(a[i]);
+        Float g( a[i] );
         f = f + g;
     }
     return f;
@@ -1798,57 +1952,57 @@ return its dictionary.</p>
 
 <h3>Interface to class ExtensionModule</h3>
 
-<table cellspacing=0 cellpadding=3px width="95%">
+<table cellspacing="0" cellpadding="3px" width="95%">
 <tr>
 <th>Type</td>
 <th>Name</td>
 <th>Comment</td>
 </tr>
 <tr>
-<td class=code>explicit</td>
-<td class=code>ExtensionModule (char* name)   </td>
+<td class="code">explicit</td>
+<td class="code">ExtensionModule( char* name )   </td>
 <td>Create an extension module named &quot;name&quot;</td>
 </tr>
 <tr>
-<td class=code>virtual   </td>
-<td class=code>~ExtensionModule ()   </td>
+<td class="code">virtual   </td>
+<td class="code">~ExtensionModule()   </td>
 <td>Destructor</td>
 </tr>
 <tr>
-<td class=code>Dict</td>
-<td class=code>moduleDictionary() const</td>
+<td class="code">Dict</td>
+<td class="code">moduleDictionary() const</td>
 <td>Returns the module dictionary; module must be initialized.</td>
 </tr>
 <tr>
-<td class=code>Module</td>
-<td class=code>module() const</td>
+<td class="code">Module</td>
+<td class="code">module() const</td>
 <td>This module as a Module.</td>
 </tr>
 <tr>
-<td class=code>void   </td>
-<td class=code>add_varargs_method (char *name,  method_varargs_function_t method, char *documentation=&quot;&quot;)</td>
+<td class="code">void   </td>
+<td class="code">add_varargs_method( char *name,  method_varargs_function_t method, char *documentation=&quot;&quot; )</td>
 <td>Add a method to the module.</td>
 </tr>
 <tr>
-<td class=code>void </td>
-<td class=code>add_keyword_method (char *name,  method_keyword_function_t method, char *documentation=&quot;&quot;</td>
+<td class="code">void </td>
+<td class="code">add_keyword_method( char *name,  method_keyword_function_t method, char *documentation=&quot;&quot;</td>
 <td>Add a method that takes keywords</td>
 </tr>
 <tr>
-<td class=code>void</td>
-<td class=code>initialize() (protected, call from constructor)</td>
+<td class="code">void</td>
+<td class="code">initialize()( protected, call from constructor )</td>
 <td>Initialize the module once all methods have been added. </td>
 </tr>
 </table>
 
 <p>The signatures above are:</p>
 
-<pre>typedef Object (T::*method_varargs_function_t)( const Tuple &amp;args );
-typedef Object (T::*method_keyword_function_t)( const Tuple &amp;args, const Dict &amp;kws
-);</pre>
+<pre>typedef Object( T::*method_varargs_function_t )( const Tuple &amp;args );
+typedef Object( T::*method_keyword_function_t )( const Tuple &amp;args, const Dict &amp;kws
+ );</pre>
 
 <p>That is, the methods take a Tuple or a Tuple and a Dict, and return an Object. The
-example below has an &amp; in front of the name of the method; we found one compiler that
+example below has an  &amp;in front of the name of the method; we found one compiler that
 needed this.</p>
 
 <h2>Creating a Python extension type</h2>
@@ -1875,16 +2029,16 @@ sense.</p>
 
 <ul>
 <li>MyObject is a child of PyObject, so that a MyObject* is-a PyObject*. </li>
-<li>A static method <cite>check(PyObject*)</cite> is created in class MyObject. This function
+<li>A static method <cite>check( PyObject * )</cite> is created in class MyObject. This function
 returns a boolean, testing whether or not the argument is in fact a pointer to an instance
 of MyObject.</li>
 <li>The user can connect methods of MyObject to Python so that they are methods on MyObject
-objects. Each such method has the signature:<br>
-Object method_name (const Tuple&amp; args).</li>
+objects. Each such method has the signature:<br />
+Object method_name( const Tuple &amp;args ).</li>
 <li>The user can override virtual methods of PythonExtension in order to set behaviors.</li>
 <li>A method is created to handle the deletion of an instance if and when its reference
 count goes to zero. This method ensures the calling of the class destructor ~MyObject(),
-if any, and releases the memory (see below).</li>
+if any, and releases the memory( see below ).</li>
 <li>Both automatic and heap-based instances of MyObject can be created.</li>
 </ul>
 
@@ -1919,9 +2073,9 @@ public:
     virtual Py::Object sequence_slice( int i, int j );
 
     // define python methods of this object
-    Py::Object amethod (const Py::Tuple&amp; args);
-    Py::Object value (const Py::Tuple&amp; args);
-    Py::Object assign (const Py::Tuple&amp; args); 
+    Py::Object amethod( const Py::Tuple &amp;args );
+    Py::Object value( const Py::Tuple &amp;args );
+    Py::Object assign( const Py::Tuple &amp;args ); 
 };</pre>
 
 <p>
@@ -1931,74 +2085,73 @@ support. Then we adds the methods.</p>
 
 <pre>void range::init_type()
 {
-    behaviors().name(&quot;range&quot;);
-    behaviors().doc(&quot;range objects: start, stop, step&quot;);
+    behaviors().name( &quot;range&quot; );
+    behaviors().doc( &quot;range objects: start, stop, step&quot; );
     behaviors().supportRepr();
     behaviors().supportGetattr();
     behaviors().supportSequenceType();
 
-    add_varargs_method(&quot;amethod&quot;, &amp;range::amethod,
-        &quot;demonstrate how to document amethod&quot;);
-    add_varargs_method(&quot;assign&quot;, &amp;range::assign);
-    add_varargs_method(&quot;value&quot;, &amp;range::value);
+    add_varargs_method( &quot;amethod&quot;, &amp;range::amethod, &quot;demonstrate how to document amethod&quot; );
+    add_varargs_method( &quot;assign&quot;, &amp;range::assign );
+    add_varargs_method( &quot;value&quot;, &amp;range::value );
 }</pre>
 </a>
 
 <p>Do not forget to add the call range::init_type() to some module's init function. You will want
 a method in some module that can create range objects, too.</p>
 
-<h3>Interface to PythonExtension &lt;T&gt;</h3>
+<h3>Interface to PythonExtension&lt;T&gt;</h3>
 
 <p>Your extension class T inherits PythonExtension&lt;T&gt;.</p>
 
-<table cellspacing=0 cellpadding=3px width="95%">
+<table cellspacing="0" cellpadding="3px" width="95%">
 <tr>
 <th>Type</td>
 <th>Name</td>
 <th>Comment</td>
 </tr>
 <tr>
-<td class=code>virtual   </td>
-<td class=code>~PythonExtension&lt;T&gt;()   </td>
+<td class="code">virtual</td>
+<td class="code">~PythonExtension&lt;T&gt;()   </td>
 <td>Destructor</td>
 </tr>
 <tr>
-<td class=code>PyTypeObject* </td>
-<td class=code>type_object() const</td>
+<td class="code">PyTypeObject* </td>
+<td class="code">type_object() const</td>
 <td>Returns the object type object.</td>
 </tr>
 <tr>
-<td class=code>int</td>
-<td class=code>check (PyObject* p)</td>
+<td class="code">int</td>
+<td class="code">check( PyObject *p )</td>
 <td>Is p a T?</td>
 </tr>
 <tr>
-<td colspan="3"><strong>Protected </strong></td>
+<td colspan="3"><strong>Protected</strong></td>
 </tr>
 <tr>
-<td class=code>void </td>
-<td class=code>add_varargs_method (char *name,  method_keyword_function_t method, char *documentation=&quot;&quot;</td>
+<td class="code">void</td>
+<td class="code">add_varargs_method( char *name,  method_keyword_function_t method, char *documentation=&quot;&quot;</td>
 <td>Add a method that takes arguments</td>
 </tr>
 <tr>
-<td class=code>void </td>
-<td class=code>add_keyword_method (char *name,  method_keyword_function_t method, char *documentation=&quot;&quot;</td>
+<td class="code">void </td>
+<td class="code">add_keyword_method( char *name,  method_keyword_function_t method, char *documentation=&quot;&quot;</td>
 <td>Add a method that takes keywords</td>
 </tr>
 <tr>
-<td class=code>static PythonType&amp;</td>
-<td class=code>behaviors()</td>
+<td class="code">static PythonType&amp;</td>
+<td class="code">behaviors()</td>
 <td>The type object</td>
 </tr>
 <tr>
-<td class=code>void</td>
-<td class=code>initialize() (protected, call from constructor)</td>
+<td class="code">void</td>
+<td class="code">initialize()( protected, call from constructor )</td>
 <td>Initialize the module once all methods have been added. </td>
 </tr>
 </table>
 
-<p>As before the signatures for the methods are Object mymethod(const Tuple&amp;
-args) and Object mykeywordmethod (const Tuple&amp; args, const Dict&amp; keys). In this
+<p>As before the signatures for the methods are Object mymethod( const Tuple&amp;
+args ) and Object mykeywordmethod( const Tuple &amp;args, const Dict &amp;keys ). In this
 case, the methods must be methods of T.</p>
 
 <p>To set the behaviors of the object you override some or all of these methods from
@@ -2006,28 +2159,28 @@ PythonExtension&lt;T&gt;:</p>
 
 <pre>virtual int print( FILE *, int );
 virtual Object getattr( const char * );
-virtual int setattr( const char *, const Object &amp; );
-virtual Object getattro( const Object &amp; );
-virtual int setattro( const Object &amp;, const Object &amp; );
-virtual int compare( const Object &amp; );
+virtual int setattr( const char *, const Object   &amp;);
+virtual Object getattro( const Object   &amp;);
+virtual int setattro( const Object &amp;, const Object   &amp;);
+virtual int compare( const Object   &amp;);
 virtual Object repr();
 virtual Object str();
 virtual long hash();
-virtual Object call( const Object &amp;, const Object &amp; );
+virtual Object call( const Object &amp;, const Object   &amp;);
 
 // Sequence methods
 virtual int sequence_length();
-virtual Object sequence_concat( const Object &amp; );
+virtual Object sequence_concat( const Object   &amp;);
 virtual Object sequence_repeat( int );
 virtual Object sequence_item( int );
 virtual Object sequence_slice( int, int );
-virtual int sequence_ass_item( int, const Object &amp; );
-virtual int sequence_ass_slice( int, int, const Object &amp; );
+virtual int sequence_ass_item( int, const Object   &amp;);
+virtual int sequence_ass_slice( int, int, const Object   &amp;);
 
 // Mapping
 virtual int mapping_length();
-virtual Object mapping_subscript( const Object &amp; );
-virtual int mapping_ass_subscript( const Object &amp;, const Object &amp; );
+virtual Object mapping_subscript( const Object   &amp;);
+virtual int mapping_ass_subscript( const Object &amp;, const Object   &amp;);
 
 // Number
 virtual int number_nonzero();
@@ -2040,18 +2193,18 @@ virtual Object number_float();
 virtual Object number_long();
 virtual Object number_oct();
 virtual Object number_hex();
-virtual Object number_add( const Object &amp; );
-virtual Object number_subtract( const Object &amp; );
-virtual Object number_multiply( const Object &amp; );
-virtual Object number_divide( const Object &amp; );
-virtual Object number_remainder( const Object &amp; );
-virtual Object number_divmod( const Object &amp; );
-virtual Object number_lshift( const Object &amp; );
-virtual Object number_rshift( const Object &amp; );
-virtual Object number_and( const Object &amp; );
-virtual Object number_xor( const Object &amp; );
-virtual Object number_or( const Object &amp; );
-virtual Object number_power( const Object &amp;, const Object &amp; );
+virtual Object number_add( const Object   &amp;);
+virtual Object number_subtract( const Object   &amp;);
+virtual Object number_multiply( const Object   &amp;);
+virtual Object number_divide( const Object   &amp;);
+virtual Object number_remainder( const Object   &amp;);
+virtual Object number_divmod( const Object   &amp;);
+virtual Object number_lshift( const Object   &amp;);
+virtual Object number_rshift( const Object   &amp;);
+virtual Object number_and( const Object   &amp;);
+virtual Object number_xor( const Object   &amp;);
+virtual Object number_or( const Object   &amp;);
+virtual Object number_power( const Object &amp;, const Object   &amp;);
 
 // Buffer
 virtual int buffer_getreadbuffer( int, void** );
@@ -2069,21 +2222,21 @@ from the extension module. In that function, obtain the PythonType object by cal
 behaviors() and apply appropriate &quot;support&quot; methods from PythonType to turn on
 the support for that behavior or set of behaviors.</p>
 
-<pre>void supportPrint(void);
-void supportGetattr(void);
-void supportSetattr(void);
-void supportGetattro(void);
-void supportSetattro(void);
-void supportCompare(void);
-void supportRepr(void);
-void supportStr(void);
-void supportHash(void);
-void supportCall(void);
+<pre>void supportPrint( void );
+void supportGetattr( void );
+void supportSetattr( void );
+void supportGetattro( void );
+void supportSetattro( void );
+void supportCompare( void );
+void supportRepr( void );
+void supportStr( void );
+void supportHash( void );
+void supportCall( void );
 
-void supportSequenceType(void);
-void supportMappingType(void);
-void supportNumberType(void);
-void supportBufferType(void);</pre>
+void supportSequenceType( void );
+void supportMappingType( void );
+void supportNumberType( void );
+void supportBufferType( void );</pre>
 
 <p>Then call add_varargs_method or add_keyword_method to add any methods desired to the
 object.</p>
@@ -2096,12 +2249,12 @@ local and heap-based objects.</p>
 
 <p>If an extension object is created using operator new, as in:</p>
 
-<pre>range* my_r_ref = new range(1, 20, 3)</pre>
+<pre>range* my_r_ref = new range( 1, 20, 3 )</pre>
 
 <p>then the entity my_r_ref can be thought of as &quot;owning&quot; the reference created
 in the new object. Thus, the object will never have a reference count of zero. If the
 creator wishes to delete this object, they should either make sure the reference count is
-1 and then do delete my_r_ref, or decrement the reference with Py_DECREF(my_r_ref).</p>
+1 and then do delete my_r_ref, or decrement the reference with Py_DECREF( my_r_ref ).</p>
 
 <p>Should my_r_ref give up ownership by being used in an Object constructor, all will
 still be well. When the Object goes out of scope its destructor will be called, and that
@@ -2110,7 +2263,7 @@ that calls the destructor and deletes the pointer.</p>
 
 <p>If the object is created with automatic scope, as in:</p>
 
-<pre>range my_r(1, 20, 3)</pre>
+<pre>range my_r( 1, 20, 3 )</pre>
 
 <p>then my_r can be thought of as owning the reference, and when my_r goes out of scope
 the object will be destroyed. Of course, care must be taken not to have kept any permanent
@@ -2119,17 +2272,6 @@ facility will call the destructor of my_r. Naturally, care must be taken not to 
 with a dangling reference, but such objects can be created and destroyed more efficiently
 than heap-based PyObjects.</p>
 
-<h2>Putting it all together</h2>
-
-<p>The Demo directory of the distribution contains an extensive example of how to use many
-of the facilities in PyCXX. It also serves as a test routine. This test is not completely
-exhaustive but does excercise much of the facility.</p>
-
-<h2>Acknowledgment</h2>
-
-<p>Thank you to Geoffrey Furnish for patiently teaching me the finer points of C++ and its
-template facility, and his critique of PyCXX in particular. With version 4 I welcome Barry
-Scott as co-author. -- Paul Dubois</p>
 
 </body>
 </html>
