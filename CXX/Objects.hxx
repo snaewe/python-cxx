@@ -64,20 +64,6 @@ namespace Py
     class List;
     template<TEMPLATE_TYPENAME T> class MapBase;
 
-    // new_reference_to also overloaded below on Object
-    inline PyObject *new_reference_to( PyObject *p )
-    {
-        Py::_XINCREF( p );
-        return p;
-    }
-
-    // returning Null() from an extension method triggers a
-    // Python exception
-    inline PyObject *Null()
-    {
-        return static_cast<PyObject*>( 0 );
-    }
-
     //===========================================================================//
     // class Object
     // The purpose of this class is to serve as the most general kind of
@@ -171,7 +157,7 @@ namespace Py
         void release()
         {
             Py::_XDECREF( p );
-            p = 0;
+            p = NULL;
         }
 
         void validate();
@@ -250,7 +236,8 @@ namespace Py
         // Can pyob be used in this object's constructor?
         virtual bool accepts( PyObject *pyob ) const
         {
-            return pyob != 0;
+            // allow any object or NULL
+            return true;
         }
 
         Py_ssize_t reference_count() const
@@ -312,6 +299,11 @@ namespace Py
         bool is( const Object &other ) const
         { // identity test
             return p == other.p;
+        }
+
+        bool isNull() const
+        {
+            return p == NULL;
         }
 
         bool isNone() const
@@ -398,6 +390,24 @@ namespace Py
     };
     // End of class Object
 
+    // Null can be return from when it is require to return NULL to Python from a method
+    class Null: public Object
+    {
+    public:
+        Null()
+        : Object( NULL )
+        {
+        }
+        virtual ~Null()
+        {
+        }
+
+        bool accepts( PyObject *pyob )
+        {
+            return pyob == NULL;
+        }
+    };
+
     //------------------------------------------------------------
     bool operator==( const Object &o1, const Object &o2 );
     bool operator!=( const Object &o1, const Object &o2 );
@@ -407,6 +417,22 @@ namespace Py
     bool operator>( const Object &o1, const Object &o2 );
 
     //------------------------------------------------------------
+
+
+    //
+    //    Convert an owned Python pointer into a PyCXX Object
+    //
+    inline Object asObject( PyObject *p )
+    {
+        return Object( p, true );
+    }
+
+    // new_reference_to also overloaded below on Object
+    inline PyObject *new_reference_to( PyObject *p )
+    {
+        Py::_XINCREF( p );
+        return p;
+    }
 
     inline PyObject *new_reference_to( const Object &g )
     {
@@ -475,15 +501,6 @@ namespace Py
             return pyob && Py::_Type_Check( pyob );
         }
     };
-
-
-    //
-    //    Convert an owned Python pointer into a CXX Object
-    //
-    inline Object asObject( PyObject *p )
-    {
-        return Object( p, true );
-    }
 
     // ===============================================
     // class boolean
@@ -1726,6 +1743,14 @@ namespace Py
     class Byte: public Object
     {
     public:
+        // Membership
+        virtual bool accepts( PyObject *pyob ) const
+        {
+            return pyob != NULL
+                && Py::_Unicode_Check( pyob )
+                && PySequence_Length( pyob ) == 1;
+        }
+
         explicit Byte( PyObject *pyob, bool owned = false )
         : Object( pyob, owned )
         {
@@ -1763,14 +1788,6 @@ namespace Py
             return *this;
         }
 
-        // Membership
-        virtual bool accepts( PyObject *pyob ) const
-        {
-            return pyob != NULL
-                && Py::_Unicode_Check( pyob )
-                && PySequence_Length( pyob ) == 1;
-        }
-
         // Assignment from C string
         Byte &operator=( const std::string &v )
         {
@@ -1791,6 +1808,12 @@ namespace Py
     class Bytes: public SeqBase<Byte>
     {
     public:
+        // Membership
+        virtual bool accepts( PyObject *pyob ) const
+        {
+            return pyob != NULL && Py::_Bytes_Check( pyob );
+        }
+
         virtual size_type capacity() const
         {
             return max_size();
@@ -1820,14 +1843,8 @@ namespace Py
             validate();
         }
 
-        Bytes( const std::string &v, std::string::size_type vsize )
+        Bytes( const std::string &v, Py_ssize_t vsize )
         : SeqBase<Byte>( PyBytes_FromStringAndSize( const_cast<char*>( v.data() ), static_cast<int>( vsize ) ), true )
-        {
-            validate();
-        }
-
-        Bytes( const char *v, int vsize )
-        : SeqBase<Byte>( PyBytes_FromStringAndSize( const_cast<char*>( v ), vsize ), true )
         {
             validate();
         }
@@ -1838,10 +1855,10 @@ namespace Py
             validate();
         }
 
-        // Membership
-        virtual bool accepts( PyObject *pyob ) const
+        Bytes( const char *v, Py_ssize_t vsize )
+        : SeqBase<Byte>( PyBytes_FromStringAndSize( const_cast<char*>( v ), vsize ), true )
         {
-            return pyob != NULL && Py::_Bytes_Check( pyob );
+            validate();
         }
 
         // Assignment acquires new ownership of pointer
@@ -1886,6 +1903,12 @@ namespace Py
     class Char: public Object
     {
     public:
+        // Membership
+        virtual bool accepts( PyObject *pyob ) const
+        {
+            return pyob != 0 &&( Py::_Unicode_Check( pyob ) ) && PySequence_Length( pyob ) == 1;
+        }
+
         explicit Char( PyObject *pyob, bool owned = false )
         : Object( pyob, owned )
         {
@@ -1910,6 +1933,12 @@ namespace Py
             validate();
         }
 
+        Char( const unicodestring &v )
+        : Object( PyUnicode_FromUnicode( const_cast<Py_UNICODE*>( v.data() ),1 ), true )
+        {
+            validate();
+        }
+
         // Assignment acquires new ownership of pointer
         Char &operator=( const Object &rhs )
         {
@@ -1923,15 +1952,15 @@ namespace Py
             return *this;
         }
 
-        // Membership
-        virtual bool accepts( PyObject *pyob ) const
-        {
-            return pyob != 0 &&( Py::_Unicode_Check( pyob ) ) && PySequence_Length( pyob ) == 1;
-        }
-
         Char &operator=( const unicodestring &v )
         {
-            set( PyUnicode_FromUnicode( const_cast<Py_UNICODE*>( v.data() ),1 ), true );
+            set( PyUnicode_FromUnicode( const_cast<Py_UNICODE*>( v.data() ), 1 ), true );
+            return *this;
+        }
+
+        Char &operator=( int v )
+        {
+            set( PyUnicode_FromUnicode( &v, 1 ), true );
             return *this;
         }
 
@@ -1951,6 +1980,12 @@ namespace Py
         virtual size_type capacity() const
         {
             return max_size();
+        }
+
+        // Membership
+        virtual bool accepts( PyObject *pyob ) const
+        {
+            return pyob != NULL && Py::_Unicode_Check( pyob );
         }
 
         explicit String( PyObject *pyob, bool owned = false )
@@ -2037,16 +2072,9 @@ namespace Py
             return *this;
         }
 
-        // Membership
-        virtual bool accepts( PyObject *pyob ) const
-        {
-            return pyob != 0 && Py::_Unicode_Check( pyob );
-        }
-
         String &operator=( const unicodestring &v )
         {
-            set( PyUnicode_FromUnicode( const_cast<Py_UNICODE*>( v.data() ),
-                    static_cast<int>( v.length() ) ), true );
+            set( PyUnicode_FromUnicode( const_cast<Py_UNICODE *>( v.data() ), static_cast<int>( v.length() ) ), true );
             return *this;
         }
 
@@ -2445,6 +2473,7 @@ namespace Py
         }
     }; // end of mapref
 
+#if 0
     // TMM: now for mapref<T>
     template< class T >
     bool operator==( const mapref<T> &left, const mapref<T> &right )
@@ -2457,6 +2486,7 @@ namespace Py
     {
         return true;    // not completed.
     }
+#endif
 
     template<TEMPLATE_TYPENAME T>
     class MapBase: public Object
