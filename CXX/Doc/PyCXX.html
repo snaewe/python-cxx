@@ -18,7 +18,8 @@
 template facility, and his critique of PyCXX in particular. With version 4 I welcome Barry
 Scott as co-author. -- Paul Dubois</p>
 
-<p>Paul is no longer contributing to PyCXX. Thanks for all your great work on PyCXX Paul. -- Barry Scott.</p>
+<p>Paul is no longer contributing to PyCXX. Thanks for all your great work on
+PyCXX Paul. -- Barry Scott.</p>
 
 <h2>Overview</h2>
 
@@ -93,6 +94,34 @@ can be used to build and run the example code.</p>
 <tr><td>Demo/range.hxx, Demo/range.cxx</td><td>Impliments the range object use by example.cxx.</td></tr>
 </tr>
 </table>
+
+<h3>PyCXX - Supporting Python 2 and Python 3</h3>
+
+<p>It is possible to have common code that can be compiled to work with Python 2 or Python 3.</p>
+
+<p>Use PyCXX V5.5 with PYCXX_2TO3 defined to support Python 2.</p>
+<p>Use PyCXX V6.0 with PYCXX_2TO3 defined to support Python 3.</p>
+
+<p>The changes from Python 2 to Python 3 that require code changes are:</p>
+<ul>
+<li>string is unicode only in Python 3 - Py::String API changed to match python 3 usage</li>
+<li>byte is for byte date in Python 3 - Py::Bytes added to PyCXX</li>
+<li>int has been removed - Py::Int has been removed from PyCXX</li>
+</ul>
+
+<p>This means that you will need to:</p>
+
+<ul>
+<li>Replace Py::Nothing with Py::None - required</li>
+<li>Replace Py::Int with Py::Long - recommended</li>
+<li>Replace Py::LongLong with Py::Long -recommended</li>
+<li>Replace as_std_string() with as_std_string( "encoding" ) or as_std_string( NULL ) - required</li>
+<li>Replace Py::String that holds non unicode data with Py::Bytes - required</li>
+</ul>
+
+<p>Because the Py::String and Py::Byte implementations in PyCXX V5.5 allow abuses
+of the API it is best to test your code against PyCXX V6.0 to ensure correct API
+use then test against PyCXX V5.5.</p>
 
 <h3>Use of namespaces</h3>
 
