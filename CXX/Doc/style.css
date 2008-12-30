@@ -6,12 +6,24 @@ h1, h2, h3, h4
     color: #000099;
     background-color: #aaaaff;
     }
-h3
+h2
     {
     position: relative;
     left: 20px
     margin-right: 40px;
     }
+
+li.contents_h1 a, li.contents_h1 a:link, li.contents_h1 a:visited, li.contents_h1 a:active
+    {
+    font-size: x-large;
+    font-style: bold;
+    }
+li.contents_h2 a, li.contents_h2 a:link, li.contents_h2 a:visited, li.contents_h2 a:active
+    {
+    font-size: large;
+    font-style: none;
+    }
+
 body
     {
     background-color: #ffffff;
@@ -63,6 +75,11 @@ li p
     {
     position: relative;
     left: 0;
+    }
+caption
+    {
+    font-size: x-large;
+    font-style: bold;
     }
 table 
     {
