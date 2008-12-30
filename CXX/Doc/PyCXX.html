@@ -14,8 +14,8 @@
 
 <h2>Contents</h2>
 <ul>
-<li class="contents_h1"><a href="#h1_title">PyCXX: Writing Python Extensions in C++</a></li>
-    <ul>
+<li class="contents_h1"><a href="#h1_title">Writing Python Extensions in C++ with PyCXX</a></li>
+    <li><ul>
     <li class="contents_h2"><a href="#h2_acknowledgments">Acknowledgments</a></li>
     <li class="contents_h2"><a href="#h2_Overview">Overview</a></li>
     <li class="contents_h2"><a href="#h2_download">Download and Installation</a></li>
@@ -29,9 +29,9 @@
     <li class="contents_h2"><a href="#h2_comparisons">Comparisons</a></li>
     <li class="contents_h2"><a href="#h2_class_object">Class Object</a></li>
     <li class="contents_h2"><a href="#h2_python_pointers">Dealing with pointers returned by the Python C API</a></li>
-    </ul>
+    </ul></li>
 <li class="contents_h1"><a href="#h1_basic_types">The Basic Types</a></li>
-    <ul>
+    <li><ul>
     <li class="contents_h2"><a href="#h2_class_type">Class Type</a></li>
     <li class="contents_h2"><a href="#h2_class_long">Class Long</a></li>
     <li class="contents_h2"><a href="#h2_class_float">Class Float</a></li>
@@ -55,23 +55,23 @@
     <li class="contents_h2"><a href="#h2_class_module">Interface to class Module</a></li>
     <li class="contents_h2"><a href="#h2_numeric_interface">Numeric interface</a></li>
     <li class="contents_h2"><a href="#h2_stream_io">Stream I/O</a></li>
-    </ul>
+    </ul></li>
 <li class="contents_h1"><a href="#h1_exceptions">Exceptions</a></li>
-    <ul>
+    <li><ul>
     <li class="contents_h2"><a href="#h2_class_exception">Class Exception and its children</a></li>
     <li class="contents_h2"><a href="#h2_exceptions_list">List of Exceptions</a></li>
     <li class="contents_h2"><a href="#h2_exceptions_using">Using Exceptions in extension methods</a></li>
     <li class="contents_h2"><a href="#h2_exceptions_catching">Catching Exceptions from the Python API or PyCXX.</a></li>
     <li class="contents_h2"><a href="#h2_exceptions_clearing">How to clear an Exception</a></li>
-    </ul>
+    </ul></li>
 <li class="contents_h1"><a href="#h1_extension_facilities">Extension Facilities</a></li>
-    <ul>
+    <li><ul>
     <li class="contents_h2"><a href="#h2_creating_extention_module">Creating an Python extension module</a></li>
     <li class="contents_h2"><a href="#h2_creating_extension_type">Creating a Python extension type</a></li>
     <li class="contents_h2"><a href="#h2_sample_pythonextension">Sample usage of PythonExtension</a></li>
     <li class="contents_h2"><a href="#h2_type_initialization">Type initialization</a></li>
     <li class="contents_h2"><a href="#h2_memory_management">Notes on memory management and extension objects</a></li>
-    </ul>
+    </ul></li>
 </ul>
 <h2><a name="h2_acknowledgments">Acknowledgments</a></h2>
 
@@ -111,11 +111,11 @@ integrates Python with C++ in these ways: </p>
 <p>The distribution layout is:</p>
 <table cellspacing="0" cellpadding="3px">
 <tr><th>Directory</th><th>Description</th></tr>
-<tr><td class="code">.</td><td>Makefile for Unix and Windows, Release documentation</td>
-<tr><td class="code">./CXX</td><td>Header files</td>
-<tr><td class="code">./Src</td><td>Source files</td>
-<tr><td class="code">./Doc</td><td>Documentation</td>
-<tr><td class="code">./Demo</td><td>Testing and Demonstartion files</td>
+<tr><td class="code">.</td><td>Makefile for Unix and Windows, Release documentation</td></tr>
+<tr><td class="code">./CXX</td><td>Header files</td></tr>
+<tr><td class="code">./Src</td><td>Source files</td></tr>
+<tr><td class="code">./Doc</td><td>Documentation</td></tr>
+<tr><td class="code">./Demo</td><td>Testing and Demonstartion files</td></tr>
 </table>
 
 <p>To use PyCXX you use its include files and add its source routines to your module.</p>
@@ -124,12 +124,12 @@ integrates Python with C++ in these ways: </p>
 <ul>
 <li>Install the PyCXX files into a directory of your choice. For example:<br />
 Windows: <cite>C:\PyCXX</cite><br />
-Unix: <cite>/usr/local/PyCXX</cite>
+Unix: <cite>/usr/local/PyCXX</cite></li>
 <li>Tell your compiler where the PyCXX header files are:<br />
 Windows: <cite>cl /I=C:\PyCXX ...</cite><br />
-Unix: <cite>g++ -I/usr/local/PyCXX ...</cite>
+Unix: <cite>g++ -I/usr/local/PyCXX ...</cite></li>
 <li>Include PyCXX headers files in your code using the CXX prefix:<br />
-<cite>#include &quot;CXX/Objects.hxx&quot;</cite>
+<cite>#include &quot;CXX/Objects.hxx&quot;</cite></li>
 </ul>
 
 <p>The header file CXX/config.h may need to be adjusted for the
@@ -153,7 +153,6 @@ can be used to build and run the example code.</p>
 <tr><td>Demo/test_simple.py, Demo/simple.cxx</td><td>The simplest code needed to create a module and classes in C++.</td></tr>
 <tr><td>Demo/test_example.py, Demo/example.cxx</td><td>The original PyCXX example code. It is now the main test suite for PyCXX.</td></tr>
 <tr><td>Demo/range.hxx, Demo/range.cxx</td><td>Impliments the range object use by example.cxx.</td></tr>
-</tr>
 </table>
 
 <h2><a name="h2_2to3">PyCXX - Supporting Python 2 and Python 3</a></h2>
@@ -377,7 +376,7 @@ exception mechanism is discussed later.</p>
 <tr><td class="code">Object</td><td class="code">asObject( PyObject *p )</td><td>Convert an owned Python pointer into a PyCXX Object</td></tr>
 <tr><td class="code">PyObject *</td><td class="code">Null()</td><td>return (PyObject *)NULL</td></tr>
 <tr><td class="code">PyObject *</td><td class="code">new_reference_to( PyObject *p )</td><td>Increment the reference count of <i>p</i></td></tr>
-<tr><td class="code">PyObject *</td><td class="code">new_reference_to( const Object &g )</td><td>Increment the reference count of <i>g</i></td></tr>
+<tr><td class="code">PyObject *</td><td class="code">new_reference_to( const Object &amp;g )</td><td>Increment the reference count of <i>g</i></td></tr>
 <tr><td class="code">Object</td><td class="code">None()</td><td>Return the Python None opject</td></tr>
 <tr><td class="code">Object</td><td class="code">True()</td><td>Return the Python True opject</td></tr>
 <tr><td class="code">Object</td><td class="code">False()</td><td>Return the Python False opject</td></tr>
@@ -396,12 +395,12 @@ exception mechanism is discussed later.</p>
 <tr><td>Long</td><td>PY_LONG_LONG</td></tr>
 <tr><td>Float</td><td>Float</td></tr>
 <tr><td>Float</td><td>double</td></tr>
-<tr><td>SeqBase<T>::iterator</td><td>SeqBase<T>::iterator</td></tr>
-<tr><td>SeqBase<T>::const_iterator</td><td>SeqBase<T>::const_iterator</td></tr>
+<tr><td>SeqBasea&lt;T&gt;::iterator</td><td>SeqBase&lt;T&gt;::iterator</td></tr>
+<tr><td>SeqBase&lt;T&gt;::const_iterator</td><td>SeqBase&lt;T&gt;::const_iterator</td></tr>
 <tr><td>Sequence::iterator</td><td>Sequence::iterator</td></tr>
 <tr><td>Sequence::const_iterator</td><td>Sequence::const_iterator</td></tr>
-<tr><td>MapBase<T>::iterator</td><td>MapBase<T>::iterator</td></tr>
-<tr><td>MapBase<T>::const_iterator</td><td>MapBase<T>::const_iterator</td></tr>
+<tr><td>MapBase&lt;T&gt;::iterator</td><td>MapBase&lt;T&gt;::iterator</td></tr>
+<tr><td>MapBase&lt;T&gt;::const_iterator</td><td>MapBase&lt;T&gt;::const_iterator</td></tr>
 <tr><td>Mapping::iterator</td><td>Mapping::iterator</td></tr>
 <tr><td>Mapping::const_iterator</td><td>Mapping::const_iterator</td></tr>
 </table>
@@ -744,13 +743,13 @@ constructors are explicit. The default constructor produces a Python long zero.<
 <table cellspacing="0" cellpadding="3px">
 <caption>class Long</caption>
 <tr>
-<th>Returns</td>
-<th>Name and Signature</td>
-<th>Comments</td>
+<th>Returns</th>
+<th>Name and Signature</th>
+<th>Comments</th>
 </tr>
 <tr>
 <td class="code">explicit</td>
-<td class="code">Long( PyObject *pyob</a>, bool owned = false )</td>
+<td class="code">Long( PyObject *pyob, bool owned = false )</td>
 <td>Constructor</td>
 </tr>
 <tr>
@@ -818,13 +817,13 @@ default constructor produces the Python float 0.0. </p>
 <table cellspacing="0" cellpadding="3px">
 <caption>class Float</caption>
 <tr>
-<th>Returns</td>
-<th>Name and Signature</td>
-<th>Comments</td>
+<th>Returns</th>
+<th>Name and Signature</th>
+<th>Comments</th>
 </tr>
 <tr>
 <td class="code">explicit</td>
-<td class="code">Float( PyObject *pyob</a>, bool owned = false )
+<td class="code">Float( PyObject *pyob, bool owned = false )
 </td>
 <td>Constructor</td>
 </tr>
@@ -970,8 +969,8 @@ requirements of the STL.</p>
 <table cellspacing="0" cellpadding="3px">
 <caption>class SeqBase&gt;T&lt;</caption>
 <tr>
-<th>Type</td>
-<th>Name</td>
+<th>Type</th>
+<th>Name</th>
 </tr>
 <tr>
 <td class="code">typedef int </td>
@@ -1138,8 +1137,8 @@ sequence.</p>
 <table cellspacing="0" cellpadding="3px">
 <caption>class Char</caption>
 <tr>
-<th>Type</td>
-<th>Name</td>
+<th>Type</th>
+<th>Name</th>
 </tr>
 <tr>
 <td class="code">explicit</td>
@@ -1159,7 +1158,7 @@ sequence.</p>
 </tr>
 <tr>
 <td class="code"></td>
-<td class="code">Char( const unicodestring &v )</td>
+<td class="code">Char( const unicodestring &amp;v )</td>
 </tr>
 <tr>
 <td class="code">Char &amp;</td>
@@ -1179,7 +1178,7 @@ sequence.</p>
 </tr>
 <tr>
 <td class="code">Char &amp;</td>
-<td class="code">operator=( unicodestring &v ) </td>
+<td class="code">operator=( unicodestring &amp;v ) </td>
 </tr>
 <tr>
 <td class="code"></td>
@@ -1216,8 +1215,8 @@ generic ones are documented.
 <table cellspacing="0" cellpadding="3px">
 <caption>class String</caption>
 <tr>
-<th>Type</td>
-<th>Name</td>
+<th>Type</th>
+<th>Name</th>
 </tr>
 <tr>
 <td class="code">explicit </td>
@@ -1243,7 +1242,6 @@ generic ones are documented.
 <td class="code"> </td>
 <td class="code">String( const std::string &amp;latin1 )</td>
 </tr>
-<tr>
 <tr>
 <td class="code"> </td>
 <td class="code">String( const std::string &amp;v, const char *encoding, const char *error=NULL )</td>
@@ -1309,8 +1307,8 @@ generic ones are documented.
 <table cellspacing="0" cellpadding="3px">
 <caption>class Byte</caption>
 <tr>
-<th>Type</td>
-<th>Name</td>
+<th>Type</th>
+<th>Name</th>
 </tr>
 <tr>
 <td class="code">explicit</td>
@@ -1322,7 +1320,7 @@ generic ones are documented.
 </tr>
 <tr>
 <td class="code"></td>
-<td class="code">Byte( const std::string &v )</td>
+<td class="code">Byte( const std::string &amp;v )</td>
 </tr>
 <tr>
 <td class="code"></td>
@@ -1339,7 +1337,7 @@ generic ones are documented.
 </tr>
 <tr>
 <td class="code">Byte &amp;</td>
-<td class="code">operator=( const std::string &v ) </td>
+<td class="code">operator=( const std::string &amp;v ) </td>
 </tr>
 <tr>
 <td class="code">Byte &amp;</td>
@@ -1359,8 +1357,8 @@ generic ones are documented.
 <table cellspacing="0" cellpadding="3px">
 <caption>class Bytes</caption>
 <tr>
-<th>Type</td>
-<th>Name</td>
+<th>Type</th>
+<th>Name</th>
 </tr>
 <tr>
 <td class="code">explicit </td>
@@ -1390,7 +1388,6 @@ generic ones are documented.
 <td class="code"> </td>
 <td class="code">Bytes( const std::string &amp;v, Py_ssize_t size )</td>
 </tr>
-<tr>
 
 <tr>
 <td class="code"> </td>
@@ -1400,7 +1397,6 @@ generic ones are documented.
 <td class="code"> </td>
 <td class="code">Bytes( const char *v, Py_ssize_t size )</td>
 </tr>
-<tr>
 
 
 <tr>
@@ -1474,9 +1470,9 @@ reference count is greater than one.</p>
 <table cellspacing="0" cellpadding="3px">
 <caption>class Tuple</caption>
 <tr>
-<th>Type</td>
-<th>Name</td>
-<th>Comment</td>
+<th>Type</th>
+<th>Name</th>
+<th>Comment</th>
 </tr>
 <tr>
 <td class="code">virtual void</td>
@@ -1531,9 +1527,9 @@ Python API for lists. A List is a Sequence.</p>
 <table cellspacing="0" cellpadding="3px">
 <caption>class List</caption>
 <tr>
-<th>Type</td>
-<th>Name</td>
-<th>Comment</td>
+<th>Type</th>
+<th>Name</th>
+<th>Comment</th>
 </tr>
 <tr>
 <td class="code">explicit</td>
@@ -1615,9 +1611,9 @@ element returned by the mapping.</p>
 <table cellspacing="0" cellpadding="3px">
 <caption>class MapBase&lt;T&gt;</caption>
 <tr>
-<th>Type</td>
-<th>Name</td>
-<th>Comment</td>
+<th>Type</th>
+<th>Name</th>
+<th>Comment</th>
 </tr>
 <tr>
 <td class="code">T</td>
@@ -1689,13 +1685,13 @@ d[&quot;Paul Dubois&quot;] = &quot;( 925 )-422-5426&quot;</pre>
 <table cellspacing="0" cellpadding="3px">
 <caption>class Dict</caption>
 <tr>
-<th>Type</td>
-<th>Name</td>
-<th>Comment</td>
+<th>Type</th>
+<th>Name</th>
+<th>Comment</th>
 </tr>
 <tr>
 <td class="code">explicit</td>
-<td class="code">Dict( PyObject *pyob</a>, bool owned = false )</td>
+<td class="code">Dict( PyObject *pyob, bool owned = false )</td>
 <td></td>
 </tr>
 <tr>
@@ -1729,13 +1725,13 @@ module, however, see the extension facility. There is a large set of numeric ope
 <table cellspacing="0" cellpadding="3px">
 <caption>class Callable</caption>
 <tr>
-<th>Type</td>
-<th>Name</td>
-<th>Comment</td>
+<th>Type</th>
+<th>Name</th>
+<th>Comment</th>
 </tr>
 <tr>
 <td class="code">explicit</td>
-<td class="code">Callable( PyObject *pyob</a>, bool owned = false )</td>
+<td class="code">Callable( PyObject *pyob, bool owned = false )</td>
 <td></td>
 </tr>
 <tr>
@@ -1765,9 +1761,9 @@ module, however, see the extension facility. There is a large set of numeric ope
 <table cellspacing="0" cellpadding="3px">
 <caption>class Module</caption>
 <tr>
-<th>Type</td>
-<th>Name</td>
-<th>Comment</td>
+<th>Type</th>
+<th>Name</th>
+<th>Comment</th>
 </tr>
 <tr>
 <td class="code">explicit</td>
@@ -1985,7 +1981,7 @@ method table in C. This requires knowledge of the correct form for the table and
 in which entries are to be made into it, and requires casts to get everything to compile
 without warning. The PyCXX header file CXX/Extensions.h offers a simpler method. Here is a
 sample usage, in which a module named &quot;example&quot; is created. Note that two
-details are necessary: 
+details are necessary: </p>
 
 <ul>
 <li>The initialization function must be declared to have external C linkage and to have the
@@ -2049,9 +2045,9 @@ return its dictionary.</p>
 <table cellspacing="0" cellpadding="3px">
 <caption>class ExtensionModule</caption>
 <tr>
-<th>Type</td>
-<th>Name</td>
-<th>Comment</td>
+<th>Type</th>
+<th>Name</th>
+<th>Comment</th>
 </tr>
 <tr>
 <td class="code">explicit</td>
@@ -2120,7 +2116,7 @@ sense.</p>
 
 <pre>class MyObject: public PythonExtension&lt;MyObject&gt; {...}</pre>
 
-<p>As a consequence: 
+<p>As a consequence: </p>
 
 <ul>
 <li>MyObject is a child of PyObject, so that a MyObject* is-a PyObject*. </li>
@@ -2190,7 +2186,6 @@ support. Then we adds the methods.</p>
     add_varargs_method( &quot;assign&quot;, &amp;range::assign );
     add_varargs_method( &quot;value&quot;, &amp;range::value );
 }</pre>
-</a>
 
 <p>Do not forget to add the call range::init_type() to some module's init function. You will want
 a method in some module that can create range objects, too.</p>
@@ -2200,9 +2195,9 @@ a method in some module that can create range objects, too.</p>
 <table cellspacing="0" cellpadding="3px">
 <caption>class PythonExtension&lt;T&gt;</caption>
 <tr>
-<th>Type</td>
-<th>Name</td>
-<th>Comment</td>
+<th>Type</th>
+<th>Name</th>
+<th>Comment</th>
 </tr>
 <tr>
 <td class="code">virtual</td>
@@ -2365,7 +2360,6 @@ reference to this object. Fortunately, in the case of an exception, the C++ exce
 facility will call the destructor of my_r. Naturally, care must be taken not to end up
 with a dangling reference, but such objects can be created and destroyed more efficiently
 than heap-based PyObjects.</p>
-
 
 </body>
 </html>
