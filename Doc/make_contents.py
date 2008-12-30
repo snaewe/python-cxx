@@ -18,7 +18,7 @@ for line in all_contents:
     contents = line[len('<h1><a name="'):-(len('</a></h1>')+1)]
     if nested:
         if tag == '<h1>':
-            all_html_contents.append( '    </ul>' )
+            all_html_contents.append( '    </ul></li>' )
             nested = False
             indent = ''
             cls = 'contents_h1'
@@ -27,11 +27,11 @@ for line in all_contents:
             nested = True
             indent = '    '
             cls = 'contents_h2'
-            all_html_contents.append( '    <ul>' )
+            all_html_contents.append( '    <li><ul>' )
     all_html_contents.append( '%s<li class="%s"><a href="#%s</a></li>' % (indent, cls, contents) )
 
 if nested:
-    all_html_contents.append( '    </ul>' )
+    all_html_contents.append( '    </ul></li>' )
 all_html_contents.append( '</ul>' )
 
 output = True
