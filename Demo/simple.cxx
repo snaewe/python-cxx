@@ -2,7 +2,7 @@
 //  Copyright (c) 2008 Barry A. Scott
 //
 //
-//  simple_moduile.cxx
+//  simple_module.cxx
 //
 //  This module defines a single function.
 //
