@@ -3,7 +3,7 @@ import os
 import shutil
 
 def main( argv ):
-    f = file( 'CXX/Version.hxx' )
+    f = open( 'CXX/Version.hxx' )
     major = None
     minor = None
     patch = None
@@ -16,22 +16,22 @@ def main( argv ):
         if words[0:2] == ['#define', 'PYCXX_VERSION_PATCH']:
             patch = words[2]
 
-    print 'version:',major, minor, patch
+    print( 'version: %s, %s, %s' % (major, minor, patch) )
 
     tmp_dir = os.environ.get('TMP','/tmp')
     kit_name = 'pycxx-%s.%s.%s' % (major, minor, patch)
     kit_dir = os.path.join( tmp_dir, kit_name )
 
     if os.path.exists( kit_dir ):
-        print 'Info: Removing tree at %s' % kit_dir
+        print( 'Info: Removing tree at %s' % kit_dir )
         shutil.rmtree( kit_dir )
 
     os.mkdir( kit_dir )
 
-    print 'Info: svn export %s' % kit_dir
+    print( 'Info: svn export %s' % kit_dir )
     os.system( 'svn export --force . %s' % kit_dir )
 
-    print 'Info: Creating %s.tar.gz' % kit_dir
+    print( 'Info: Creating %s.tar.gz' % kit_dir )
     os.chdir( tmp_dir )
     os.system( 'tar czf %s.tar.gz %s' % (kit_dir, kit_name) )
 
