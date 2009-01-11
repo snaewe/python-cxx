@@ -620,7 +620,7 @@ extern "C" PyObject* getattro_handler( PyObject *self, PyObject *name )
     try
     {
         PythonExtensionBase *p = static_cast<PythonExtensionBase *>( self );
-        return new_reference_to( p->getattro( Py::Object( name ) ) );
+        return new_reference_to( p->getattro( Py::String( name ) ) );
     }
     catch( Py::Exception & )
     {
@@ -633,7 +633,7 @@ extern "C" int setattro_handler( PyObject *self, PyObject *name, PyObject *value
     try
     {
         PythonExtensionBase *p = static_cast<PythonExtensionBase *>( self );
-        return p->setattro( Py::Object( name ), Py::Object( value ) );
+        return p->setattro( Py::String( name ), Py::Object( value ) );
     }
     catch( Py::Exception & )
     {
@@ -1217,7 +1217,7 @@ extern "C" Py_ssize_t buffer_getsegcount_handler( PyObject *self, Py_ssize_t *co
 //
 //================================================================================
 #define missing_method( method ) \
-throw RuntimeError( "Extension object does not support method " #method );
+    throw RuntimeError( "Extension object missing implement of " #method );
 
 PythonExtensionBase::PythonExtensionBase()
 {
@@ -1228,16 +1228,26 @@ PythonExtensionBase::~PythonExtensionBase()
     assert( ob_refcnt == 0 );
 }
 
+Py::Object PythonExtensionBase::genericGetAttro( const Py::String &name )
+{
+    return asObject( PyObject_GenericGetAttr( reinterpret_cast<PyObject *>( this ), name.ptr() ) );
+}
+
+int PythonExtensionBase::genericSetAttro( const Py::String &name, const Py::Object &value )
+{
+    return PyObject_GenericSetAttr( reinterpret_cast<PyObject *>( this ), name.ptr(), value.ptr() );
+}
+
 int PythonExtensionBase::print( FILE *, int )
 { missing_method( print ); return -1; }
 
 int PythonExtensionBase::setattr( const char*, const Py::Object & )
 { missing_method( setattr ); return -1; }
 
-Py::Object PythonExtensionBase::getattro( const Py::Object & )
-{ missing_method( getattro ); return Py::Nothing(); }
+Py::Object PythonExtensionBase::getattro( const Py::String & )
+{ missing_method( getattro ); return Py::None(); }
 
-int PythonExtensionBase::setattro( const Py::Object &, const Py::Object & )
+int PythonExtensionBase::setattro( const Py::String &, const Py::Object & )
 { missing_method( setattro ); return -1; }
 
 int PythonExtensionBase::compare( const Py::Object & )
@@ -1249,19 +1259,19 @@ Py::Object PythonExtensionBase::rich_compare( const Py::Object &, int op )
 #endif
 
 Py::Object PythonExtensionBase::repr()
-{ missing_method( repr ); return Py::Nothing(); }
+{ missing_method( repr ); return Py::None(); }
 
 Py::Object PythonExtensionBase::str()
-{ missing_method( str ); return Py::Nothing(); }
+{ missing_method( str ); return Py::None(); }
 
 long PythonExtensionBase::hash()
 { missing_method( hash ); return -1; }
 
 Py::Object PythonExtensionBase::call( const Py::Object &, const Py::Object & )
-{ missing_method( call ); return Py::Nothing(); }
+{ missing_method( call ); return Py::None(); }
 
 Py::Object PythonExtensionBase::iter()
-{ missing_method( iter ); return Py::Nothing(); }
+{ missing_method( iter ); return Py::None(); }
 
 PyObject* PythonExtensionBase::iternext()
 { missing_method( iternext ); return NULL; }
@@ -1272,16 +1282,16 @@ int PythonExtensionBase::sequence_length()
 { missing_method( sequence_length ); return -1; }
 
 Py::Object PythonExtensionBase::sequence_concat( const Py::Object & )
-{ missing_method( sequence_concat ); return Py::Nothing(); }
+{ missing_method( sequence_concat ); return Py::None(); }
 
 Py::Object PythonExtensionBase::sequence_repeat( Py_ssize_t )
-{ missing_method( sequence_repeat ); return Py::Nothing(); }
+{ missing_method( sequence_repeat ); return Py::None(); }
 
 Py::Object PythonExtensionBase::sequence_item( Py_ssize_t )
-{ missing_method( sequence_item ); return Py::Nothing(); }
+{ missing_method( sequence_item ); return Py::None(); }
 
 Py::Object PythonExtensionBase::sequence_slice( Py_ssize_t, Py_ssize_t )
-{ missing_method( sequence_slice ); return Py::Nothing(); }
+{ missing_method( sequence_slice ); return Py::None(); }
 
 int PythonExtensionBase::sequence_ass_item( Py_ssize_t, const Py::Object & )
 { missing_method( sequence_ass_item ); return -1; }
@@ -1295,7 +1305,7 @@ int PythonExtensionBase::mapping_length()
 { missing_method( mapping_length ); return -1; }
 
 Py::Object PythonExtensionBase::mapping_subscript( const Py::Object & )
-{ missing_method( mapping_subscript ); return Py::Nothing(); }
+{ missing_method( mapping_subscript ); return Py::None(); }
 
 int PythonExtensionBase::mapping_ass_subscript( const Py::Object &, const Py::Object & )
 { missing_method( mapping_ass_subscript ); return -1; }
@@ -1306,67 +1316,67 @@ int PythonExtensionBase::number_nonzero()
 { missing_method( number_nonzero ); return -1; }
 
 Py::Object PythonExtensionBase::number_negative()
-{ missing_method( number_negative ); return Py::Nothing(); }
+{ missing_method( number_negative ); return Py::None(); }
 
 Py::Object PythonExtensionBase::number_positive()
-{ missing_method( number_positive ); return Py::Nothing(); }
+{ missing_method( number_positive ); return Py::None(); }
 
 Py::Object PythonExtensionBase::number_absolute()
-{ missing_method( number_absolute ); return Py::Nothing(); }
+{ missing_method( number_absolute ); return Py::None(); }
 
 Py::Object PythonExtensionBase::number_invert()
-{ missing_method( number_invert ); return Py::Nothing(); }
+{ missing_method( number_invert ); return Py::None(); }
 
 Py::Object PythonExtensionBase::number_int()
-{ missing_method( number_int ); return Py::Nothing(); }
+{ missing_method( number_int ); return Py::None(); }
 
 Py::Object PythonExtensionBase::number_float()
-{ missing_method( number_float ); return Py::Nothing(); }
+{ missing_method( number_float ); return Py::None(); }
 
 Py::Object PythonExtensionBase::number_long()
-{ missing_method( number_long ); return Py::Nothing(); }
+{ missing_method( number_long ); return Py::None(); }
 
 Py::Object PythonExtensionBase::number_oct()
-{ missing_method( number_oct ); return Py::Nothing(); }
+{ missing_method( number_oct ); return Py::None(); }
 
 Py::Object PythonExtensionBase::number_hex()
-{ missing_method( number_hex ); return Py::Nothing(); }
+{ missing_method( number_hex ); return Py::None(); }
 
 Py::Object PythonExtensionBase::number_add( const Py::Object & )
-{ missing_method( number_add ); return Py::Nothing(); }
+{ missing_method( number_add ); return Py::None(); }
 
 Py::Object PythonExtensionBase::number_subtract( const Py::Object & )
-{ missing_method( number_subtract ); return Py::Nothing(); }
+{ missing_method( number_subtract ); return Py::None(); }
 
 Py::Object PythonExtensionBase::number_multiply( const Py::Object & )
-{ missing_method( number_multiply ); return Py::Nothing(); }
+{ missing_method( number_multiply ); return Py::None(); }
 
 Py::Object PythonExtensionBase::number_divide( const Py::Object & )
-{ missing_method( number_divide ); return Py::Nothing(); }
+{ missing_method( number_divide ); return Py::None(); }
 
 Py::Object PythonExtensionBase::number_remainder( const Py::Object & )
-{ missing_method( number_remainder ); return Py::Nothing(); }
+{ missing_method( number_remainder ); return Py::None(); }
 
 Py::Object PythonExtensionBase::number_divmod( const Py::Object & )
-{ missing_method( number_divmod ); return Py::Nothing(); }
+{ missing_method( number_divmod ); return Py::None(); }
 
 Py::Object PythonExtensionBase::number_lshift( const Py::Object & )
-{ missing_method( number_lshift ); return Py::Nothing(); }
+{ missing_method( number_lshift ); return Py::None(); }
 
 Py::Object PythonExtensionBase::number_rshift( const Py::Object & )
-{ missing_method( number_rshift ); return Py::Nothing(); }
+{ missing_method( number_rshift ); return Py::None(); }
 
 Py::Object PythonExtensionBase::number_and( const Py::Object & )
-{ missing_method( number_and ); return Py::Nothing(); }
+{ missing_method( number_and ); return Py::None(); }
 
 Py::Object PythonExtensionBase::number_xor( const Py::Object & )
-{ missing_method( number_xor ); return Py::Nothing(); }
+{ missing_method( number_xor ); return Py::None(); }
 
 Py::Object PythonExtensionBase::number_or( const Py::Object & )
-{ missing_method( number_or ); return Py::Nothing(); }
+{ missing_method( number_or ); return Py::None(); }
 
 Py::Object PythonExtensionBase::number_power( const Py::Object &, const Py::Object & )
-{ missing_method( number_power ); return Py::Nothing(); }
+{ missing_method( number_power ); return Py::None(); }
 
 
 // Buffer

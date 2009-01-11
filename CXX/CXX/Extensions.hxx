@@ -521,8 +521,10 @@ namespace Py
         virtual int print( FILE *, int );
         virtual Object getattr( const char * ) = 0;
         virtual int setattr( const char *, const Object & );
-        virtual Object getattro( const Object & );
-        virtual int setattro( const Object &, const Object & );
+        virtual Object getattro( const String & );
+        Object genericGetAttro( const String & );
+        virtual int setattro( const String &, const Object & );
+        int genericSetAttro( const String &, const Object & );
         virtual int compare( const Object & );
         virtual Object rich_compare( const Object &, int op );
         virtual Object repr();
