@@ -1958,8 +1958,9 @@ namespace Py
             return *this;
         }
 
-        Char &operator=( int v )
+        Char &operator=( int v_ )
         {
+            Py_UNICODE v( v_ );
             set( PyUnicode_FromUnicode( &v, 1 ), true );
             return *this;
         }

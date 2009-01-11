@@ -75,8 +75,10 @@ namespace Py
 #endif
         virtual Object getattr( const char * );
         virtual int setattr( const char *, const Object & );
-        virtual Object getattro( const Object & );
-        virtual int setattro( const Object &, const Object & );
+        virtual Object getattro( const String & );
+        Object genericGetAttro( const String & );
+        virtual int setattro( const String &, const Object & );
+        int genericSetAttro( const String &, const Object & );
         virtual int compare( const Object & );
         virtual Object rich_compare( const Object &, int );
         virtual Object repr();
@@ -128,6 +130,9 @@ namespace Py
         virtual Py_ssize_t buffer_getreadbuffer( Py_ssize_t, void** );
         virtual Py_ssize_t buffer_getwritebuffer( Py_ssize_t, void** );
         virtual Py_ssize_t buffer_getsegcount( Py_ssize_t* );
+
+    public:
+        virtual PyObject *selfPtr() = 0;
 
     private:
         void missing_method( void );

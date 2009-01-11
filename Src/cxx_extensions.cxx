@@ -681,7 +681,7 @@ extern "C" PyObject *getattro_handler( PyObject *self, PyObject *name )
     try
     {
         PythonExtensionBase *p = getPythonExtensionBase( self );
-        return new_reference_to( p->getattro( Py::Object( name ) ) );
+        return new_reference_to( p->getattro( Py::String( name ) ) );
     }
     catch( Py::Exception & )
     {
@@ -694,7 +694,7 @@ extern "C" int setattro_handler( PyObject *self, PyObject *name, PyObject *value
     try
     {
         PythonExtensionBase *p = getPythonExtensionBase( self );
-        return p->setattro( Py::Object( name ), Py::Object( value ) );
+        return p->setattro( Py::String( name ), Py::Object( value ) );
     }
     catch( Py::Exception & )
     {
@@ -1276,7 +1276,7 @@ extern "C" Py_ssize_t buffer_getsegcount_handler( PyObject *self, Py_ssize_t *co
 //
 //================================================================================
 #define missing_method( method ) \
-throw RuntimeError( "Extension object does not support method " #method );
+    throw RuntimeError( "Extension object missing implement of " #method );
 
 PythonExtensionBase::PythonExtensionBase()
 {
@@ -1290,13 +1290,24 @@ PythonExtensionBase::~PythonExtensionBase()
 
 void PythonExtensionBase::reinit( Tuple &args, Dict &kwds )
 { 
-    throw RuntimeError( "Cannot call __init__ twice on this class" );
+    throw RuntimeError( "Must not call __init__ twice on this class" );
+}
+
+
+Py::Object PythonExtensionBase::genericGetAttro( const Py::String &name )
+{
+    return asObject( PyObject_GenericGetAttr( selfPtr(), name.ptr() ) );
+}
+
+int PythonExtensionBase::genericSetAttro( const Py::String &name, const Py::Object &value )
+{
+    return PyObject_GenericSetAttr( selfPtr(), name.ptr(), value.ptr() );
 }
 
 #ifdef PYCXX_PYTHON_2TO3
 int PythonExtensionBase::print( FILE *, int )
 { 
-    missing_method( print );\
+    missing_method( print );
     return -1;
 }
 #endif
@@ -1313,16 +1324,17 @@ int PythonExtensionBase::setattr( const char*, const Py::Object & )
     return -1;
 }
 
-Py::Object PythonExtensionBase::getattro( const Py::Object & )
+Py::Object PythonExtensionBase::getattro( const Py::String & )
 {
     missing_method( getattro );
     return Py::None();
 }
 
-int PythonExtensionBase::setattro( const Py::Object &, const Py::Object & )
+int PythonExtensionBase::setattro( const Py::String &, const Py::Object & )
 {
     missing_method( setattro );
-    return -1; }
+    return -1;
+}
 
 
 int PythonExtensionBase::compare( const Py::Object & )

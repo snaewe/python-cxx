@@ -295,6 +295,11 @@ namespace Py
             return check( ob.ptr() );
         }
 
+        PyObject *selfPtr()
+        {
+            return reinterpret_cast<PyObject *>( m_self );
+        }
+
     protected:
     private:
         PythonClassInstance *m_self;

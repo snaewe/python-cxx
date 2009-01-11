@@ -22,6 +22,7 @@ class new_style_class: public Py::PythonClass< new_style_class >
 public:
     new_style_class( Py::PythonClassInstance *self, Py::Tuple &args, Py::Dict &kwds )
     : Py::PythonClass< new_style_class >::PythonClass( self, args, kwds )
+    , m_value( "default value" )
     {
         std::cout << "new_style_class c'tor Called with " << args.length() << " normal arguments." << std::endl;
         Py::List names( kwds.keys() );
@@ -42,7 +43,8 @@ public:
     {
         behaviors().name( "new_style_class" );
         behaviors().doc( "documentation for new_style_class class" );
-        //behaviors().supportGetattr();
+        behaviors().supportGetattro();
+        behaviors().supportSetattro();
 
         PYCXX_ADD_NOARGS_METHOD( new_style_class_func_noargs, "docs for new_style_class_func_noargs" );
         PYCXX_ADD_VARARGS_METHOD( new_style_class_func_varargs, "docs for new_style_class_func_varargs" );
@@ -55,6 +57,7 @@ public:
     Py::Object new_style_class_func_noargs( void )
     {
         std::cout << "new_style_class_func_noargs Called." << std::endl;
+        std::cout << "value ref count " << m_value.reference_count() << std::endl;
         return Py::None();
     }
     PYCXX_NOARGS_METHOD_DECL( new_style_class, new_style_class_func_noargs )
@@ -79,6 +82,38 @@ public:
         return Py::None();
     }
     PYCXX_KEYWORDS_METHOD_DECL( new_style_class, new_style_class_func_keyword )
+
+    Py::Object getattro( const Py::String &name_ )
+    {
+        std::string name( name_.as_std_string( "utf-8" ) );
+
+        if( name == "value" )
+        {
+            return m_value;
+        }
+        else
+        {
+            return genericGetAttro( name_ );
+        }
+    }
+
+    int setattro( const Py::String &name_, const Py::Object &value )
+    {
+        std::string name( name_.as_std_string( "utf-8" ) );
+
+        if( name == "value" )
+        {
+            m_value = value;
+            return 0;
+        }
+        else
+        {
+            return genericSetAttro( name_, value );
+        }
+    }
+
+
+    Py::String m_value;
 };
 
 
