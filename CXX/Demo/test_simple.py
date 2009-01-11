@@ -25,6 +25,7 @@ new_style_class.new_style_class_func_keyword()
 new_style_class.new_style_class_func_keyword( name=6, value=7 )
 new_style_class.new_style_class_func_keyword( 4, 5 )
 new_style_class.new_style_class_func_keyword( 4, 5, name=6, value=7 )
+new_style_class = None
 
 print( '--- Derived func ---' )
 class Derived(simple.new_style_class):
@@ -48,3 +49,8 @@ d.new_style_class_func_keyword()
 d.new_style_class_func_keyword( name=6, value=7 )
 d.new_style_class_func_keyword( 4, 5 )
 d.new_style_class_func_keyword( 4, 5, name=6, value=7 )
+
+print( d.value )
+d.value = "a string"
+print( d.value )
+d.new_var = 99

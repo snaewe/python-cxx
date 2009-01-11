@@ -1724,36 +1724,13 @@ module, however, see the extension facility. There is a large set of numeric ope
 
 <table cellspacing="0" cellpadding="3px">
 <caption>class Callable</caption>
-<tr>
-<th>Type</th>
-<th>Name</th>
-<th>Comment</th>
-</tr>
-<tr>
-<td class="code">explicit</td>
-<td class="code">Callable( PyObject *pyob, bool owned = false )</td>
-<td></td>
-</tr>
-<tr>
-<td class="code">Callable &amp;</td>
-<td class="code">operator=( const Object &amp;rhs )</td>
-<td></td>
-</tr>
-<tr>
-<td class="code">Callable &amp;</td>
-<td class="code">operator=( PyObject *rhsp )</td>
-<td></td>
-</tr>
-<tr>
-<td class="code">Object</td>
-<td class="code">apply( const Tuple &amp;args ) const</td>
-<td>Call the object with the given arguments</td>
-</tr>
-<tr>
-<td class="code">Object</td>
-<td class="code">apply( PyObject *pargs = 0 ) const </td>
-<td>Call the object with args as the arguments. Checks that pargs is a tuple.</td>
-</tr>
+<tr><th>Type</th><th>Name</th><th>Comment</th></tr>
+<tr><td class="code">explicit</td><td class="code">Callable( PyObject *pyob, bool owned = false )</td><td></td></tr>
+<tr><td class="code">Callable &amp;</td><td class="code">operator=( const Object &amp;rhs )</td><td></td></tr>
+<tr><td class="code">Callable &amp;</td><td class="code">operator=( PyObject *rhsp )</td><td></td></tr>
+<tr><td class="code">Object</td><td class="code">apply( const Tuple &amp;args ) const</td><td>Call the object with the given positional arguments</td></tr>
+<tr><td class="code">Object</td><td class="code">apply( const Tuple &amp;args, const Dict &amp;kwd ) const</td><td>Call the object with the given positional and keyword arguments </td></tr>
+<tr><td class="code">Object</td><td class="code">apply( PyObject *pargs = 0 ) const </td><td>Call the object with args as the arguments. Checks that pargs is a tuple.</td></tr>
 </table>
 
 <h2><a name="h2_class_module">Interface to class Module</a></h2>

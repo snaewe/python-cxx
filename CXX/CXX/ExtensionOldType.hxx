@@ -69,6 +69,11 @@ namespace Py
             return getattr_methods( name );
         }
 
+        PyObject *selfPtr()
+        {
+            return this;
+        }
+
     protected:
         explicit PythonExtension()
         : PythonExtensionBase()
