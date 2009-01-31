@@ -32,20 +32,20 @@ p.param {background-color: #eeeeee; border-top: lightskyblue solid 4}
 
 <h3>Windows Installation and Demo</h3>
 <ol>
-<li>Fetch <a href="http://prdownloads.sourceforge.net/cxx/pycxx-5.4.2.tar.gz">
-http://prdownloads.sourceforge.net/cxx/pycxx-5.4.2.tar.gz</a></li>
+<li>Fetch <a href="http://prdownloads.sourceforge.net/cxx/pycxx-5.5.0.tar.gz">
+http://prdownloads.sourceforge.net/cxx/pycxx-5.5.0.tar.gz</a></li>
 <li>Expand the archive into a directory of your choosing C:\ for example.
 Note: WinZip can expand .tar.gz files.</li>
 <li>Install the PyCXX files:
 <ol>
-<li><pre>C:> cd \pycxx-5.4.2</pre></li>
-<li><pre>C:\pycxx-5.4.2> python setup.py install</pre></li>
+<li><pre>C:> cd \pycxx-5.5.0</pre></li>
+<li><pre>C:\pycxx-5.5.0> python setup.py install</pre></li>
 </ol>
 </li>
 <li>Install the PyCXX Demo:
 <ol>
-<li><pre>C:> cd \pycxx-5.4.2\Demo</pre></li>
-<li><pre>C:\pycxx-5.4.2\Demo> python setup.py install</pre></li>
+<li><pre>C:> cd \pycxx-5.5.0\Demo</pre></li>
+<li><pre>C:\pycxx-5.5.0\Demo> python setup.py install</pre></li>
 </ol>
 </li>
 <li>Run the demo:
@@ -67,18 +67,18 @@ Note: WinZip can expand .tar.gz files.</li>
 <p>Note: distutils is not available for Python 1.5.2</p>
 
 <ol>
-<li>Fetch <a href="http://prdownloads.sourceforge.net/cxx/pycxx-5.4.2.tar.gz">
-http://prdownloads.sourceforge.net/cxx/pycxx-5.4.2.tar.gz</a>
+<li>Fetch <a href="http://prdownloads.sourceforge.net/cxx/pycxx-5.5.0.tar.gz">
+http://prdownloads.sourceforge.net/cxx/pycxx-5.5.0.tar.gz</a>
 <li>Login as root. root access is typically needed on Unix systems to install the PyCXX files into the Python directories.
 <li>Expand the archive into a directory of your choosing ~\ for example.
 <li>Install the PyCXX files:
 <ol>
-<li><pre># cd ~\pycxx-5.4.2</pre>
+<li><pre># cd ~\pycxx-5.5.0</pre>
 <li><pre># python setup.py install</pre>
 </ol>
 <li>Install the PyCXX Demo:
 <ol>
-<li><pre># cd ~\pycxx-5.4.2\Demo</pre>
+<li><pre># cd ~\pycxx-5.5.0\Demo</pre>
 <li><pre># python setup.py install</pre>
 </ol>
 <li>Run the demos:
@@ -101,36 +101,42 @@ of Makefiles and Project files are provided.</p>
 <h3>Windows Installation and Demo</h3>
 <p>
 <ol>
-<li>Fetch <a href="http://prdownloads.sourceforge.net/cxx/pycxx-5.4.2.tar.gz">
-http://prdownloads.sourceforge.net/cxx/pycxx-5.4.2.tar.gz</a>
+<li>Fetch <a href="http://prdownloads.sourceforge.net/cxx/pycxx-5.5.0.tar.gz">
+http://prdownloads.sourceforge.net/cxx/pycxx-5.5.0.tar.gz</a>
 <li>Expand the archive into a directory of your choosing C:\ for example. WinZip can expand .tar.gz files.
 <li>Build the example. Using Microsoft .NET 2003 C++ for python version 2.4 or later load the workspace corresponsing to the version of
 Python you wish the work with.
 <ul>
 <li>example_py24.sln - Python 2.4 and its maintanence release
 <li>example_py25.sln - Python 2.5 and its maintanence release
+<li>example_py26.sln - Python 2.6 and its maintanence release
 </ul>
-<li>Build the example. Using Microsoft Visual C++ 6.0 for python versions upto 2.3 load the solution corresponsing to the version of
-Python you wish the work with.
+<li>Build the example. Using Microsoft Visual C++ 6.0 for python versions up to 2.3 load the solution corresponsing to the version of
+Python you wish the work with. 
+Use Microsoft visual C++ 2003 for python 2.4 and 2.5.
+Use Microsoft visual C++ 2008 for python 2.6.
 <ul>
 <li>example_py15.dsw - Python 1.5.2
 <li>example_py20.dsw - Python 2.0 and 2.0.1
 <li>example_py21.dsw - Python 2.1 and 2.1.1
 <li>example_py22.dsw - Python 2.2 and its maintanence release
 <li>example_py23.dsw - Python 2.3 and its maintanence release
+<li>example_py23.dsw - Python 2.4 and its maintanence release
+<li>example_py23.dsw - Python 2.5 and its maintanence release
+<li>example_py23.dsw - Python 2.6 and its maintanence release
 </ul>
 <li>Run the example. (I'll assume you are testing Python 2.3)
 <ul>
-<li>cd c:\pycxx-5.4.2\pyds23
-<li>c:\python21\python -c "import example;example.test()"
+<li>cd c:\pycxx-5.5.0\pyds23
+<li>c:\python23\python -c "import example;example.test()"
 </ul>
 </ol>
 </p>
 <h3>Unix and Mac OS X Installation and Demo</h3>
 <p>
 <ol>
-<li>Fetch <a href="http://prdownloads.sourceforge.net/cxx/pycxx-5.4.2.tar.gz">
-http://prdownloads.sourceforge.net/cxx/pycxx-5.4.2.tar.gz</a>
+<li>Fetch <a href="http://prdownloads.sourceforge.net/cxx/pycxx-5.5.0.tar.gz">
+http://prdownloads.sourceforge.net/cxx/pycxx-5.5.0.tar.gz</a>
 <li>Expand the archive into a directory of your choosing ~/ for example.
 <li>Select to makefile for your system and python version.
 <ul>
@@ -175,6 +181,11 @@ is not compiled and linked to support C and C++.</p>
 </p>
 
 <h2>Revision History</h2>
+
+<h3>Version 5.5.0 (31-Jan-2009)</h3>
+<p>Support compiling sources that use the PyCXX V6.0.0 API against Python 2.
+requires compiling with PYCXX_PYTHON2TO3 defined.</p>
+<p>Use PyCXX 6.0.0 for Python 3 or later.</p>
 
 <h3>Version 5.4.2 (11-Oct-2008)</h3>
 <p>Add support for rich compare.</p>
