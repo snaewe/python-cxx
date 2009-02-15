@@ -254,7 +254,6 @@ template <> void pysvn_enum_value< xxx_t >::init_type(void)
 {
     behaviors().name("xxx");
     behaviors().doc("xxx value");
-    behaviors().supportCompare();
     behaviors().supportRepr();
     behaviors().supportStr();
     behaviors().supportHash();

@@ -8,4 +8,4 @@ LDSHARED=g++ -g -shared
 LDLIBS=
 PYTHON=python3.0
 
-include example_common.mak
+include example_python3_common.mak

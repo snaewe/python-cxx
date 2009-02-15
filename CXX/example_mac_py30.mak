@@ -10,4 +10,4 @@ LDSHARED=$(CCC) -bundle -g -F/Library/Frameworks -framework System \
 LDLIBS=
 PYTHON=/Library/Frameworks/Python.framework/Versions/$(PY_LD_VER)/Resources/Python.app/Contents/MacOS/Python
 
-include example_common.mak
+include example_python3_common.mak

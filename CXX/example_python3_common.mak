@@ -1,5 +1,5 @@
 #
-#	example_common.mak
+#	example_python3_common.mak
 #
 #	include this mak file after defining the variables it needs
 #
@@ -17,7 +17,7 @@ all: simple.so simple2.so example.so pycxx_iter.so
 simple.so: $(SIMPLE_OBJECTS) $(COMMON_OBJECTS)
 	$(LDSHARED) -o $@ $(SIMPLE_OBJECTS) $(COMMON_OBJECTS) $(LDLIBS)
 
-simple.o: Demo/simple.cxx
+simple.o: Demo/Python3/simple.cxx
 	$(CCC) $(CCCFLAGS) -o $@ $<
 
 #
@@ -26,7 +26,7 @@ simple.o: Demo/simple.cxx
 simple2.so: $(SIMPLE2_OBJECTS) $(COMMON_OBJECTS)
 	$(LDSHARED) -o $@ $(SIMPLE2_OBJECTS) $(COMMON_OBJECTS) $(LDLIBS)
 
-simple2.o: Demo/simple2.cxx
+simple2.o: Demo/Python3/simple2.cxx
 	$(CCC) $(CCCFLAGS) -o $@ $<
 
 #
@@ -35,13 +35,13 @@ simple2.o: Demo/simple2.cxx
 example.so: $(EXAMPLE_OBJECTS) $(COMMON_OBJECTS)
 	$(LDSHARED) -o $@ $(EXAMPLE_OBJECTS) $(COMMON_OBJECTS) $(LDLIBS)
 
-example.o: Demo/example.cxx
+example.o: Demo/Python3/example.cxx
 	$(CCC) $(CCCFLAGS) -o $@ $<
 
-range.o: Demo/range.cxx
+range.o: Demo/Python3/range.cxx
 	$(CCC) $(CCCFLAGS) -o $@ $<
 
-rangetest.o: Demo/rangetest.cxx
+rangetest.o: Demo/Python3/rangetest.cxx
 	$(CCC) $(CCCFLAGS) -o $@ $<
 
 #
@@ -50,7 +50,7 @@ rangetest.o: Demo/rangetest.cxx
 pycxx_iter.so: $(PYCXX_ITER_OBJECTS) $(COMMON_OBJECTS)
 	$(LDSHARED) -o $@ $(PYCXX_ITER_OBJECTS) $(COMMON_OBJECTS) $(LDLIBS)
 
-pycxx_iter.o: Demo/pycxx_iter.cxx
+pycxx_iter.o: Demo/Python3/pycxx_iter.cxx
 	$(CCC) $(CCCFLAGS) -o $@ $<
 
 #
@@ -84,10 +84,10 @@ clean:
 test: test_simple test_iter test_example
 
 test_simple: simple.so
-	PYTHONPATH=. $(PYTHON) Demo/test_simple.py
+	PYTHONPATH=. $(PYTHON) Demo/Python3/test_simple.py
 
 test_iter: pycxx_iter.so
-	PYTHONPATH=. $(PYTHON) Demo/test_pycxx_iter.py
+	PYTHONPATH=. $(PYTHON) Demo/Python3/test_pycxx_iter.py
 
 test_example: example.so
-	PYTHONPATH=. $(PYTHON) Demo/test_example.py
+	PYTHONPATH=. $(PYTHON) Demo/Python3/test_example.py
