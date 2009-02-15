@@ -322,7 +322,7 @@
 			</FileConfiguration>
 		</File>
 		<File
-			RelativePath="Demo\pycxx_iter.cxx"
+			RelativePath="Demo\Python3\pycxx_iter.cxx"
 			>
 			<FileConfiguration
 				Name="Release|Win32"
