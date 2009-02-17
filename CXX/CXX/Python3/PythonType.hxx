@@ -64,6 +64,9 @@ namespace Py
         PythonType &supportSetattr( void );
         PythonType &supportGetattro( void );
         PythonType &supportSetattro( void );
+#ifdef PYCXX_PYTHON_2TO3
+        PythonType &supportCompare( void );
+#endif
         PythonType &supportRichCompare( void );
         PythonType &supportRepr( void );
         PythonType &supportStr( void );

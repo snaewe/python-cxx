@@ -571,6 +571,14 @@ PythonType &PythonType::supportSetattro()
     return *this;
 }
 
+#ifdef PYCXX_PYTHON_2TO3
+PythonType &PythonType::supportCompare( void )
+{
+    return *this;
+}
+#endif
+
+
 PythonType &PythonType::supportRichCompare()
 {
     table->tp_richcompare = rich_compare_handler;
@@ -2057,8 +2065,4 @@ bool operator<=( const Float &a, double b )
     return a.as_double() <= b;
 }
 
-
-
-
 }    // end of namespace Py
-
