@@ -96,13 +96,13 @@ void Object::validate()
 //
 //================================================================================
 
-PyMethodDef MethodTable::method( const char *method_name, PyCFunction f, int flags, const char *doc ) 
+PyMethodDef MethodTable::method( const char *method_name, PyCFunction f, int flags, const char *doc )
 {
     PyMethodDef m;
-    m.ml_name = const_cast<char*>( method_name );
+    m.ml_name = const_cast<char *>( method_name );
     m.ml_meth = f;
     m.ml_flags = flags;
-    m.ml_doc = const_cast<char*>( doc );
+    m.ml_doc = const_cast<char *>( doc );
     return m;
 }
 
@@ -130,7 +130,7 @@ void MethodTable::add( const char *method_name, PyCFunction f, const char *doc, 
 }
 
 PyMethodDef *MethodTable::table()
-{    
+{
     if( !mt )
     {
         Py_ssize_t t1size = t.size();
@@ -185,8 +185,6 @@ public:
 
 void ExtensionModuleBase::initialize( const char *module_doc )
 {
-    // PyObject *module_ptr = new ExtensionModuleBasePtr( this );
-
     memset( &m_module_def, 0, sizeof( m_module_def ) );
 
     m_module_def.m_name = const_cast<char *>( m_module_name.c_str() );
@@ -207,14 +205,11 @@ Py::Dict ExtensionModuleBase::moduleDictionary( void ) const
     return module().getDict();
 }
 
-//--------------------------------------------------------------------------------
-
 //================================================================================
 //
 //    Implementation of PythonType
 //
 //================================================================================
-
 extern "C"
 {
     static void standard_dealloc( PyObject *p );
@@ -244,6 +239,7 @@ extern "C"
     static PyObject *sequence_slice_handler( PyObject *, Py_ssize_t, Py_ssize_t );
     static int sequence_ass_item_handler( PyObject *, Py_ssize_t, PyObject * );
     static int sequence_ass_slice_handler( PyObject *, Py_ssize_t, Py_ssize_t, PyObject * );
+
     // Mapping
     static Py_ssize_t mapping_length_handler( PyObject * );
     static PyObject *mapping_subscript_handler( PyObject *, PyObject * );
@@ -273,8 +269,8 @@ extern "C"
     static PyObject *number_power_handler( PyObject *, PyObject *, PyObject * );
 
     // Buffer
-    static Py_ssize_t buffer_getreadbuffer_handler( PyObject *, Py_ssize_t, void** );
-    static Py_ssize_t buffer_getwritebuffer_handler( PyObject *, Py_ssize_t, void** );
+    static Py_ssize_t buffer_getreadbuffer_handler( PyObject *, Py_ssize_t, void ** );
+    static Py_ssize_t buffer_getwritebuffer_handler( PyObject *, Py_ssize_t, void ** );
     static Py_ssize_t buffer_getsegcount_handler( PyObject *, Py_ssize_t * );
 }
 
@@ -384,7 +380,6 @@ PythonType::PythonType( size_t basic_size, int itemsize, const char *default_nam
 , number_table( NULL )
 , buffer_table( NULL )
 {
-
     // PyTypeObject is defined in <python-sources>/Include/object.h
 
     memset( table, 0, sizeof( PyTypeObject ) );   // ensure new fields are 0
@@ -423,8 +418,6 @@ PythonType::PythonType( size_t basic_size, int itemsize, const char *default_nam
     // Documentation string
     table->tp_doc = 0;
 
-    // Assigned meaning in release 2.0
-    // call function for all accessible objects
     table->tp_traverse = 0;
 
     // delete references to contained objects
@@ -515,7 +508,7 @@ PythonType &PythonType::set_tp_dealloc( void (*tp_dealloc)( PyObject *self ) )
     return *this;
 }
 
-PythonType &PythonType::set_tp_init( int (*tp_init)(PyObject *self, PyObject *args, PyObject *kwds) )
+PythonType &PythonType::set_tp_init( int (*tp_init)( PyObject *self, PyObject *args, PyObject *kwds ) )
 {
     table->tp_init = tp_init;
     return *this;
@@ -1304,7 +1297,7 @@ Py::Object PythonExtensionBase::getattr( const char * )
     return Py::None();
 }
 
-int PythonExtensionBase::setattr( const char*, const Py::Object & )
+int PythonExtensionBase::setattr( const char *, const Py::Object & )
 { 
     missing_method( setattr );
     return -1;
