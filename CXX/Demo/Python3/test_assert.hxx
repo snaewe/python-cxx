@@ -1,5 +1,5 @@
 //
-//  Copyright (c) 2008 Barry A. Scott
+//  Copyright (c) 2008-2009 Barry A. Scott
 //
 // THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT  HOLDERS AND CONTRIBUTORS "AS IS"
 // AND ANY EXPRESS OR  IMPLIED WARRANTIES, INCLUDING,  BUT NOT  LIMITED TO, THE
@@ -29,7 +29,7 @@ public:
     std::string m_description;
 };
 
-template <TEMPLATE_TYPENAME T> static void test_assert_scaler( char *description, char *type, T benchmark, T value )
+template <TEMPLATE_TYPENAME T> static void test_assert_scaler( const char *description, const char *type, T benchmark, T value )
 {
     std::ostringstream full_description;
     full_description << description << ": " << type << " benchmark=" << benchmark << " " << type << " value=" << value << std::ends;
@@ -44,37 +44,37 @@ template <TEMPLATE_TYPENAME T> static void test_assert_scaler( char *description
     }
 }
 
-static void test_assert( char *description, bool benchmark, bool value )
+static void test_assert( const char *description, bool benchmark, bool value )
 {
     test_assert_scaler( description, "bool", benchmark, value );
 }
 
-static void test_assert( char *description, long benchmark, long value )
+static void test_assert( const char *description, long benchmark, long value )
 {
     test_assert_scaler( description, "long", benchmark, value );
 }
 
-static void test_assert( char *description, int benchmark, int value )
+static void test_assert( const char *description, int benchmark, int value )
 {
     test_assert_scaler( description, "int", benchmark, value );
 }
 
-static void test_assert( char *description, size_t benchmark, size_t value )
+static void test_assert( const char *description, size_t benchmark, size_t value )
 {
     test_assert_scaler( description, "size_t", benchmark, value );
 }
 
-static void test_assert( char *description, double benchmark, double value )
+static void test_assert( const char *description, double benchmark, double value )
 {
     test_assert_scaler( description, "float", benchmark, value );
 }
 
-static void test_assert( char *description, const std::string &benchmark, const std::string &value )
+static void test_assert( const char *description, const std::string &benchmark, const std::string &value )
 {
     test_assert_scaler( description, "std::string", benchmark, value );
 }
 
-static void test_assert( char *description, const Py::Object &benchmark, const Py::Object &value )
+static void test_assert( const char *description, const Py::Object &benchmark, const Py::Object &value )
 {
     test_assert_scaler( description, "Py::Object", benchmark, value );
 }
