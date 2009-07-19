@@ -3,9 +3,10 @@ from glob import glob
 from distutils.command.install import install
 from distutils.core import setup
 
-headers = glob (os.path.join ("CXX","*.hxx"))
-sources = glob (os.path.join ("Src", "*.cxx")) + \
-          glob (os.path.join ("Src", "*.c"))
+headers = (glob( os.path.join( "CXX","*.hxx" ) )
+          +glob( os.path.join( "CXX","*.h" ) ))
+sources = (glob( os.path.join( "Src", "*.cxx" ) )
+          +glob( os.path.join( "Src", "*.c" ) ))
 
 
 class my_install (install):
