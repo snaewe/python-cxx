@@ -22,7 +22,7 @@ class my_install (install):
 
 
 setup (name             = "CXX",
-       version          = "5.3",
+       version          = "6.1",
        maintainer       = "Barry Scott",
        maintainer_email = "barry-scott@users.sourceforge.net",
        description      = "Facility for extending Python with C++",

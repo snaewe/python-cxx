@@ -1641,25 +1641,50 @@ extern "C" PyObject *method_keyword_call_handler( PyObject *_self_and_name_tuple
     try
     {
         Tuple self_and_name_tuple( _self_and_name_tuple );
+
         PyObject *self_in_cobject = self_and_name_tuple[0].ptr();
         void *self_as_void = PyCObject_AsVoidPtr( self_in_cobject );
         if( self_as_void == NULL )
             return NULL;
+
         ExtensionModuleBase *self = static_cast<ExtensionModuleBase *>( self_as_void );
-        String py_name( self_and_name_tuple[1] );
-        std::string name( py_name.as_std_string( "utf-8" ) );
+
         Tuple args( _args );
+
         if( _keywords == NULL )
         {
             Dict keywords;    // pass an empty dict
-            Object result( self->invoke_method_keyword( name, args, keywords ) );
+
+            Object result
+                    (
+                    self->invoke_method_keyword
+                        (
+                        PyCObject_AsVoidPtr( self_and_name_tuple[1].ptr() ),
+                        args,
+                        keywords
+                        )
+                    );
+
             return new_reference_to( result.ptr() );
         }
-        Dict keywords( _keywords );
-        Object result( self->invoke_method_keyword( name, args, keywords ) );
-        return new_reference_to( result.ptr() );
+        else
+        {
+            Dict keywords( _keywords ); // make dict
+
+            Object result
+                    (
+                    self->invoke_method_keyword
+                        (
+                        PyCObject_AsVoidPtr( self_and_name_tuple[1].ptr() ),
+                        args,
+                        keywords
+                        )
+                    );
+
+            return new_reference_to( result.ptr() );
+        }
     }
-    catch( Exception &)
+    catch( Exception & )
     {
         return 0;
     }
@@ -1670,21 +1695,27 @@ extern "C" PyObject *method_varargs_call_handler( PyObject *_self_and_name_tuple
     try
     {
         Tuple self_and_name_tuple( _self_and_name_tuple );
+
         PyObject *self_in_cobject = self_and_name_tuple[0].ptr();
         void *self_as_void = PyCObject_AsVoidPtr( self_in_cobject );
         if( self_as_void == NULL )
-        {
             return NULL;
-        }
 
         ExtensionModuleBase *self = static_cast<ExtensionModuleBase *>( self_as_void );
-        String py_name( self_and_name_tuple[1] );
-        std::string name( py_name.as_std_string( "utf-8" ) );
         Tuple args( _args );
-        Object result( self->invoke_method_varargs( name, args ) );
+
+        Object result
+                (
+                self->invoke_method_varargs
+                    (
+                    PyCObject_AsVoidPtr( self_and_name_tuple[1].ptr() ),
+                    args
+                    )
+                );
+
         return new_reference_to( result.ptr() );
     }
-    catch( Exception &)
+    catch( Exception & )
     {
         return 0;
     }

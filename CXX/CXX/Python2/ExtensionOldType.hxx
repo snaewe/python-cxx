@@ -41,10 +41,10 @@
 namespace Py
 {
     template<TEMPLATE_TYPENAME T> class PythonExtension
-    : public PythonExtensionBase 
+    : public PythonExtensionBase
     {
     public:
-        static PyTypeObject *type_object() 
+        static PyTypeObject *type_object()
         {
             return behaviors().type_object();
         }
@@ -85,12 +85,12 @@ namespace Py
         }
 
         virtual ~PythonExtension()
-        {} 
+        {}
 
         static PythonType &behaviors()
         {
             static PythonType* p;
-            if( p == NULL ) 
+            if( p == NULL )
             {
 #if defined( _CPPRTTI ) || defined( __GNUG__ )
                 const char *default_name =( typeid( T ) ).name();
@@ -153,33 +153,36 @@ namespace Py
 
             method_map_t &mm = methods();
 
-            EXPLICIT_TYPENAME method_map_t::const_iterator i;
-
-            if( name == "__methods__" )
+            // see if name exists and get entry with method
+            EXPLICIT_TYPENAME method_map_t::const_iterator i = mm.find( name );
+            if( i == mm.end() )
             {
-                List methods;
+                if( name == "__methods__" )
+                {
+                    List methods;
 
-                for( i = mm.begin(); i != mm.end(); ++i )
-                    methods.append( String( ( *i ).first ) );
+                    i = mm.begin();
+                    EXPLICIT_TYPENAME method_map_t::const_iterator i_end = mm.end();
 
-                return methods;
+                    for( ; i != i_end; ++i )
+                        methods.append( String( (*i).first ) );
+
+                    return methods;
+                }
+
+                throw AttributeError( name );
             }
 
-            // see if name exists and get entry with method
-            i = mm.find( name );
-            if( i == mm.end() )
-                throw AttributeError( name );
+            MethodDefExt<T> *method_def = i->second;
 
             Tuple self( 2 );
 
             self[0] = Object( this );
-            self[1] = String( name );
+            self[1] = Object( PyCObject_FromVoidPtr( method_def, do_not_dealloc ) );
 
-            MethodDefExt<T> *method_definition = i->second;
+            PyObject *func = PyCFunction_New( &method_def->ext_meth_def, self.ptr() );
 
-            PyObject *func = PyCFunction_New( &method_definition->ext_meth_def, self.ptr() );
-
-            return Object( func, true );
+            return Object(func, true);
         }
 
         // check that all methods added are unique
@@ -232,18 +235,8 @@ namespace Py
 
                 PyObject *self_in_cobject = self_and_name_tuple[0].ptr();
                 T *self = static_cast<T *>( self_in_cobject );
-
-                String name( self_and_name_tuple[1] );
-
-                method_map_t &mm = methods();
-
-                EXPLICIT_TYPENAME method_map_t::const_iterator i;                
-                i = mm.find( name );
-                if( i == mm.end() )
-                    return 0;
-
-                MethodDefExt<T> *meth_def = i->second;
-
+                MethodDefExt<T> *meth_def = reinterpret_cast<MethodDefExt<T> *>(
+                                                PyCObject_AsVoidPtr( self_and_name_tuple[1].ptr() ) );
                 Object result;
 
                 // Adding try & catch in case of STL debug-mode exceptions.
@@ -278,17 +271,8 @@ namespace Py
                 PyObject *self_in_cobject = self_and_name_tuple[0].ptr();
                 T *self = static_cast<T *>( self_in_cobject );
 
-                String name( self_and_name_tuple[1] );
-
-                method_map_t &mm = methods();
-
-                EXPLICIT_TYPENAME method_map_t::const_iterator i;                
-                i = mm.find( name );
-                if( i == mm.end() )
-                    return 0;
-
-                MethodDefExt<T> *meth_def = i->second;
-
+                MethodDefExt<T> *meth_def = reinterpret_cast<MethodDefExt<T> *>(
+                                                PyCObject_AsVoidPtr( self_and_name_tuple[1].ptr() ) );
                 Tuple args( _args );
 
                 Object result;
@@ -324,16 +308,8 @@ namespace Py
                 PyObject *self_in_cobject = self_and_name_tuple[0].ptr();
                 T *self = static_cast<T *>( self_in_cobject );
 
-                String name( self_and_name_tuple[1] );
-
-                method_map_t &mm = methods();
-
-                EXPLICIT_TYPENAME method_map_t::const_iterator i;                
-                i = mm.find( name );
-                if( i == mm.end() )
-                    return 0;
-
-                MethodDefExt<T> *meth_def = i->second;
+                MethodDefExt<T> *meth_def = reinterpret_cast<MethodDefExt<T> *>(
+                                                PyCObject_AsVoidPtr( self_and_name_tuple[1].ptr() ) );
 
                 Tuple args( _args );
 

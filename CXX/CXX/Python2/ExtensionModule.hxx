@@ -49,9 +49,9 @@ namespace Py
         Module module( void ) const;            // only valid after initialize() has been called
         Dict moduleDictionary( void ) const;    // only valid after initialize() has been called
 
-        virtual Object invoke_method_noargs( const std::string &_name ) = 0;
-        virtual Object invoke_method_varargs( const std::string &_name, const Tuple &_args ) = 0;
-        virtual Object invoke_method_keyword( const std::string &_name, const Tuple &_args, const Dict &_keywords ) = 0;
+        virtual Object invoke_method_noargs( void *method_def ) = 0;
+        virtual Object invoke_method_keyword( void *method_def, const Tuple &_args, const Dict &_keywords ) = 0;
+        virtual Object invoke_method_varargs( void *method_def, const Tuple &_args ) = 0;
 
         const std::string &name() const;
         const std::string &fullName() const;
@@ -135,25 +135,27 @@ namespace Py
             // so that we get called back at the function in T.
             //
             method_map_t &mm = methods();
-            EXPLICIT_TYPENAME method_map_t::const_iterator i;
-
-            for( i=mm.begin(); i != mm.end(); ++i )
+            EXPLICIT_TYPENAME method_map_t::const_iterator i = mm.begin();
+            EXPLICIT_TYPENAME method_map_t::const_iterator i_end = mm.end();
+            for ( ; i != i_end; ++i )
             {
-                MethodDefExt<T> *method_definition = (*i).second;
+                MethodDefExt<T> *method_def = (*i).second;
 
                 static PyObject *self = PyCObject_FromVoidPtr( this, do_not_dealloc );
 
                 Tuple args( 2 );
                 args[0] = Object( self );
-                args[1] = String( ( *i ).first );
+                args[1] = Object( PyCObject_FromVoidPtr( method_def, do_not_dealloc ) );
 
                 PyObject *func = PyCFunction_New
-                                    ( 
-                                    &method_definition->ext_meth_def,
+                                    (
+                                    &method_def->ext_meth_def,
                                     new_reference_to( args )
                                     );
 
-                dict[( *i ).first ] = Object( func );
+                method_def->py_method = Object( func, true );
+
+                dict[ (*i).first ] = method_def->py_method;
             }
         }
 
@@ -168,55 +170,31 @@ namespace Py
         }
 
         // this invoke function must be called from within a try catch block
-        virtual Object invoke_method_noargs( const std::string &name )
+        virtual Object invoke_method_noargs( void *method_def )
         {
-            method_map_t &mm = methods();
-            MethodDefExt<T> *meth_def = mm[ name ];
-            if( meth_def == NULL )
-            {
-                std::string error_msg( "CXX - cannot invoke noargs method named " );
-                error_msg += name;
-                throw RuntimeError( error_msg );
-            }
-
-            // cast up to the derived class
+            // cast up to the derived class, method_def and call
             T *self = static_cast<T *>( this );
+            MethodDefExt<T> *meth_def = reinterpret_cast<MethodDefExt<T> *>( method_def );
 
             return (self->*meth_def->ext_noargs_function)();
         }
 
         // this invoke function must be called from within a try catch block
-        virtual Object invoke_method_varargs( const std::string &name, const Tuple &args )
+        virtual Object invoke_method_varargs( void *method_def, const Tuple &args )
         {
-            method_map_t &mm = methods();
-            MethodDefExt<T> *meth_def = mm[ name ];
-            if( meth_def == NULL )
-            {
-                std::string error_msg( "CXX - cannot invoke varargs method named " );
-                error_msg += name;
-                throw RuntimeError( error_msg );
-            }
-
-            // cast up to the derived class
+            // cast up to the derived class, method_def and call
             T *self = static_cast<T *>( this );
+            MethodDefExt<T> *meth_def = reinterpret_cast<MethodDefExt<T> *>( method_def );
 
             return (self->*meth_def->ext_varargs_function)( args );
         }
 
         // this invoke function must be called from within a try catch block
-        virtual Object invoke_method_keyword( const std::string &name, const Tuple &args, const Dict &keywords )
+        virtual Object invoke_method_keyword( void *method_def, const Tuple &args, const Dict &keywords )
         {
-            method_map_t &mm = methods();
-            MethodDefExt<T> *meth_def = mm[ name ];
-            if( meth_def == NULL )
-            {
-                std::string error_msg( "CXX - cannot invoke keyword method named " );
-                error_msg += name;
-                throw RuntimeError( error_msg );
-            }
-
-            // cast up to the derived class
+            // cast up to the derived class, method_def and call
             T *self = static_cast<T *>( this );
+            MethodDefExt<T> *meth_def = reinterpret_cast<MethodDefExt<T> *>( method_def );
 
             return (self->*meth_def->ext_keyword_function)( args, keywords );
         }
@@ -225,8 +203,8 @@ namespace Py
         //
         // prevent the compiler generating these unwanted functions
         //
-        ExtensionModule( const ExtensionModule<T> & );    //unimplemented
-        void operator=( const ExtensionModule<T> & );    //unimplemented
+        ExtensionModule( const ExtensionModule<T> & );  //unimplemented
+        void operator=( const ExtensionModule<T> & );   //unimplemented
     };
 } // Namespace Py
 

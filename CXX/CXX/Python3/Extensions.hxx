@@ -96,7 +96,7 @@ public:
 
     // http://www.azillionmonkeys.com/qed/hash.html
     size_t operator()( const std::string &str ) const
-    { 
+    {
         const unsigned char * data = reinterpret_cast<const unsigned char *>( str.c_str() );
         int len =( int )str.length();
         unsigned int hash = len;
@@ -148,7 +148,7 @@ public:
     }
 
     bool operator()( const std::string &str_1, const std::string &str_2 ) const
-    {    
+    {
         // test if str_1 ordered before str_2
         return str_1 < str_2;
     }
@@ -172,7 +172,7 @@ namespace Py
         void init( ExtensionModuleBase &module, const std::string &name );
     };
 
-    class MethodTable 
+    class MethodTable
     {
     public:
         MethodTable();
@@ -211,7 +211,7 @@ namespace Py
 
         // NOARGS
         MethodDefExt
-        ( 
+        (
             const char *_name,
             method_noargs_function_t _function,
             method_noargs_call_handler_t _handler,
@@ -230,7 +230,7 @@ namespace Py
 
         // VARARGS
         MethodDefExt
-        ( 
+        (
             const char *_name,
             method_varargs_function_t _function,
             method_varargs_call_handler_t _handler,
@@ -249,7 +249,7 @@ namespace Py
 
         // VARARGS + KEYWORD
         MethodDefExt
-        ( 
+        (
             const char *_name,
             method_keyword_function_t _function,
             method_keyword_call_handler_t _handler,
@@ -270,9 +270,10 @@ namespace Py
         {}
 
         PyMethodDef ext_meth_def;
-        method_noargs_function_t ext_noargs_function;    
-        method_varargs_function_t ext_varargs_function;    
-        method_keyword_function_t ext_keyword_function;    
+        method_noargs_function_t ext_noargs_function;
+        method_varargs_function_t ext_varargs_function;
+        method_keyword_function_t ext_keyword_function;
+        Object py_method;
     };
 } // Namespace Py
 

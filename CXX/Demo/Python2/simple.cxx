@@ -232,13 +232,15 @@ private:
 };
 
 #if defined( PY3 )
+static simple_module *simple;
+
 extern "C" PyObject *PyInit_simple()
 {
 #if defined(PY_WIN32_DELAYLOAD_PYTHON_DLL)
     Py::InitialisePythonIndirectPy::Interface();
 #endif
 
-    static simple_module* simple = new simple_module;
+    simple = new simple_module;
     return simple->module().ptr();
 }
 
@@ -249,13 +251,16 @@ extern "C" PyObject *PyInit_simple_d()
 }
 
 #else
+
+static simple_module *simple;
+
 extern "C" void initsimple()
 {
 #if defined(PY_WIN32_DELAYLOAD_PYTHON_DLL)
     Py::InitialisePythonIndirectPy::Interface();
 #endif
 
-    static simple_module* simple = new simple_module;
+    simple = new simple_module;
 }
 
 // symbol required for the debug version

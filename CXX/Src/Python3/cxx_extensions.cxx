@@ -53,7 +53,7 @@ void printRefCount( PyObject *obj )
 }
 #endif
 
-namespace Py 
+namespace Py
 {
 
 void Object::validate()
@@ -370,7 +370,7 @@ PythonType &PythonType::supportBufferType()
     return *this;
 }
 
-// if you define one sequence method you must define 
+// if you define one sequence method you must define
 // all of them except the assigns
 
 PythonType::PythonType( size_t basic_size, int itemsize, const char *default_name )
@@ -1268,7 +1268,7 @@ PythonExtensionBase::~PythonExtensionBase()
 }
 
 void PythonExtensionBase::reinit( Tuple &args, Dict &kwds )
-{ 
+{
     throw RuntimeError( "Must not call __init__ twice on this class" );
 }
 
@@ -1285,7 +1285,7 @@ int PythonExtensionBase::genericSetAttro( const Py::String &name, const Py::Obje
 
 #ifdef PYCXX_PYTHON_2TO3
 int PythonExtensionBase::print( FILE *, int )
-{ 
+{
     missing_method( print );
     return -1;
 }
@@ -1298,7 +1298,7 @@ Py::Object PythonExtensionBase::getattr( const char * )
 }
 
 int PythonExtensionBase::setattr( const char *, const Py::Object & )
-{ 
+{
     missing_method( setattr );
     return -1;
 }
@@ -1606,10 +1606,7 @@ extern "C" PyObject *method_noargs_call_handler( PyObject *_self_and_name_tuple,
 
         ExtensionModuleBase *self = static_cast<ExtensionModuleBase *>( self_as_void );
 
-        String py_name( self_and_name_tuple[1] );
-        std::string name( py_name.as_std_string( NULL ) );
-
-        Object result( self->invoke_method_noargs( name ) );
+        Object result( self->invoke_method_noargs( PyCObject_AsVoidPtr( self_and_name_tuple[1].ptr() ) ) );
 
         return new_reference_to( result.ptr() );
     }
@@ -1631,13 +1628,15 @@ extern "C" PyObject *method_varargs_call_handler( PyObject *_self_and_name_tuple
             return NULL;
 
         ExtensionModuleBase *self = static_cast<ExtensionModuleBase *>( self_as_void );
-
-        String py_name( self_and_name_tuple[1] );
-        std::string name( py_name.as_std_string( NULL ) );
-
         Tuple args( _args );
-
-        Object result( self->invoke_method_varargs( name, args ) );
+        Object result
+                (
+                self->invoke_method_varargs
+                    (
+                    PyCObject_AsVoidPtr( self_and_name_tuple[1].ptr() ),
+                    args
+                    )
+                );
 
         return new_reference_to( result.ptr() );
     }
@@ -1660,22 +1659,40 @@ extern "C" PyObject *method_keyword_call_handler( PyObject *_self_and_name_tuple
 
         ExtensionModuleBase *self = static_cast<ExtensionModuleBase *>( self_as_void );
 
-        String py_name( self_and_name_tuple[1] );
-        std::string name( py_name.as_std_string( NULL ) );
-
         Tuple args( _args );
+
         if( _keywords == NULL )
         {
             Dict keywords;    // pass an empty dict
 
-            Object result( self->invoke_method_keyword( name, args, keywords ) );
+            Object result
+                (
+                self->invoke_method_keyword
+                    (
+                    PyCObject_AsVoidPtr( self_and_name_tuple[1].ptr() ),
+                    args,
+                    keywords
+                    )
+                );
+
             return new_reference_to( result.ptr() );
         }
+        else
+        {
+            Dict keywords( _keywords ); // make dict
 
-        Dict keywords( _keywords );
+            Object result
+                    (
+                    self->invoke_method_keyword
+                        (
+                        PyCObject_AsVoidPtr( self_and_name_tuple[1].ptr() ),
+                        args,
+                        keywords
+                        )
+                    );
 
-        Object result( self->invoke_method_keyword( name, args, keywords ) );
-        return new_reference_to( result.ptr() );
+            return new_reference_to( result.ptr() );
+        }
     }
     catch( Exception & )
     {
@@ -1714,7 +1731,7 @@ void ExtensionExceptionType::init( ExtensionModuleBase &module, const std::strin
 
     set( PyErr_NewException( const_cast<char *>( module_name.c_str() ), parent.ptr(), NULL ), true );
 }
- 
+
 ExtensionExceptionType::~ExtensionExceptionType()
 {
 }
@@ -1732,7 +1749,7 @@ Exception::Exception( ExtensionExceptionType &exception, Object &reason )
 Exception::Exception( PyObject *exception, Object &reason )
 {
     PyErr_SetObject( exception, reason.ptr() );
-}        
+}
 
 #if 1
 //------------------------------------------------------------
