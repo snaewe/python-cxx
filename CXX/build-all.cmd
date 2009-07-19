@@ -7,19 +7,15 @@ if "%1" == "/clean" set ACTION=/clean
 if "%2" == "/clean" set ACTION=/clean
 
 setlocal
-call setup-msvc6
-echo on
-msdev example_py22.dsw /make "example - Win32 %BUILD_TYPE%" %ACTION%
-msdev example_py23.dsw /make "example - Win32 %BUILD_TYPE%" %ACTION%
-msdev example_py23.dsw /make "pycxx_iter - Win32 %BUILD_TYPE%" %ACTION%
-endlocal
-
-setlocal
 if "%ACTION%" == "" set ACTION=/build
-call setup-msvc71
+call setup-msvc90
 echo on
-devenv example_py24.sln %ACTION% "%BUILD_TYPE%"  /project "example"
-devenv example_py24.sln %ACTION% "%BUILD_TYPE%"  /project "pycxx_iter"
+rmdir /s /q Release31
+rmdir /s /q pyds31
+vcexpress example_py31.sln %ACTION% "%BUILD_TYPE%"  /project "example"
+copy Release31\BuildLog.htm Release31\BuildLog_example.htm
+vcexpress example_py31.sln %ACTION% "%BUILD_TYPE%"  /project "pycxx_iter"
+copy Release31\BuildLog.htm Release31\BuildLog_pycxx_iter.htm
 endlocal
 
 endlocal
