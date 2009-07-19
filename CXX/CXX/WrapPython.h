@@ -50,6 +50,10 @@
 #endif
 #endif
 
+// Python.h will redefine these and generate warning in the process
+#undef _XOPEN_SOURCE
+#undef _POSIX_C_SOURCE
+
 // pull in python definitions
 #include <Python.h>
 
