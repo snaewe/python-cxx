@@ -1,21 +1,48 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="7.10"
+	Version="9.00"
 	Name="pycxx_iter"
-        ProjectGUID="{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}">
+	ProjectGUID="{C9D7D8CE-7ABB-4FB1-828F-9BD5C6C2AE7D}"
+	TargetFrameworkVersion="131072"
+	>
 	<Platforms>
 		<Platform
-			Name="Win32"/>
+			Name="Win32"
+		/>
 	</Platforms>
+	<ToolFiles>
+	</ToolFiles>
 	<Configurations>
 		<Configuration
 			Name="Release|Win32"
 			OutputDirectory=".\pyds26"
 			IntermediateDirectory=".\Release26"
 			ConfigurationType="2"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="FALSE">
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				MkTypLibCompatible="true"
+				SuppressStartupBanner="true"
+				TargetEnvironment="1"
+				TypeLibraryName=".\pyds26/pycxx_iter_py26.tlb"
+				HeaderFileName=""
+			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
@@ -23,242 +50,303 @@
 				AdditionalIncludeDirectories="c:\python26\include,.,Demo"
 				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG;noPY_WIN32_DELAYLOAD_PYTHON_DLL"
 				RuntimeLibrary="2"
-				RuntimeTypeInfo="TRUE"
-				UsePrecompiledHeader="2"
+				RuntimeTypeInfo="true"
+				UsePrecompiledHeader="0"
 				PrecompiledHeaderFile=".\Release26/pycxx_iter_py26.pch"
 				AssemblerListingLocation=".\Release26/"
 				ObjectFile=".\Release26/"
 				ProgramDataBaseFileName=".\Release26/"
 				BrowseInformation="1"
 				WarningLevel="3"
-				SuppressStartupBanner="TRUE"
+				SuppressStartupBanner="true"
 				DebugInformationFormat="3"
-				CompileAs="2"/>
+				CompileAs="2"
+			/>
 			<Tool
-				Name="VCCustomBuildTool"/>
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				Culture="1033"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/export:initpycxx_iter"
 				AdditionalDependencies="odbc32.lib odbccp32.lib python26.lib"
 				OutputFile="pyds26\pycxx_iter.pyd"
 				LinkIncremental="1"
-				SuppressStartupBanner="TRUE"
+				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="c:\python26\libs"
-				GenerateDebugInformation="TRUE"
+				GenerateDebugInformation="true"
 				ProgramDatabaseFile=".\pyds26/pycxx_iter.pdb"
 				SubSystem="2"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				ImportLibrary=".\pyds26/pycxx_iter.lib"
-				TargetMachine="1"/>
+				TargetMachine="1"
+			/>
 			<Tool
-				Name="VCMIDLTool"
-				MkTypLibCompatible="TRUE"
-				SuppressStartupBanner="TRUE"
-				TargetEnvironment="1"
-				TypeLibraryName=".\pyds26/pycxx_iter_py26.tlb"
-				HeaderFileName=""/>
+				Name="VCALinkTool"
+			/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCManifestTool"
+			/>
 			<Tool
-				Name="VCPreBuildEventTool"/>
+				Name="VCXDCMakeTool"
+			/>
 			<Tool
-				Name="VCPreLinkEventTool"/>
+				Name="VCBscMakeTool"
+			/>
 			<Tool
-				Name="VCResourceCompilerTool"
-				Culture="1033"/>
+				Name="VCFxCopTool"
+			/>
 			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
+				Name="VCAppVerifierTool"
+			/>
 			<Tool
-				Name="VCXMLDataGeneratorTool"/>
-			<Tool
-				Name="VCWebDeploymentTool"/>
-			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
-			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+				Name="VCPostBuildEventTool"
+			/>
 		</Configuration>
 		<Configuration
 			Name="Debug|Win32"
 			OutputDirectory=".\pyds26"
 			IntermediateDirectory=".\Debug26"
 			ConfigurationType="2"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
 			UseOfMFC="0"
-			ATLMinimizesCRunTimeLibraryUsage="FALSE">
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				MkTypLibCompatible="true"
+				SuppressStartupBanner="true"
+				TargetEnvironment="1"
+				TypeLibraryName=".\pyds26/pycxx_iter_py26.tlb"
+				HeaderFileName=""
+			/>
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="C:\Python26\include,.,Demo"
 				PreprocessorDefinitions="WIN32;_WINDOWS;DEBUG;_DEBUG"
 				RuntimeLibrary="3"
-				RuntimeTypeInfo="TRUE"
-				UsePrecompiledHeader="2"
+				RuntimeTypeInfo="true"
+				UsePrecompiledHeader="0"
 				PrecompiledHeaderFile=".\Debug26/pycxx_iter_py26.pch"
 				AssemblerListingLocation=".\Debug26/"
 				ObjectFile=".\Debug26/"
 				ProgramDataBaseFileName=".\Debug26/"
 				BrowseInformation="1"
 				WarningLevel="3"
-				SuppressStartupBanner="TRUE"
+				SuppressStartupBanner="true"
 				DebugInformationFormat="3"
-				CompileAs="2"/>
+				CompileAs="2"
+			/>
 			<Tool
-				Name="VCCustomBuildTool"/>
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				Culture="1033"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/export:initpycxx_iter"
 				AdditionalDependencies="odbc32.lib odbccp32.lib python26_d.lib"
 				OutputFile="pyds26\pycxx_iter_d.pyd"
 				LinkIncremental="1"
-				SuppressStartupBanner="TRUE"
+				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="c:\python26\libs"
-				GenerateDebugInformation="TRUE"
+				GenerateDebugInformation="true"
 				ProgramDatabaseFile="sept"
 				SubSystem="2"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
 				ImportLibrary=".\pyds26/pycxx_iter_d.lib"
-				TargetMachine="1"/>
+				TargetMachine="1"
+			/>
 			<Tool
-				Name="VCMIDLTool"
-				MkTypLibCompatible="TRUE"
-				SuppressStartupBanner="TRUE"
-				TargetEnvironment="1"
-				TypeLibraryName=".\pyds26/pycxx_iter_py26.tlb"
-				HeaderFileName=""/>
+				Name="VCALinkTool"
+			/>
 			<Tool
-				Name="VCPostBuildEventTool"/>
+				Name="VCManifestTool"
+			/>
 			<Tool
-				Name="VCPreBuildEventTool"/>
+				Name="VCXDCMakeTool"
+			/>
 			<Tool
-				Name="VCPreLinkEventTool"/>
+				Name="VCBscMakeTool"
+			/>
 			<Tool
-				Name="VCResourceCompilerTool"
-				Culture="1033"/>
+				Name="VCFxCopTool"
+			/>
 			<Tool
-				Name="VCWebServiceProxyGeneratorTool"/>
+				Name="VCAppVerifierTool"
+			/>
 			<Tool
-				Name="VCXMLDataGeneratorTool"/>
-			<Tool
-				Name="VCWebDeploymentTool"/>
-			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
-			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
+				Name="VCPostBuildEventTool"
+			/>
 		</Configuration>
 	</Configurations>
 	<References>
 	</References>
 	<Files>
 		<File
-			RelativePath="Src\cxx_extensions.cxx">
+			RelativePath="Src\cxx_extensions.cxx"
+			>
 			<FileConfiguration
-				Name="Release|Win32">
+				Name="Release|Win32"
+				>
 				<Tool
 					Name="VCCLCompilerTool"
 					Optimization="0"
 					AdditionalIncludeDirectories=""
 					PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG;noPY_WIN32_DELAYLOAD_PYTHON_DLL;$(NoInherit)"
 					BrowseInformation="1"
-					CompileAs="2"/>
+					CompileAs="2"
+				/>
 			</FileConfiguration>
 			<FileConfiguration
-				Name="Debug|Win32">
+				Name="Debug|Win32"
+				>
 				<Tool
 					Name="VCCLCompilerTool"
 					Optimization="0"
 					AdditionalIncludeDirectories=""
 					PreprocessorDefinitions="WIN32;_WINDOWS;DEBUG;_DEBUG;$(NoInherit)"
 					BrowseInformation="1"
-					CompileAs="2"/>
+					CompileAs="2"
+				/>
 			</FileConfiguration>
 		</File>
 		<File
-			RelativePath="Src\cxxextensions.c">
+			RelativePath="Src\cxxextensions.c"
+			>
 			<FileConfiguration
-				Name="Release|Win32">
+				Name="Release|Win32"
+				>
 				<Tool
 					Name="VCCLCompilerTool"
 					Optimization="0"
 					AdditionalIncludeDirectories=""
 					PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG;noPY_WIN32_DELAYLOAD_PYTHON_DLL;$(NoInherit)"
 					BrowseInformation="1"
-					CompileAs="2"/>
+					CompileAs="2"
+				/>
 			</FileConfiguration>
 			<FileConfiguration
-				Name="Debug|Win32">
+				Name="Debug|Win32"
+				>
 				<Tool
 					Name="VCCLCompilerTool"
 					Optimization="0"
 					AdditionalIncludeDirectories=""
 					PreprocessorDefinitions="WIN32;_WINDOWS;DEBUG;_DEBUG;$(NoInherit)"
 					BrowseInformation="1"
-					CompileAs="2"/>
+					CompileAs="2"
+				/>
 			</FileConfiguration>
 		</File>
 		<File
-			RelativePath="Src\cxxsupport.cxx">
+			RelativePath="Src\cxxsupport.cxx"
+			>
 			<FileConfiguration
-				Name="Release|Win32">
+				Name="Release|Win32"
+				>
 				<Tool
 					Name="VCCLCompilerTool"
 					Optimization="0"
 					AdditionalIncludeDirectories=""
 					PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG;noPY_WIN32_DELAYLOAD_PYTHON_DLL;$(NoInherit)"
 					BrowseInformation="1"
-					CompileAs="2"/>
+					CompileAs="2"
+				/>
 			</FileConfiguration>
 			<FileConfiguration
-				Name="Debug|Win32">
+				Name="Debug|Win32"
+				>
 				<Tool
 					Name="VCCLCompilerTool"
 					Optimization="0"
 					AdditionalIncludeDirectories=""
 					PreprocessorDefinitions="WIN32;_WINDOWS;DEBUG;_DEBUG;$(NoInherit)"
 					BrowseInformation="1"
-					CompileAs="2"/>
+					CompileAs="2"
+				/>
 			</FileConfiguration>
 		</File>
 		<File
-			RelativePath="Demo\Python2\pycxx_iter.cxx">
+			RelativePath="Src\IndirectPythonInterface.cxx"
+			>
 			<FileConfiguration
-				Name="Release|Win32">
+				Name="Release|Win32"
+				>
 				<Tool
 					Name="VCCLCompilerTool"
 					Optimization="0"
 					AdditionalIncludeDirectories=""
 					PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG;noPY_WIN32_DELAYLOAD_PYTHON_DLL;$(NoInherit)"
 					BrowseInformation="1"
-					CompileAs="2"/>
+					CompileAs="2"
+				/>
 			</FileConfiguration>
 			<FileConfiguration
-				Name="Debug|Win32">
+				Name="Debug|Win32"
+				>
 				<Tool
 					Name="VCCLCompilerTool"
 					Optimization="0"
 					AdditionalIncludeDirectories=""
 					PreprocessorDefinitions="WIN32;_WINDOWS;DEBUG;_DEBUG;$(NoInherit)"
 					BrowseInformation="1"
-					CompileAs="2"/>
+					CompileAs="2"
+				/>
 			</FileConfiguration>
 		</File>
 		<File
-			RelativePath="Src\IndirectPythonInterface.cxx">
+			RelativePath="Demo\Python2\pycxx_iter.cxx"
+			>
 			<FileConfiguration
-				Name="Release|Win32">
+				Name="Release|Win32"
+				>
 				<Tool
 					Name="VCCLCompilerTool"
 					Optimization="0"
 					AdditionalIncludeDirectories=""
 					PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG;noPY_WIN32_DELAYLOAD_PYTHON_DLL;$(NoInherit)"
 					BrowseInformation="1"
-					CompileAs="2"/>
+					CompileAs="2"
+				/>
 			</FileConfiguration>
 			<FileConfiguration
-				Name="Debug|Win32">
+				Name="Debug|Win32"
+				>
 				<Tool
 					Name="VCCLCompilerTool"
 					Optimization="0"
 					AdditionalIncludeDirectories=""
 					PreprocessorDefinitions="WIN32;_WINDOWS;DEBUG;_DEBUG;$(NoInherit)"
 					BrowseInformation="1"
-					CompileAs="2"/>
+					CompileAs="2"
+				/>
 			</FileConfiguration>
 		</File>
 	</Files>

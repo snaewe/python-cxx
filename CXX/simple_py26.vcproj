@@ -2,8 +2,8 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="example"
-	ProjectGUID="{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}"
+	Name="simple"
+	ProjectGUID="{9F6AC053-BEB6-4AF2-942A-3F8A7BE57D1A}"
 	TargetFrameworkVersion="131072"
 	>
 	<Platforms>
@@ -40,7 +40,7 @@
 				MkTypLibCompatible="true"
 				SuppressStartupBanner="true"
 				TargetEnvironment="1"
-				TypeLibraryName=".\pyds26/example_py26.tlb"
+				TypeLibraryName=".\pyds26/simple_py26.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
@@ -52,7 +52,7 @@
 				RuntimeLibrary="2"
 				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="0"
-				PrecompiledHeaderFile=".\Release26/example_py26.pch"
+				PrecompiledHeaderFile=".\Release26/simple_py26.pch"
 				AssemblerListingLocation=".\Release26/"
 				ObjectFile=".\Release26/"
 				ProgramDataBaseFileName=".\Release26/"
@@ -74,18 +74,18 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalOptions="/export:initexample"
+				AdditionalOptions="/export:initsimple"
 				AdditionalDependencies="odbc32.lib odbccp32.lib python26.lib"
-				OutputFile="pyds26\example.pyd"
+				OutputFile="pyds26\simple.pyd"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="c:\python26\libs"
 				GenerateDebugInformation="true"
-				ProgramDatabaseFile=".\pyds26/example.pdb"
+				ProgramDatabaseFile=".\pyds26/simple.pdb"
 				SubSystem="2"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
-				ImportLibrary=".\pyds26/example.lib"
+				ImportLibrary=".\pyds26/simple.lib"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -136,7 +136,7 @@
 				MkTypLibCompatible="true"
 				SuppressStartupBanner="true"
 				TargetEnvironment="1"
-				TypeLibraryName=".\pyds26/example_py26.tlb"
+				TypeLibraryName=".\pyds26/simple_py26.tlb"
 				HeaderFileName=""
 			/>
 			<Tool
@@ -147,7 +147,7 @@
 				RuntimeLibrary="3"
 				RuntimeTypeInfo="true"
 				UsePrecompiledHeader="0"
-				PrecompiledHeaderFile=".\Debug26/example_py26.pch"
+				PrecompiledHeaderFile=".\Debug26/simple_py26.pch"
 				AssemblerListingLocation=".\Debug26/"
 				ObjectFile=".\Debug26/"
 				ProgramDataBaseFileName=".\Debug26/"
@@ -169,9 +169,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalOptions="/export:initexample"
+				AdditionalOptions="/export:initsimple"
 				AdditionalDependencies="odbc32.lib odbccp32.lib python26_d.lib"
-				OutputFile="pyds26\example_d.pyd"
+				OutputFile="pyds26\simple_d.pyd"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
 				AdditionalLibraryDirectories="c:\python26\libs"
@@ -180,7 +180,7 @@
 				SubSystem="2"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
-				ImportLibrary=".\pyds26/example_d.lib"
+				ImportLibrary=".\pyds26/simple_d.lib"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -294,34 +294,6 @@
 			</FileConfiguration>
 		</File>
 		<File
-			RelativePath="Demo\Python2\example.cxx"
-			>
-			<FileConfiguration
-				Name="Release|Win32"
-				>
-				<Tool
-					Name="VCCLCompilerTool"
-					Optimization="0"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG;noPY_WIN32_DELAYLOAD_PYTHON_DLL;$(NoInherit)"
-					BrowseInformation="1"
-					CompileAs="2"
-				/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="Debug|Win32"
-				>
-				<Tool
-					Name="VCCLCompilerTool"
-					Optimization="0"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions="WIN32;_WINDOWS;DEBUG;_DEBUG;$(NoInherit)"
-					BrowseInformation="1"
-					CompileAs="2"
-				/>
-			</FileConfiguration>
-		</File>
-		<File
 			RelativePath="Src\IndirectPythonInterface.cxx"
 			>
 			<FileConfiguration
@@ -350,35 +322,7 @@
 			</FileConfiguration>
 		</File>
 		<File
-			RelativePath="Demo\Python2\range.cxx"
-			>
-			<FileConfiguration
-				Name="Release|Win32"
-				>
-				<Tool
-					Name="VCCLCompilerTool"
-					Optimization="0"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG;noPY_WIN32_DELAYLOAD_PYTHON_DLL;$(NoInherit)"
-					BrowseInformation="1"
-					CompileAs="2"
-				/>
-			</FileConfiguration>
-			<FileConfiguration
-				Name="Debug|Win32"
-				>
-				<Tool
-					Name="VCCLCompilerTool"
-					Optimization="0"
-					AdditionalIncludeDirectories=""
-					PreprocessorDefinitions="WIN32;_WINDOWS;DEBUG;_DEBUG;$(NoInherit)"
-					BrowseInformation="1"
-					CompileAs="2"
-				/>
-			</FileConfiguration>
-		</File>
-		<File
-			RelativePath="Demo\Python2\rangetest.cxx"
+			RelativePath="Demo\Python2\simple.cxx"
 			>
 			<FileConfiguration
 				Name="Release|Win32"
