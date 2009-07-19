@@ -98,12 +98,7 @@ namespace Py
         typedef Object (T::*method_noargs_function_t)();
         typedef Object (T::*method_varargs_function_t)( const Tuple &args );
         typedef Object (T::*method_keyword_function_t)( const Tuple &args, const Dict &kws );
-
-#if defined( PYCXX_USING_HASH_MAP )
-        typedef __PYCXX_HASHMAP_NAMESPACE::hash_map<std::string, MethodDefExt<T> *, __pycxx_str_hash_func> method_map_t;
-#else
         typedef std::map<std::string, MethodDefExt<T> *> method_map_t;
-#endif
 
         static void add_noargs_method( const char *name, method_noargs_function_t function, const char *doc="" )
         {

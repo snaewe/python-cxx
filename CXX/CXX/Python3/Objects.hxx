@@ -484,7 +484,8 @@ namespace Py
             validate();
         }
 
-        Type( const Type &t ): Object( t )
+        Type( const Type &t )
+        : Object( t )
         {
             validate();
         }
@@ -970,12 +971,14 @@ namespace Py
     {
     public:
         // Constructor
-        explicit Complex( PyObject *pyob, bool owned = false ): Object( pyob, owned )
+        explicit Complex( PyObject *pyob, bool owned = false )
+        : Object( pyob, owned )
         {
             validate();
         }
 
-        Complex( const Complex &f ): Object( f )
+        Complex( const Complex &f )
+        : Object( f )
         {
             validate();
         }
@@ -1312,7 +1315,8 @@ namespace Py
             validate();
         }
 
-        SeqBase<T>( const Object &ob ): Object( ob )
+        SeqBase<T>( const Object &ob )
+        : Object( ob )
         {
             validate();
         }
@@ -2130,12 +2134,14 @@ namespace Py
         }
 
         // Constructor
-        explicit Tuple( PyObject *pyob, bool owned = false ): Sequence( pyob, owned )
+        explicit Tuple( PyObject *pyob, bool owned = false )
+        : Sequence( pyob, owned )
         {
             validate();
         }
 
-        Tuple( const Object &ob ): Sequence( ob )
+        Tuple( const Object &ob )
+        : Sequence( ob )
         {
             validate();
         }
@@ -2202,11 +2208,13 @@ namespace Py
     {
     public:
         // Constructor
-        explicit List( PyObject *pyob, bool owned = false ): Sequence( pyob, owned )
+        explicit List( PyObject *pyob, bool owned = false )
+        : Sequence( pyob, owned )
         {
             validate();
         }
-        List( const Object &ob ): Sequence( ob )
+        List( const Object &ob )
+        : Sequence( ob )
         {
             validate();
         }
@@ -2225,7 +2233,8 @@ namespace Py
         }
 
         // List from a sequence
-        List( const Sequence &s ): Sequence()
+        List( const Sequence &s )
+        : Sequence()
         {
             int n =( int )s.length();
             set( PyList_New( n ), true );
@@ -2516,13 +2525,15 @@ namespace Py
         typedef std::pair< const T, mapref<T> > pointer;
 
         // Constructor
-        explicit MapBase<T>( PyObject *pyob, bool owned = false ): Object( pyob, owned )
+        explicit MapBase<T>( PyObject *pyob, bool owned = false )
+        : Object( pyob, owned )
         {
             validate();
         }
 
         // TMM: 02Jul'01 - changed MapBase<T> to Object in next line
-        MapBase<T>( const Object &ob ): Object( ob )
+        MapBase<T>( const Object &ob )
+        : Object( ob )
         {
             validate();
         }
