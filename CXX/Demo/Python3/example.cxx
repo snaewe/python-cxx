@@ -129,6 +129,8 @@ void test_boolean()
     Py::Object o;
     Py::Boolean pb1;
     Py::Boolean pb2;
+    Py::String st1;
+    Py::Long int1;
     bool b1;
 
     // True tests
@@ -166,6 +168,21 @@ void test_boolean()
     test_assert( "boolean false pybool = false", pb2 ? true : false, false );
 
     test_assert( "boolean operator bool false", false, bool( pb2 ) );
+
+    // conversion tests
+    int1 = 0;
+    pb1 = int1;
+    test_assert( "boolean int 0", pb1 ? true : false, false );
+    int1 = 99;
+    pb1 = int1;
+    test_assert( "boolean int 99", pb1 ? true : false, true );
+
+    st1 = "";
+    pb1 = st1;
+    test_assert( "boolean string \"\"", pb1 ? true : false, false );
+    st1 = "x";
+    pb1 = st1;
+    test_assert( "boolean string \"x\"", pb1 ? true : false, true );
 }
 
 void test_long()

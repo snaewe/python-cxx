@@ -353,7 +353,12 @@ namespace Py
 
         bool isUnicode() const
         {
-            return Py::_Unicode_Check(p);
+            return Py::_Unicode_Check( p );
+        }
+
+        bool isBoolean() const
+        {
+            return Py::_Boolean_Check( p );
         }
 
         // Commands
@@ -512,7 +517,8 @@ namespace Py
     {
     public:
         // Constructor
-        Boolean (PyObject *pyob, bool owned = false): Object (pyob, owned)
+        Boolean (PyObject *pyob, bool owned = false)
+        : Object (pyob, owned)
         {
             validate();
         }
@@ -530,12 +536,12 @@ namespace Py
         }
 
         explicit Boolean (const Object& ob)
+        : Object( *ob )
         {
-            set(*ob, true);
             validate();
         }
 
-        // Assignment acquires new ownership of pointer
+        // Assignment increases reference count on pointer
 
         Boolean& operator= (const Object& rhs)
         {
@@ -545,14 +551,14 @@ namespace Py
         Boolean& operator= (PyObject* rhsp)
         {
             if(ptr() == rhsp) return *this;
-            set (rhsp, true);
+            set (rhsp);
             return *this;
         }
 
         // Membership
         virtual bool accepts (PyObject *pyob) const
         {
-            return pyob && Py::_Boolean_Check (pyob);
+            return pyob && PyObject_IsTrue(pyob) != -1;
         }
 
         // convert to long
@@ -741,11 +747,19 @@ namespace Py
         {
             return pyob && Py::_Long_Check (pyob);
         }
+
+        // convert to long
+        long as_long() const
+        {
+            return PyLong_AsLong( ptr() );
+        }
+
         // convert to long
         operator long() const
         {
-            return PyLong_AsLong (ptr());
+            return as_long();
         }
+
         // convert to unsigned
         operator unsigned long() const
         {

@@ -363,17 +363,22 @@ namespace Py
             return Py::_Bytes_Check( p );
         }
 
+        bool isBoolean() const
+        {
+            return Py::_Boolean_Check( p );
+        }
+
         // Commands
         void setAttr( const std::string &s, const Object &value )
         {
             if( PyObject_SetAttrString( p, const_cast<char*>( s.c_str() ), *value ) == -1 )
-            throw AttributeError( "getAttr failed." );
+                throw AttributeError( "getAttr failed." );
         }
 
         void delAttr( const std::string &s )
         {
             if( PyObject_DelAttrString( p, const_cast<char*>( s.c_str() ) ) == -1 )
-            throw AttributeError( "delAttr failed." );
+                throw AttributeError( "delAttr failed." );
         }
 
         // PyObject_SetItem is too weird to be using from C++
@@ -528,8 +533,8 @@ namespace Py
         }
 
         explicit Boolean( const Object &ob )
+        : Object( *ob )
         {
-            set( *ob, true );
             validate();
         }
 
@@ -542,14 +547,15 @@ namespace Py
         Boolean &operator=( PyObject *rhsp )
         {
             if( ptr() != rhsp )
-                set( rhsp, true );
+                set( rhsp );
             return *this;
         }
 
         // Membership
         virtual bool accepts( PyObject *pyob ) const
         {
-            return pyob && Py::_Boolean_Check( pyob );
+            // accepts any object that can be converted to a boolean
+            return pyob && PyObject_IsTrue( pyob ) != -1;
         }
 
         Boolean &operator=( bool v )
