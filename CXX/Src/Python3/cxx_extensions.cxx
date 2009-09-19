@@ -246,19 +246,15 @@ extern "C"
     static int mapping_ass_subscript_handler( PyObject *, PyObject *, PyObject * );
 
     // Numeric methods
-    static int number_nonzero_handler( PyObject * );
     static PyObject *number_negative_handler( PyObject * );
     static PyObject *number_positive_handler( PyObject * );
     static PyObject *number_absolute_handler( PyObject * );
     static PyObject *number_invert_handler( PyObject * );
     static PyObject *number_int_handler( PyObject * );
     static PyObject *number_float_handler( PyObject * );
-    static PyObject *number_oct_handler( PyObject * );
-    static PyObject *number_hex_handler( PyObject * );
     static PyObject *number_add_handler( PyObject *, PyObject * );
     static PyObject *number_subtract_handler( PyObject *, PyObject * );
     static PyObject *number_multiply_handler( PyObject *, PyObject * );
-    static PyObject *number_divide_handler( PyObject *, PyObject * );
     static PyObject *number_remainder_handler( PyObject *, PyObject * );
     static PyObject *number_divmod_handler( PyObject *, PyObject * );
     static PyObject *number_lshift_handler( PyObject *, PyObject * );
@@ -329,25 +325,20 @@ PythonType &PythonType::supportNumberType()
         number_table->nb_add = number_add_handler;
         number_table->nb_subtract = number_subtract_handler;
         number_table->nb_multiply = number_multiply_handler;
-        // QQQ number_table->nb_divide = number_divide_handler;
         number_table->nb_remainder = number_remainder_handler;
         number_table->nb_divmod = number_divmod_handler;
         number_table->nb_power = number_power_handler;
         number_table->nb_negative = number_negative_handler;
         number_table->nb_positive = number_positive_handler;
         number_table->nb_absolute = number_absolute_handler;
-        // QQQ number_table->nb_nonzero = number_nonzero_handler;
         number_table->nb_invert = number_invert_handler;
         number_table->nb_lshift = number_lshift_handler;
         number_table->nb_rshift = number_rshift_handler;
         number_table->nb_and = number_and_handler;
         number_table->nb_xor = number_xor_handler;
         number_table->nb_or = number_or_handler;
-        // QQQ number_table->nb_coerce = 0;
         number_table->nb_int = number_int_handler;
         number_table->nb_float = number_float_handler;
-        // QQQ number_table->nb_oct = number_oct_handler;
-        // QQQ number_table->nb_hex = number_hex_handler;
 
         // QQQ lots of new methods to add
     }
@@ -935,19 +926,6 @@ extern "C" int mapping_ass_subscript_handler( PyObject *self, PyObject *key, PyO
 }
 
 // Number
-extern "C" int number_nonzero_handler( PyObject *self )
-{
-    try
-    {
-        PythonExtensionBase *p = getPythonExtensionBase( self );
-        return p->number_nonzero();
-    }
-    catch( Py::Exception & )
-    {
-        return -1;    // indicate error
-    }
-}
-
 extern "C" PyObject *number_negative_handler( PyObject *self )
 {
     try
@@ -1026,32 +1004,6 @@ extern "C" PyObject *number_float_handler( PyObject *self )
     }
 }
 
-extern "C" PyObject *number_oct_handler( PyObject *self )
-{
-    try
-    {
-        PythonExtensionBase *p = getPythonExtensionBase( self );
-        return new_reference_to( p->number_oct() );
-    }
-    catch( Py::Exception & )
-    {
-        return NULL;    // indicate error
-    }
-}
-
-extern "C" PyObject *number_hex_handler( PyObject *self )
-{
-    try
-    {
-        PythonExtensionBase *p = getPythonExtensionBase( self );
-        return new_reference_to( p->number_hex() );
-    }
-    catch( Py::Exception & )
-    {
-        return NULL;    // indicate error
-    }
-}
-
 extern "C" PyObject *number_add_handler( PyObject *self, PyObject *other )
 {
     try
@@ -1084,19 +1036,6 @@ extern "C" PyObject *number_multiply_handler( PyObject *self, PyObject *other )
     {
         PythonExtensionBase *p = getPythonExtensionBase( self );
         return new_reference_to( p->number_multiply( Py::Object( other ) ) );
-    }
-    catch( Py::Exception & )
-    {
-        return NULL;    // indicate error
-    }
-}
-
-extern "C" PyObject *number_divide_handler( PyObject *self, PyObject *other )
-{
-    try
-    {
-        PythonExtensionBase *p = getPythonExtensionBase( self );
-        return new_reference_to( p->number_divide( Py::Object( other ) ) );
     }
     catch( Py::Exception & )
     {
@@ -1431,14 +1370,6 @@ int PythonExtensionBase::mapping_ass_subscript( const Py::Object &, const Py::Ob
     return -1;
 }
 
-// Number
-int PythonExtensionBase::number_nonzero()
-{
-    missing_method( number_nonzero );
-    return -1;
-}
-
-
 Py::Object PythonExtensionBase::number_negative()
 {
     missing_method( number_negative );
@@ -1481,18 +1412,6 @@ Py::Object PythonExtensionBase::number_long()
     return Py::None();
 }
 
-Py::Object PythonExtensionBase::number_oct()
-{
-    missing_method( number_oct );
-    return Py::None();
-}
-
-Py::Object PythonExtensionBase::number_hex()
-{
-    missing_method( number_hex );
-    return Py::None();
-}
-
 Py::Object PythonExtensionBase::number_add( const Py::Object & )
 {
     missing_method( number_add );
@@ -1508,12 +1427,6 @@ Py::Object PythonExtensionBase::number_subtract( const Py::Object & )
 Py::Object PythonExtensionBase::number_multiply( const Py::Object & )
 {
     missing_method( number_multiply );
-    return Py::None();
-}
-
-Py::Object PythonExtensionBase::number_divide( const Py::Object & )
-{
-    missing_method( number_divide );
     return Py::None();
 }
 
