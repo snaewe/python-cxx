@@ -121,9 +121,7 @@ namespace Py
         virtual Object number_power( const Object &, const Object & );
 
         // Buffer
-        virtual Py_ssize_t buffer_getreadbuffer( Py_ssize_t, void** );
-        virtual Py_ssize_t buffer_getwritebuffer( Py_ssize_t, void** );
-        virtual Py_ssize_t buffer_getsegcount( Py_ssize_t* );
+        // QQQ need to add py3 interface
 
     public:
         virtual PyObject *selfPtr() = 0;

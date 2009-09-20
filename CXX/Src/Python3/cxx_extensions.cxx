@@ -262,9 +262,7 @@ extern "C"
     static PyObject *number_power_handler( PyObject *, PyObject *, PyObject * );
 
     // Buffer
-    static Py_ssize_t buffer_getreadbuffer_handler( PyObject *, Py_ssize_t, void ** );
-    static Py_ssize_t buffer_getwritebuffer_handler( PyObject *, Py_ssize_t, void ** );
-    static Py_ssize_t buffer_getsegcount_handler( PyObject *, Py_ssize_t * );
+    // QQQ
 }
 
 extern "C" void standard_dealloc( PyObject *p )
@@ -347,9 +345,6 @@ PythonType &PythonType::supportBufferType()
         buffer_table = new PyBufferProcs;
         memset( buffer_table, 0, sizeof( PyBufferProcs ) );   // ensure new fields are 0
         table->tp_as_buffer = buffer_table;
-        // QQQ buffer_table->bf_getreadbuffer = buffer_getreadbuffer_handler;
-        // QQQ buffer_table->bf_getwritebuffer = buffer_getwritebuffer_handler;
-        // QQQ buffer_table->bf_getsegcount = buffer_getsegcount_handler;
         // QQQ bf_getbuffer
         // QQQ bf_releasebuffer
     }
@@ -1104,45 +1099,6 @@ extern "C" PyObject *number_power_handler( PyObject *self, PyObject *x1, PyObjec
 }
 
 // Buffer
-extern "C" Py_ssize_t buffer_getreadbuffer_handler( PyObject *self, Py_ssize_t index, void **pp )
-{
-    try
-    {
-        PythonExtensionBase *p = getPythonExtensionBase( self );
-        return p->buffer_getreadbuffer( index, pp );
-    }
-    catch( Py::Exception & )
-    {
-        return -1;    // indicate error
-    }
-}
-
-extern "C" Py_ssize_t buffer_getwritebuffer_handler( PyObject *self, Py_ssize_t index, void **pp )
-{
-    try
-    {
-        PythonExtensionBase *p = getPythonExtensionBase( self );
-        return p->buffer_getwritebuffer( index, pp );
-    }
-    catch( Py::Exception & )
-    {
-        return -1;    // indicate error
-    }
-}
-
-extern "C" Py_ssize_t buffer_getsegcount_handler( PyObject *self, Py_ssize_t *count )
-{
-    try
-    {
-        PythonExtensionBase *p = getPythonExtensionBase( self );
-        return p->buffer_getsegcount( count );
-    }
-    catch( Py::Exception & )
-    {
-        return -1;    // indicate error
-    }
-}
-
 
 //================================================================================
 //
@@ -1422,23 +1378,7 @@ Py::Object PythonExtensionBase::number_power( const Py::Object &, const Py::Obje
 
 
 // Buffer
-Py_ssize_t PythonExtensionBase::buffer_getreadbuffer( Py_ssize_t, void** )
-{
-    missing_method( buffer_getreadbuffer );
-    return -1; }
-
-
-Py_ssize_t PythonExtensionBase::buffer_getwritebuffer( Py_ssize_t, void** )
-{
-    missing_method( buffer_getwritebuffer );
-    return -1; }
-
-
-Py_ssize_t PythonExtensionBase::buffer_getsegcount( Py_ssize_t * )
-{
-    missing_method( buffer_getsegcount );
-    return -1; }
-
+// QQQ
 
 //--------------------------------------------------------------------------------
 //
