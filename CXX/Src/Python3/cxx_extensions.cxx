@@ -222,7 +222,6 @@ extern "C"
     static int setattr_handler( PyObject *, char *, PyObject * );
     static PyObject *getattro_handler( PyObject *, PyObject * );
     static int setattro_handler( PyObject *, PyObject *, PyObject * );
-    static int compare_handler( PyObject *, PyObject * );
     static PyObject *rich_compare_handler( PyObject *, PyObject *, int );
     static PyObject *repr_handler( PyObject * );
     static PyObject *str_handler( PyObject * );
@@ -236,9 +235,7 @@ extern "C"
     static PyObject *sequence_concat_handler( PyObject *,PyObject * );
     static PyObject *sequence_repeat_handler( PyObject *, Py_ssize_t );
     static PyObject *sequence_item_handler( PyObject *, Py_ssize_t );
-    static PyObject *sequence_slice_handler( PyObject *, Py_ssize_t, Py_ssize_t );
     static int sequence_ass_item_handler( PyObject *, Py_ssize_t, PyObject * );
-    static int sequence_ass_slice_handler( PyObject *, Py_ssize_t, Py_ssize_t, PyObject * );
 
     // Mapping
     static Py_ssize_t mapping_length_handler( PyObject * );
@@ -291,10 +288,8 @@ PythonType &PythonType::supportSequenceType()
         sequence_table->sq_concat = sequence_concat_handler;
         sequence_table->sq_repeat = sequence_repeat_handler;
         sequence_table->sq_item = sequence_item_handler;
-        // QQQ sequence_table->sq_slice = sequence_slice_handler;
 
         sequence_table->sq_ass_item = sequence_ass_item_handler;    // BAS setup seperately?
-        // QQQ sequence_table->sq_ass_slice = sequence_ass_slice_handler;  // BAS setup seperately?
         // QQQ sq_inplace_concat
         // QQQ sq_inplace_repeat
     }
@@ -685,19 +680,6 @@ extern "C" int setattro_handler( PyObject *self, PyObject *name, PyObject *value
     }
 }
 
-extern "C" int compare_handler( PyObject *self, PyObject *other )
-{
-    try
-    {
-        PythonExtensionBase *p = getPythonExtensionBase( self );
-        return p->compare( Py::Object( other ) );
-    }
-    catch( Py::Exception & )
-    {
-        return -1;    // indicate error
-    }
-}
-
 extern "C" PyObject *rich_compare_handler( PyObject *self, PyObject *other, int op )
 {
     try
@@ -846,38 +828,12 @@ extern "C" PyObject *sequence_item_handler( PyObject *self, Py_ssize_t index )
     }
 }
 
-extern "C" PyObject *sequence_slice_handler( PyObject *self, Py_ssize_t first, Py_ssize_t last )
-{
-    try
-    {
-        PythonExtensionBase *p = getPythonExtensionBase( self );
-        return new_reference_to( p->sequence_slice( first, last ) );
-    }
-    catch( Py::Exception & )
-    {
-        return NULL;    // indicate error
-    }
-}
-
 extern "C" int sequence_ass_item_handler( PyObject *self, Py_ssize_t index, PyObject *value )
 {
     try
     {
         PythonExtensionBase *p = getPythonExtensionBase( self );
         return p->sequence_ass_item( index, Py::Object( value ) );
-    }
-    catch( Py::Exception & )
-    {
-        return -1;    // indicate error
-    }
-}
-
-extern "C" int sequence_ass_slice_handler( PyObject *self, Py_ssize_t first, Py_ssize_t last, PyObject *value )
-{
-    try
-    {
-        PythonExtensionBase *p = getPythonExtensionBase( self );
-        return p->sequence_ass_slice( first, last, Py::Object( value ) );
     }
     catch( Py::Exception & )
     {
@@ -1329,25 +1285,11 @@ Py::Object PythonExtensionBase::sequence_item( Py_ssize_t )
     return Py::None();
 }
 
-Py::Object PythonExtensionBase::sequence_slice( Py_ssize_t, Py_ssize_t )
-{
-    missing_method( sequence_slice );
-    return Py::None();
-}
-
 int PythonExtensionBase::sequence_ass_item( Py_ssize_t, const Py::Object & )
 {
     missing_method( sequence_ass_item );
     return -1;
 }
-
-
-int PythonExtensionBase::sequence_ass_slice( Py_ssize_t, Py_ssize_t, const Py::Object & )
-{
-    missing_method( sequence_ass_slice );
-    return -1;
-}
-
 
 
 // Mapping
