@@ -103,7 +103,6 @@ namespace Py
         virtual int mapping_ass_subscript( const Object &, const Object & );
 
         // Number
-        virtual int number_nonzero();
         virtual Object number_negative();
         virtual Object number_positive();
         virtual Object number_absolute();
@@ -111,12 +110,9 @@ namespace Py
         virtual Object number_int();
         virtual Object number_float();
         virtual Object number_long();
-        virtual Object number_oct();
-        virtual Object number_hex();
         virtual Object number_add( const Object & );
         virtual Object number_subtract( const Object & );
         virtual Object number_multiply( const Object & );
-        virtual Object number_divide( const Object & );
         virtual Object number_remainder( const Object & );
         virtual Object number_divmod( const Object & );
         virtual Object number_lshift( const Object & );
