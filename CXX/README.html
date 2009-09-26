@@ -32,20 +32,20 @@ p.param {background-color: #eeeeee; border-top: lightskyblue solid 4}
 
 <h3>Windows Installation and Demo</h3>
 <ol>
-<li>Fetch <a href="http://prdownloads.sourceforge.net/cxx/pycxx-6.1.0.tar.gz">
-http://prdownloads.sourceforge.net/cxx/pycxx-6.1.0.tar.gz</a></li>
+<li>Fetch <a href="http://prdownloads.sourceforge.net/cxx/pycxx-6.1.1.tar.gz">
+http://prdownloads.sourceforge.net/cxx/pycxx-6.1.1.tar.gz</a></li>
 <li>Expand the archive into a directory of your choosing C:\ for example.
 Note: WinZip can expand .tar.gz files.</li>
 <li>Install the PyCXX files:
 <ol>
-<li><pre>C:> cd \pycxx-6.1.0</pre></li>
-<li><pre>C:\pycxx-6.1.0> python setup.py install</pre></li>
+<li><pre>C:> cd \pycxx-6.1.1</pre></li>
+<li><pre>C:\pycxx-6.1.1> python setup.py install</pre></li>
 </ol>
 </li>
 <li>Install the PyCXX Demo:
 <ol>
-<li><pre>C:> cd \pycxx-6.1.0\Demo</pre></li>
-<li><pre>C:\pycxx-6.1.0\Demo> python setup.py install</pre></li>
+<li><pre>C:> cd \pycxx-6.1.1\Demo</pre></li>
+<li><pre>C:\pycxx-6.1.1\Demo> python setup.py install</pre></li>
 </ol>
 </li>
 <li>Run the demo:
@@ -67,23 +67,23 @@ Note: WinZip can expand .tar.gz files.</li>
 <p>Note: distutils is not available for Python 1.5.2</p>
 
 <ol>
-<li>Fetch <a href="http://prdownloads.sourceforge.net/cxx/pycxx-6.1.0.tar.gz">
-http://prdownloads.sourceforge.net/cxx/pycxx-6.1.0.tar.gz</a>
+<li>Fetch <a href="http://prdownloads.sourceforge.net/cxx/pycxx-6.1.1.tar.gz">
+http://prdownloads.sourceforge.net/cxx/pycxx-6.1.1.tar.gz</a>
 <li>Login as root. root access is typically needed on Unix systems to install the PyCXX files into the Python directories.
 <li>Expand the archive into a directory of your choosing ~\ for example.
 <li>Install the PyCXX files:
 <ol>
-<li><pre># cd ~\pycxx-6.1.0</pre>
+<li><pre># cd ~\pycxx-6.1.1</pre>
 <li><pre># python setup.py install</pre>
 </ol>
 <li>Install the PyCXX Demo for Python2:
 <ol>
-<li><pre># cd ~\pycxx-6.1.0\Demo\Python2</pre>
+<li><pre># cd ~\pycxx-6.1.1\Demo\Python2</pre>
 <li><pre># python setup.py install</pre>
 </ol>
 <li>Install the PyCXX Demo for Python3:
 <ol>
-<li><pre># cd ~\pycxx-6.1.0\Demo\Python3</pre>
+<li><pre># cd ~\pycxx-6.1.1\Demo\Python3</pre>
 <li><pre># python setup.py install</pre>
 </ol>
 <li>Run the demos:
@@ -106,8 +106,8 @@ of Makefiles and Project files are provided.</p>
 <h3>Windows Installation and Demo</h3>
 <p>
 <ol>
-<li>Fetch <a href="http://prdownloads.sourceforge.net/cxx/pycxx-6.1.0.tar.gz">
-http://prdownloads.sourceforge.net/cxx/pycxx-6.1.0.tar.gz</a>
+<li>Fetch <a href="http://prdownloads.sourceforge.net/cxx/pycxx-6.1.1.tar.gz">
+http://prdownloads.sourceforge.net/cxx/pycxx-6.1.1.tar.gz</a>
 <li>Expand the archive into a directory of your choosing C:\ for example. WinZip can expand .tar.gz files.
 <li>Build the example. Using Microsoft Visual C++ 2008 for python version 3.0 or later load the workspace
 corresponsing to the version of Python you wish the work with.
@@ -116,7 +116,7 @@ corresponsing to the version of Python you wish the work with.
 </ul>
 <li>Run the example. (I'll assume you are testing Python 3.0)
 <ul>
-<li>cd c:\pycxx-6.1.0\pyds30
+<li>cd c:\pycxx-6.1.1\pyds30
 <li>c:\python30\python -c "import example;example.test()"
 </ul>
 </ol>
@@ -124,8 +124,8 @@ corresponsing to the version of Python you wish the work with.
 <h3>Unix and Mac OS X Installation and Demo</h3>
 <p>
 <ol>
-<li>Fetch <a href="http://prdownloads.sourceforge.net/cxx/pycxx-6.1.0.tar.gz">
-http://prdownloads.sourceforge.net/cxx/pycxx-6.1.0.tar.gz</a>
+<li>Fetch <a href="http://prdownloads.sourceforge.net/cxx/pycxx-6.1.1.tar.gz">
+http://prdownloads.sourceforge.net/cxx/pycxx-6.1.1.tar.gz</a>
 <li>Expand the archive into a directory of your choosing ~/ for example.
 <li>Select to makefile for your system and python version.
 <ul>
@@ -149,6 +149,10 @@ $ make -f <var>example-makefile</var> test
 </p>
 
 <h2>Revision History</h2>
+
+<h3>Version 6.1.1 (26-Sep-2009)</h3>
+<p>Supports Python 3 starting at Python 3.1 and Python 2</p>
+<p>Code clean up to fix compiler warnings reported by gcc 4.2.1 on Mac OS X when building for Python 3.</p>
 
 <h3>Version 6.1.0 (19-Jul-2009)</h3>
 <p>Support Python 3 and Python 2</p>
