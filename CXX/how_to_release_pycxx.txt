@@ -1,21 +1,27 @@
 How to release PyCXX
 --------------------
 
-0. Update CXX/Version.hxx with the releases version number
-1. Tag the source using tag_pycxx.py (depends on pysvn).
-2. Create the source kit using make_src_kit.py
-3. Upload kit to sourceforge:
-   1. browse to https://frs.sourceforge.net/webupload
-   2. Login using SourceForge username and password
-   3. upload file
-4. Add new File release on sourceforge.
-   1. http://sourceforge.net/projects/cxx/
-   2. Select Menu Project Admin... Downloads
-   3. Click [Add release]
-   4. Fill in version and add
-   5. Add release notes
-   6. Add source kit
-   7. Edit file properties
-   8. Send Email notification
-5. Update docs on the PyCXX homepage
-   1. scp <file> barry-scott@shell.sourceforge.net:/home/groups/c/cx/cxx/htdocs
+0.  Update CXX/Version.hxx with the releases version number
+    Update README.html, PyCXX-Release-Notes.txt
+    and SourceForge/index.html with change log info
+1.  Tag the source using tag_pycxx.py (depends on pysvn).
+2.  Create the source kit using make_src_kit.py
+3.  Add new File release on sourceforge.
+    1. http://sourceforge.net/projects/cxx/
+    2. Click Develop
+    3. Select Menu Project Admin... File Manager
+    4. Right Click On CXX folder Choose New Folder
+    5. Name the Folder PyCXX V<maj>.<min>.<patch> e.g. PyCXX V6.1.1
+    6. Right Click On CXX folder Choose Uploads Here
+    7. Upload the source kit and its PyCXX-Release-Notes.txt
+    8. Click on PyCXX-Release-Notes.txt and check Release Note and Save
+    9. Click on source kit and choose Select All playforms and Choose the Release Notes for this file
+4.  Add news about release
+    1. Click Develop
+    2. From Develop Menu choose News
+    3. Add news with release note info - may be need to make it a bigger advert?
+    4. Click Submit to slashdot and Submit
+5.  Email CXX mailing lists
+6.  Update docs on the PyCXX homepage
+    1. cd SourceForge
+    2. ./deploy.sh
