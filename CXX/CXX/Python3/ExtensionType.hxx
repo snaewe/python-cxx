@@ -167,10 +167,8 @@ namespace Py
     protected:
         explicit PythonClass( PythonClassInstance *self, Tuple &args, Dict &kwds )
         : PythonExtensionBase()
-        , m_self( self )
+        , m_class_instance( self )
         {
-            // we are a class
-            behaviors().supportClass();
         }
 
         virtual ~PythonClass()
@@ -203,6 +201,9 @@ namespace Py
                 p->set_tp_new( extension_object_new );
                 p->set_tp_init( extension_object_init );
                 p->set_tp_dealloc( extension_object_deallocator );
+
+                // we are a class
+                p->supportClass();
             }
 
             return *p;
@@ -297,12 +298,17 @@ namespace Py
 
         PyObject *selfPtr()
         {
-            return reinterpret_cast<PyObject *>( m_self );
+            return reinterpret_cast<PyObject *>( m_class_instance );
+        }
+
+        Object self()
+        {
+            return Object( reinterpret_cast<PyObject *>( m_class_instance ) );
         }
 
     protected:
     private:
-        PythonClassInstance *m_self;
+        PythonClassInstance *m_class_instance;
 
     private:
         //
