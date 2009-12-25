@@ -45,31 +45,52 @@
 #define PYCXX_NOARGS_METHOD_DECL( CLS, NAME ) \
     static PyObject *PYCXX_NOARGS_METHOD_NAME( NAME )( PyObject *_self, PyObject *, PyObject * ) \
     { \
-        Py::PythonClassInstance *self_python = reinterpret_cast< Py::PythonClassInstance * >( _self ); \
-        CLS *self = reinterpret_cast< CLS * >( self_python->m_pycxx_object ); \
-        Py::Object r( (self->NAME)() ); \
-        return Py::new_reference_to( r.ptr() ); \
+        try \
+        { \
+            Py::PythonClassInstance *self_python = reinterpret_cast< Py::PythonClassInstance * >( _self ); \
+            CLS *self = reinterpret_cast< CLS * >( self_python->m_pycxx_object ); \
+            Py::Object r( (self->NAME)() ); \
+            return Py::new_reference_to( r.ptr() ); \
+        } \
+        catch( Py::Exception & ) \
+        { \
+            return 0; \
+        } \
     }
 #define PYCXX_VARARGS_METHOD_DECL( CLS, NAME ) \
     static PyObject *PYCXX_VARARGS_METHOD_NAME( NAME )( PyObject *_self, PyObject *_a, PyObject * ) \
     { \
-        Py::PythonClassInstance *self_python = reinterpret_cast< Py::PythonClassInstance * >( _self ); \
-        CLS *self = reinterpret_cast< CLS * >( self_python->m_pycxx_object ); \
-        Py::Tuple a( _a ); \
-        Py::Object r( (self->NAME)( a ) ); \
-        return Py::new_reference_to( r.ptr() ); \
+        try \
+        { \
+            Py::PythonClassInstance *self_python = reinterpret_cast< Py::PythonClassInstance * >( _self ); \
+            CLS *self = reinterpret_cast< CLS * >( self_python->m_pycxx_object ); \
+            Py::Tuple a( _a ); \
+            Py::Object r( (self->NAME)( a ) ); \
+            return Py::new_reference_to( r.ptr() ); \
+        } \
+        catch( Py::Exception & ) \
+        { \
+            return 0; \
+        } \
     }
 #define PYCXX_KEYWORDS_METHOD_DECL( CLS, NAME ) \
     static PyObject *PYCXX_KEYWORDS_METHOD_NAME( NAME )( PyObject *_self, PyObject *_a, PyObject *_k ) \
     { \
-        Py::PythonClassInstance *self_python = reinterpret_cast< Py::PythonClassInstance * >( _self ); \
-        CLS *self = reinterpret_cast< CLS * >( self_python->m_pycxx_object ); \
-        Py::Tuple a( _a ); \
-        Py::Dict k; \
-        if( _k != NULL ) \
-            k = _k; \
-        Py::Object r( (self->NAME)( a, k ) ); \
-        return Py::new_reference_to( r.ptr() ); \
+        try \
+        { \
+            Py::PythonClassInstance *self_python = reinterpret_cast< Py::PythonClassInstance * >( _self ); \
+            CLS *self = reinterpret_cast< CLS * >( self_python->m_pycxx_object ); \
+            Py::Tuple a( _a ); \
+            Py::Dict k; \
+            if( _k != NULL ) \
+                k = _k; \
+            Py::Object r( (self->NAME)( a, k ) ); \
+            return Py::new_reference_to( r.ptr() ); \
+        } \
+        catch( Py::Exception & ) \
+        { \
+            return 0; \
+        } \
     }
 
 // need to support METH_STATIC and METH_CLASS

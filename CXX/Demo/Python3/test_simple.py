@@ -53,4 +53,13 @@ new_style_class.new_style_class_func_keyword()
 new_style_class.new_style_class_func_keyword( name=6, value=7 )
 new_style_class.new_style_class_func_keyword( 4, 5 )
 new_style_class.new_style_class_func_keyword( 4, 5, name=6, value=7 )
+
+try:
+    new_style_class.new_style_class_func_noargs_raise_exception()
+    print( 'Error: did not raised RuntimeError' )
+    sys.exit( 1 )
+
+except RuntimeError as e:
+    print( 'Raised %r' % (str(e),) )
+
 new_style_class = None

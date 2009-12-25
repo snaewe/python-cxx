@@ -1,5 +1,5 @@
 //
-//  Copyright (c) 2008 Barry A. Scott
+//  Copyright (c) 2008-2009 Barry A. Scott
 //
 //
 //  simple_moduile.cxx
@@ -50,6 +50,8 @@ public:
         PYCXX_ADD_VARARGS_METHOD( new_style_class_func_varargs, "docs for new_style_class_func_varargs" );
         PYCXX_ADD_KEYWORDS_METHOD( new_style_class_func_keyword, "docs for new_style_class_func_keyword" );
 
+        PYCXX_ADD_NOARGS_METHOD( new_style_class_func_noargs_raise_exception, "docs for new_style_class_func_noargs_raise_exception" );
+
         // Call to make the type ready for use
         behaviors().readyType();
     }
@@ -82,6 +84,14 @@ public:
         return Py::None();
     }
     PYCXX_KEYWORDS_METHOD_DECL( new_style_class, new_style_class_func_keyword )
+
+    Py::Object new_style_class_func_noargs_raise_exception( void )
+    {
+        std::cout << "new_style_class_func_noargs_raise_exception Called." << std::endl;
+        throw Py::RuntimeError( "its an error" );
+        return Py::None();
+    }
+    PYCXX_NOARGS_METHOD_DECL( new_style_class, new_style_class_func_noargs_raise_exception )
 
     Py::Object getattro( const Py::String &name_ )
     {
