@@ -2070,6 +2070,12 @@ namespace Py
             validate();
         }
 
+        String( Py_UNICODE *s, int length )
+        : SeqBase<Char>( PyUnicode_FromUnicode( s, length ), true )
+        {
+            validate();
+        }
+
         // Assignment acquires new ownership of pointer
         String &operator=( const Object &rhs )
         {

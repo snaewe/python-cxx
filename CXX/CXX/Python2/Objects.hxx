@@ -1860,6 +1860,12 @@ namespace Py
             validate();
         }
 
+        String( Py_UNICODE *s, int length )
+            : SeqBase<Char>( PyUnicode_FromUnicode( s, length ), true )
+        {
+            validate();
+        }
+
         String( const char *s, const char *encoding, const char *error="strict" )
             : SeqBase<Char>( PyUnicode_Decode( s, strlen( s ), encoding, error ), true )
         {
@@ -1929,7 +1935,6 @@ namespace Py
                     static_cast<int>( v.length() ) ), true );
             return *this;
         }
-
 
         // Encode
         Bytes encode( const char *encoding, const char *error="strict" ) const;
