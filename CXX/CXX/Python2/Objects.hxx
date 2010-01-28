@@ -1718,7 +1718,6 @@ namespace Py
     template <TEMPLATE_TYPENAME T> bool operator<=(const EXPLICIT_TYPENAME SeqBase<T>::const_iterator& left, const EXPLICIT_TYPENAME SeqBase<T>::const_iterator& right);
     template <TEMPLATE_TYPENAME T> bool operator>=(const EXPLICIT_TYPENAME SeqBase<T>::const_iterator& left, const EXPLICIT_TYPENAME SeqBase<T>::const_iterator& right); 
 
-
     extern bool operator==(const Sequence::iterator& left, const Sequence::iterator& right);
     extern bool operator!=(const Sequence::iterator& left, const Sequence::iterator& right);
     extern bool operator< (const Sequence::iterator& left, const Sequence::iterator& right);
@@ -1848,68 +1847,68 @@ namespace Py
         }
 
         String()
-            : SeqBase<Char>( PyString_FromStringAndSize( "", 0 ), true )
+        : SeqBase<Char>( PyString_FromStringAndSize( "", 0 ), true )
         {
             validate();
         }
 
         String( const std::string& v )
-            : SeqBase<Char>( PyString_FromStringAndSize( const_cast<char*>(v.data()),
+        : SeqBase<Char>( PyString_FromStringAndSize( const_cast<char*>(v.data()),
                 static_cast<int>( v.length() ) ), true )
         {
             validate();
         }
 
         String( Py_UNICODE *s, int length )
-            : SeqBase<Char>( PyUnicode_FromUnicode( s, length ), true )
+        : SeqBase<Char>( PyUnicode_FromUnicode( s, length ), true )
         {
             validate();
         }
 
         String( const char *s, const char *encoding, const char *error="strict" )
-            : SeqBase<Char>( PyUnicode_Decode( s, strlen( s ), encoding, error ), true )
+        : SeqBase<Char>( PyUnicode_Decode( s, strlen( s ), encoding, error ), true )
         {
             validate();
         }
 
         String( const char *s, int len, const char *encoding, const char *error="strict" )
-            : SeqBase<Char>( PyUnicode_Decode( s, len, encoding, error ), true )
+        : SeqBase<Char>( PyUnicode_Decode( s, len, encoding, error ), true )
         {
             validate();
         }
 
         String( const std::string &s, const char *encoding, const char *error="strict" )
-            : SeqBase<Char>( PyUnicode_Decode( s.c_str(), s.length(), encoding, error ), true )
+        : SeqBase<Char>( PyUnicode_Decode( s.c_str(), s.length(), encoding, error ), true )
         {
             validate();
         }
 
-        String( const std::string& v, std::string::size_type vsize )
-            : SeqBase<Char>(PyString_FromStringAndSize( const_cast<char*>(v.data()),
+        String( const std::string &v, std::string::size_type vsize )
+        : SeqBase<Char>(PyString_FromStringAndSize( const_cast<char*>(v.data()),
                     static_cast<int>( vsize ) ), true)
         {
             validate();
         }
 
         String( const char *v, int vsize )
-            : SeqBase<Char>(PyString_FromStringAndSize( const_cast<char*>(v), vsize ), true )
+        : SeqBase<Char>(PyString_FromStringAndSize( const_cast<char*>(v), vsize ), true )
         {
             validate();
         }
 
-        String( const char* v )
-            : SeqBase<Char>( PyString_FromString( v ), true )
+        String( const char *v )
+        : SeqBase<Char>( PyString_FromString( v ), true )
         {
             validate();
         }
 
         // Assignment acquires new ownership of pointer
-        String& operator= ( const Object& rhs )
+        String &operator=( const Object &rhs )
         {
             return *this = *rhs;
         }
 
-        String& operator= (PyObject* rhsp)
+        String& operator= (PyObject *rhsp)
         {
             if( ptr() == rhsp )
                 return *this;
@@ -1923,13 +1922,13 @@ namespace Py
         }
 
         // Assignment from C string
-        String& operator= (const std::string& v)
+        String& operator=( const std::string &v )
         {
             set( PyString_FromStringAndSize( const_cast<char*>( v.data() ),
                     static_cast<int>( v.length() ) ), true );
             return *this;
         }
-        String& operator= (const unicodestring& v)
+        String& operator=( const unicodestring &v )
         {
             set( PyUnicode_FromUnicode( const_cast<Py_UNICODE*>( v.data() ),
                     static_cast<int>( v.length() ) ), true );
@@ -1940,7 +1939,7 @@ namespace Py
         Bytes encode( const char *encoding, const char *error="strict" ) const;
 
         // Queries
-        virtual size_type size () const
+        virtual size_type size() const
         {
             if( isUnicode() )
             {
@@ -1952,7 +1951,7 @@ namespace Py
             }
         }
 
-        operator std::string () const
+        operator std::string() const
         {
             return as_std_string( "utf-8" );
         }
@@ -1969,6 +1968,18 @@ namespace Py
             else
             {
                 throw TypeError("can only return unicodestring from Unicode object");
+            }
+        }
+
+        const Py_UNICODE *unicode_data() const
+        {
+            if( isUnicode() )
+            {
+                return PyUnicode_AS_UNICODE( ptr() );
+            }
+            else
+            {
+                throw TypeError("can only return unicode_data from Unicode object");
             }
         }
     };
