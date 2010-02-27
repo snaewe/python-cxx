@@ -2070,7 +2070,7 @@ namespace Py
             validate();
         }
 
-        String( Py_UNICODE *s, int length )
+        String( const Py_UNICODE *s, int length )
         : SeqBase<Char>( PyUnicode_FromUnicode( s, length ), true )
         {
             validate();
