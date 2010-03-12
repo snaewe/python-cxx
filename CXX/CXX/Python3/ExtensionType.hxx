@@ -225,6 +225,10 @@ namespace Py
 
                 // we are a class
                 p->supportClass();
+
+                // always support get and set attr
+                p->supportGetattro();
+                p->supportSetattro();
             }
 
             return *p;

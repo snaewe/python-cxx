@@ -1353,16 +1353,14 @@ int PythonExtensionBase::setattr( const char *, const Py::Object &)
     return -1;
 }
 
-Py::Object PythonExtensionBase::getattro( const Py::String &)
+Py::Object PythonExtensionBase::getattro( const Py::String &name )
 {
-    missing_method( getattro );
-    return Py::None();
+    return genericGetAttro( name );
 }
 
-int PythonExtensionBase::setattro( const Py::String &, const Py::Object &)
+int PythonExtensionBase::setattro( const Py::String &name, const Py::Object &value )
 {
-    missing_method( setattro );
-    return -1;
+    return genericSetAttro( name, value );
 }
 
 int PythonExtensionBase::compare( const Py::Object &)

@@ -224,6 +224,10 @@ namespace Py
                 p->set_tp_dealloc( extension_object_deallocator );
                 // we are a class
                 p->supportClass();
+
+                // always support get and set attr
+                p->supportGetattro();
+                p->supportSetattro();
             }
 
             return *p;
