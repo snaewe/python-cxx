@@ -2124,29 +2124,9 @@ namespace Py
             return b.as_std_string();
         }
 
-        unicodestring as_unicodestring() const
-        {
-            if( isUnicode() )
-            {
-                return unicodestring( PyUnicode_AS_UNICODE( ptr() ),
-                    static_cast<size_type>( PyUnicode_GET_SIZE( ptr() ) ) );
-            }
-            else
-            {
-                throw TypeError("can only return unicodestring from Unicode object");
-            }
-        }
-
         const Py_UNICODE *unicode_data() const
         {
-            if( isUnicode() )
-            {
-                return PyUnicode_AS_UNICODE( ptr() );
-            }
-            else
-            {
-                throw TypeError("can only return unicode_data from Unicode object");
-            }
+            return PyUnicode_AS_UNICODE( ptr() );
         }
     };
 
