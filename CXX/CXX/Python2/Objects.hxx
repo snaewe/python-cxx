@@ -61,6 +61,8 @@ namespace Py
     class String;
     class List;
     template<TEMPLATE_TYPENAME T> class MapBase;
+    class Tuple;
+    class Dict;
 
     // new_reference_to also overloaded below on Object
     inline PyObject* new_reference_to(PyObject* p)
@@ -267,6 +269,10 @@ namespace Py
         {
             return Object (PyObject_GetAttrString (p, const_cast<char*>(s.c_str())), true);
         }
+
+        Object callMemberFunction( const std::string &function_name ) const;
+        Object callMemberFunction( const std::string &function_name, const Tuple &args ) const;
+        Object callMemberFunction( const std::string &function_name, const Tuple &args, const Dict &kw ) const;
 
         Object getItem (const Object& key) const
         {
@@ -3169,6 +3175,26 @@ namespace Py
             // Caution -- PyModule_GetDict returns borrowed reference!
         }
     };
+
+    // Call function helper
+    inline Object Object::callMemberFunction( const std::string &function_name ) const
+    {
+        Callable target( getAttr( function_name ) );
+        Tuple args( 0 );
+        return target.apply( args );
+    }
+
+    inline Object Object::callMemberFunction( const std::string &function_name, const Tuple &args ) const
+    {
+        Callable target( getAttr( function_name ) );
+        return target.apply( args );
+    }
+
+    inline Object Object::callMemberFunction( const std::string &function_name, const Tuple &args, const Dict &kw ) const
+    {
+        Callable target( getAttr( function_name ) );
+        return target.apply( args, kw );
+    }
 
     // Numeric interface
     inline Object operator+ (const Object& a)

@@ -65,8 +65,17 @@ void test_extension_object()
     args[0] = j;
     Py::List answer( w.apply( args ) );
 
-    test_assert( "extension object q1", answer[0], r2 );
-    test_assert( "extension object q2", answer[1], args[0] );
+    test_assert( "extension object amethod 1 q1", answer[0], r2 );
+    test_assert( "extension object amethod 1q2", answer[1], args[0] );
+
+    // calling an extension object method using callMemberFunction
+    Py::Tuple args( 1 );
+    Py::Long j( 3 );
+    args[0] = j;
+    Py::List answer( r2.callMemberFunction( "amethod", args ) );
+
+    test_assert( "extension object amethod 2 q1", answer[0], r2 );
+    test_assert( "extension object amethod 2 q2", answer[1], args[0] );
 
     Py::Tuple nv( 3 );
     nv[0] = Py::Long( 1 );

@@ -81,6 +81,14 @@ std::string test_extension_object()
     if(answer[1] != args[0])
         return ("Extension object test failed (2)");
 
+    // calling an extension object method using callMemberFunction
+    Py::List answer2( r2.callMemberFunction( "amethod", args ) );
+    if(answer2[0] != r2)
+        return ("Extension object test failed (3)");
+
+    if(answer2[1] != args[0])
+        return ("Extension object test failed (4)");
+
     debug_check_ref_queue();
 
     Py::Tuple nv(3);
@@ -92,7 +100,7 @@ std::string test_extension_object()
     r2.assign(unused, nv);
     r2value = r2.value(unused);
     if(r2value[1] != Py::Int(4))
-        return("Extension object test failed. (3)");
+        return("Extension object test failed (5)");
 
     debug_check_ref_queue();
 
@@ -110,7 +118,7 @@ std::string test_extension_object()
     one_arg[0] = unused;
     r2value = w.apply(one_arg);
     if(r2value[1] != Py::Int(4))
-        return("Extension object test failed. (4)");
+        return("Extension object test failed. (6)");
 
     debug_check_ref_queue();
     {
