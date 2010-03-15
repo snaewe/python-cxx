@@ -344,7 +344,7 @@ test_Tuple()
 {
     // test the Tuple class
     Py::Tuple a(3);
-    Py::Tuple t1;
+    Py::Tuple t;
     Py::Float f1(1.0), f2(2.0), f3(3.0);
     a[0] = f1; // should be ok since no other reference owned
     a[1] = f2;
@@ -356,16 +356,36 @@ test_Tuple()
         if(*i != Py::Float(++k)) return "failed 1 " + b.as_string();
     }
 
-    t1 = a;
+    t = a;
     try
     {
-        t1[0] = Py::Int(1); // should fail, tuple has multiple references
+        t[0] = Py::Int(1); // should fail, tuple has multiple references
         return "failed 2";
     }
     catch (Py::Exception& e)
     {
         e.clear();
     }
+
+    Py::Tuple0 t0;
+    Py::Tuple1 t1(  Py::Int( 1 ) );
+    Py::Tuple2 t2(  Py::Int( 1 ), Py::Int( 2 ) );
+    Py::Tuple3 t3(  Py::Int( 1 ), Py::Int( 2 ), Py::Int( 3 ) );
+    Py::Tuple4 t4(  Py::Int( 1 ), Py::Int( 2 ), Py::Int( 3 ),
+                    Py::Int( 4 ) );
+    Py::Tuple5 t5(  Py::Int( 1 ), Py::Int( 2 ), Py::Int( 3 ),
+                    Py::Int( 4 ), Py::Int( 5 ) );
+    Py::Tuple6 t6(  Py::Int( 1 ), Py::Int( 2 ), Py::Int( 3 ),
+                    Py::Int( 4 ), Py::Int( 5 ), Py::Int( 6 ) );
+    Py::Tuple7 t7(  Py::Int( 1 ), Py::Int( 2 ), Py::Int( 3 ),
+                    Py::Int( 4 ), Py::Int( 5 ), Py::Int( 6 ),
+                    Py::Int( 7 ) );
+    Py::Tuple8 t8(  Py::Int( 1 ), Py::Int( 2 ), Py::Int( 3 ),
+                    Py::Int( 4 ), Py::Int( 5 ), Py::Int( 6 ),
+                    Py::Int( 7 ), Py::Int( 8 ) );
+    Py::Tuple9 t9(  Py::Int( 1 ), Py::Int( 2 ), Py::Int( 3 ),
+                    Py::Int( 4 ), Py::Int( 5 ), Py::Int( 6 ),
+                    Py::Int( 7 ), Py::Int( 8 ), Py::Int( 9 ) );
     return "ok";
 }
 

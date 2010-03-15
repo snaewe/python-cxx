@@ -2368,6 +2368,180 @@ namespace Py
 
     };
 
+    class Tuple0: public Tuple
+    {
+    public:
+        Tuple0()
+        : Tuple( 0 )
+        { }
+
+        virtual ~Tuple0()
+        { }
+    };
+
+    class Tuple1: public Tuple
+    {
+    public:
+        Tuple1( const Object &obj1 )
+        : Tuple( 1 )
+        {
+            setItem( 0, obj1 );
+        }
+
+        virtual ~Tuple1()
+        { }
+    };
+
+    class Tuple2: public Tuple
+    {
+    public:
+        Tuple2( const Object &obj1, const Object &obj2 )
+        : Tuple( 2 )
+        {
+            setItem( 0, obj1 );
+            setItem( 1, obj2 );
+        }
+
+        virtual ~Tuple2()
+        { }
+    };
+
+    class Tuple3: public Tuple
+    {
+    public:
+        Tuple3( const Object &obj1, const Object &obj2, const Object &obj3 )
+        : Tuple( 3 )
+        {
+            setItem( 0, obj1 );
+            setItem( 1, obj2 );
+            setItem( 2, obj3 );
+        }
+
+        virtual ~Tuple3()
+        { }
+    };
+
+    class Tuple4: public Tuple
+    {
+    public:
+        Tuple4( const Object &obj1, const Object &obj2, const Object &obj3,
+                const Object &obj4 )
+        : Tuple( 4 )
+        {
+            setItem( 0, obj1 );
+            setItem( 1, obj2 );
+            setItem( 2, obj3 );
+            setItem( 3, obj4 );
+        }
+
+        virtual ~Tuple4()
+        { }
+    };
+
+    class Tuple5: public Tuple
+    {
+    public:
+        Tuple5( const Object &obj1, const Object &obj2, const Object &obj3,
+                const Object &obj4, const Object &obj5 )
+        : Tuple( 5 )
+        {
+            setItem( 0, obj1 );
+            setItem( 1, obj2 );
+            setItem( 2, obj3 );
+            setItem( 3, obj4 );
+            setItem( 4, obj5 );
+        }
+
+        virtual ~Tuple5()
+        { }
+    };
+
+    class Tuple6: public Tuple
+    {
+    public:
+        Tuple6( const Object &obj1, const Object &obj2, const Object &obj3,
+                const Object &obj4, const Object &obj5, const Object &obj6 )
+        : Tuple( 6 )
+        {
+            setItem( 0, obj1 );
+            setItem( 1, obj2 );
+            setItem( 2, obj3 );
+            setItem( 3, obj4 );
+            setItem( 4, obj5 );
+            setItem( 5, obj6 );
+        }
+
+        virtual ~Tuple6()
+        { }
+    };
+
+    class Tuple7: public Tuple
+    {
+    public:
+        Tuple7( const Object &obj1, const Object &obj2, const Object &obj3,
+                const Object &obj4, const Object &obj5, const Object &obj6,
+                const Object &obj7 )
+        : Tuple( 7 )
+        {
+            setItem( 0, obj1 );
+            setItem( 1, obj2 );
+            setItem( 2, obj3 );
+            setItem( 3, obj4 );
+            setItem( 4, obj5 );
+            setItem( 5, obj6 );
+            setItem( 6, obj7 );
+        }
+
+        virtual ~Tuple7()
+        { }
+    };
+
+    class Tuple8: public Tuple
+    {
+    public:
+        Tuple8( const Object &obj1, const Object &obj2, const Object &obj3,
+                const Object &obj4, const Object &obj5, const Object &obj6,
+                const Object &obj7, const Object &obj8 )
+        : Tuple( 8 )
+        {
+            setItem( 0, obj1 );
+            setItem( 1, obj2 );
+            setItem( 2, obj3 );
+            setItem( 3, obj4 );
+            setItem( 4, obj5 );
+            setItem( 5, obj6 );
+            setItem( 6, obj7 );
+            setItem( 7, obj8 );
+        }
+
+        virtual ~Tuple8()
+        { }
+    };
+
+    class Tuple9: public Tuple
+    {
+    public:
+        Tuple9( const Object &obj1, const Object &obj2, const Object &obj3,
+                const Object &obj4, const Object &obj5, const Object &obj6,
+                const Object &obj7, const Object &obj8, const Object &obj9 )
+        : Tuple( 9 )
+        {
+            setItem( 0, obj1 );
+            setItem( 1, obj2 );
+            setItem( 2, obj3 );
+            setItem( 3, obj4 );
+            setItem( 4, obj5 );
+            setItem( 5, obj6 );
+            setItem( 6, obj7 );
+            setItem( 7, obj8 );
+            setItem( 8, obj9 );
+        }
+
+        virtual ~Tuple9()
+        { }
+    };
+
+
     // ==================================================
     // class List
 
