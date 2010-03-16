@@ -391,7 +391,8 @@ namespace Py
         //
         T *getCxxObject( void )
         {
-            return static_cast<T *>( ptr() );
+            extern PythonExtensionBase *getPythonExtensionBase( PyObject *self );
+            return dynamic_cast< T * >( getPythonExtensionBase( ptr() ) );
         }
     };
 } // Namespace Py
