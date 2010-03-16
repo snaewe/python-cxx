@@ -95,12 +95,12 @@
 
 // need to support METH_STATIC and METH_CLASS
 
-#define PYCXX_ADD_NOARGS_METHOD( NAME, docs ) \
-    add_method( #NAME, (PyCFunction)PYCXX_NOARGS_METHOD_NAME( NAME ), METH_NOARGS, docs )
-#define PYCXX_ADD_VARARGS_METHOD( NAME, docs ) \
-    add_method( #NAME, (PyCFunction)PYCXX_VARARGS_METHOD_NAME( NAME ), METH_VARARGS, docs )
-#define PYCXX_ADD_KEYWORDS_METHOD( NAME, docs ) \
-    add_method( #NAME, (PyCFunction)PYCXX_KEYWORDS_METHOD_NAME( NAME ), METH_VARARGS | METH_KEYWORDS, docs )
+#define PYCXX_ADD_NOARGS_METHOD( PYNAME, NAME, docs ) \
+    add_method( #PYNAME, (PyCFunction)PYCXX_NOARGS_METHOD_NAME( NAME ), METH_NOARGS, docs )
+#define PYCXX_ADD_VARARGS_METHOD( PYNAME, NAME, docs ) \
+    add_method( #PYNAME, (PyCFunction)PYCXX_VARARGS_METHOD_NAME( NAME ), METH_VARARGS, docs )
+#define PYCXX_ADD_KEYWORDS_METHOD( PYNAME, NAME, docs ) \
+    add_method( #PYNAME, (PyCFunction)PYCXX_KEYWORDS_METHOD_NAME( NAME ), METH_VARARGS | METH_KEYWORDS, docs )
 
 namespace Py
 {

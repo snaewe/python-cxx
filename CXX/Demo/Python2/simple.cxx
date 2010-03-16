@@ -1,5 +1,5 @@
 //
-//  Copyright (c) 2008 Barry A. Scott
+//  Copyright (c) 2008-2010 Barry A. Scott
 //
 //
 //  simple_moduile.cxx
@@ -46,11 +46,11 @@ public:
         behaviors().supportGetattro();
         behaviors().supportSetattro();
 
-        PYCXX_ADD_NOARGS_METHOD( new_style_class_func_noargs, "docs for new_style_class_func_noargs" );
-        PYCXX_ADD_VARARGS_METHOD( new_style_class_func_varargs, "docs for new_style_class_func_varargs" );
-        PYCXX_ADD_KEYWORDS_METHOD( new_style_class_func_keyword, "docs for new_style_class_func_keyword" );
+        PYCXX_ADD_NOARGS_METHOD( func_noargs, new_style_class_func_noargs, "docs for new_style_class_func_noargs" );
+        PYCXX_ADD_VARARGS_METHOD( func_varargs, new_style_class_func_varargs, "docs for new_style_class_func_varargs" );
+        PYCXX_ADD_KEYWORDS_METHOD( func_keyword, new_style_class_func_keyword, "docs for new_style_class_func_keyword" );
 
-        PYCXX_ADD_NOARGS_METHOD( new_style_class_func_noargs_raise_exception, "docs for new_style_class_func_noargs_raise_exception" );
+        PYCXX_ADD_NOARGS_METHOD( func_noargs_raise_exception, new_style_class_func_noargs_raise_exception,  "docs for new_style_class_func_noargs_raise_exception" );
 
         // Call to make the type ready for use
         behaviors().readyType();
