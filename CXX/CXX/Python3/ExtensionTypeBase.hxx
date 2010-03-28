@@ -152,7 +152,7 @@ namespace Py
         Object callOnSelf( const std::string &fn_name,
                                 const Object &arg1, const Object &arg2, const Object &arg3,
                                 const Object &arg4, const Object &arg5, const Object &arg6,
-                                const Object &arg7, const Object &arg6, const Object &arg9 );
+                                const Object &arg7, const Object &arg8, const Object &arg9 );
 
     public:
         virtual PyObject *selfPtr() = 0;
