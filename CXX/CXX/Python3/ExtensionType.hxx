@@ -321,12 +321,12 @@ namespace Py
             return check( ob.ptr() );
         }
 
-        PyObject *selfPtr()
+        virtual PyObject *selfPtr()
         {
             return reinterpret_cast<PyObject *>( m_class_instance );
         }
 
-        Object self()
+        virtual Object self()
         {
             return Object( reinterpret_cast<PyObject *>( m_class_instance ) );
         }

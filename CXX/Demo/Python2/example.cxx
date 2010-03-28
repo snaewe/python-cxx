@@ -367,23 +367,23 @@ test_Tuple()
         e.clear();
     }
 
-    Py::Tuple0 t0;
-    Py::Tuple1 t1(  Py::Int( 1 ) );
-    Py::Tuple2 t2(  Py::Int( 1 ), Py::Int( 2 ) );
-    Py::Tuple3 t3(  Py::Int( 1 ), Py::Int( 2 ), Py::Int( 3 ) );
-    Py::Tuple4 t4(  Py::Int( 1 ), Py::Int( 2 ), Py::Int( 3 ),
+    Py::TupleN t0;
+    Py::TupleN t1(  Py::Int( 1 ) );
+    Py::TupleN t2(  Py::Int( 1 ), Py::Int( 2 ) );
+    Py::TupleN t3(  Py::Int( 1 ), Py::Int( 2 ), Py::Int( 3 ) );
+    Py::TupleN t4(  Py::Int( 1 ), Py::Int( 2 ), Py::Int( 3 ),
                     Py::Int( 4 ) );
-    Py::Tuple5 t5(  Py::Int( 1 ), Py::Int( 2 ), Py::Int( 3 ),
+    Py::TupleN t5(  Py::Int( 1 ), Py::Int( 2 ), Py::Int( 3 ),
                     Py::Int( 4 ), Py::Int( 5 ) );
-    Py::Tuple6 t6(  Py::Int( 1 ), Py::Int( 2 ), Py::Int( 3 ),
+    Py::TupleN t6(  Py::Int( 1 ), Py::Int( 2 ), Py::Int( 3 ),
                     Py::Int( 4 ), Py::Int( 5 ), Py::Int( 6 ) );
-    Py::Tuple7 t7(  Py::Int( 1 ), Py::Int( 2 ), Py::Int( 3 ),
+    Py::TupleN t7(  Py::Int( 1 ), Py::Int( 2 ), Py::Int( 3 ),
                     Py::Int( 4 ), Py::Int( 5 ), Py::Int( 6 ),
                     Py::Int( 7 ) );
-    Py::Tuple8 t8(  Py::Int( 1 ), Py::Int( 2 ), Py::Int( 3 ),
+    Py::TupleN t8(  Py::Int( 1 ), Py::Int( 2 ), Py::Int( 3 ),
                     Py::Int( 4 ), Py::Int( 5 ), Py::Int( 6 ),
                     Py::Int( 7 ), Py::Int( 8 ) );
-    Py::Tuple9 t9(  Py::Int( 1 ), Py::Int( 2 ), Py::Int( 3 ),
+    Py::TupleN t9(  Py::Int( 1 ), Py::Int( 2 ), Py::Int( 3 ),
                     Py::Int( 4 ), Py::Int( 5 ), Py::Int( 6 ),
                     Py::Int( 7 ), Py::Int( 8 ), Py::Int( 9 ) );
     return "ok";

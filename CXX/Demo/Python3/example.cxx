@@ -501,35 +501,35 @@ void test_Tuple()
     Py::List list1( tuple1 );
     test_assert( "tuple construct from list", list1.size(), tuple1.size() );
 
-    Py::Tuple0 t0;
-    test_assert( "Tuple0 construction", 0, t0.size() );
-    Py::Tuple1 t1(  Py::Int( 1 ) );
-    test_assert( "Tuple1 construction", 1, t1.size() );
-    Py::Tuple2 t2(  Py::Int( 1 ), Py::Int( 2 ) );
-    test_assert( "Tuple2 construction", 2, t2.size() );
-    Py::Tuple3 t3(  Py::Int( 1 ), Py::Int( 2 ), Py::Int( 3 ) );
-    test_assert( "Tuple3 construction", 3, t3.size() );
-    Py::Tuple4 t4(  Py::Int( 1 ), Py::Int( 2 ), Py::Int( 3 ),
-                    Py::Int( 4 ) );
-    test_assert( "Tuple4 construction", 4, t4.size() );
-    Py::Tuple5 t5(  Py::Int( 1 ), Py::Int( 2 ), Py::Int( 3 ),
-                    Py::Int( 4 ), Py::Int( 5 ) );
-    test_assert( "Tuple5 construction", 5, t5.size() );
-    Py::Tuple6 t6(  Py::Int( 1 ), Py::Int( 2 ), Py::Int( 3 ),
-                    Py::Int( 4 ), Py::Int( 5 ), Py::Int( 6 ) );
-    test_assert( "Tuple6 construction", 6, t6.size() );
-    Py::Tuple7 t7(  Py::Int( 1 ), Py::Int( 2 ), Py::Int( 3 ),
-                    Py::Int( 4 ), Py::Int( 5 ), Py::Int( 6 ),
-                    Py::Int( 7 ) );
-    test_assert( "Tuple7 construction", 7, t7.size() );
-    Py::Tuple8 t8(  Py::Int( 1 ), Py::Int( 2 ), Py::Int( 3 ),
-                    Py::Int( 4 ), Py::Int( 5 ), Py::Int( 6 ),
-                    Py::Int( 7 ), Py::Int( 8 ) );
-    test_assert( "Tuple8 construction", 8, t8.size() );
-    Py::Tuple9 t9(  Py::Int( 1 ), Py::Int( 2 ), Py::Int( 3 ),
-                    Py::Int( 4 ), Py::Int( 5 ), Py::Int( 6 ),
-                    Py::Int( 7 ), Py::Int( 8 ), Py::Int( 9 ) );
-    test_assert( "Tuple9 construction", 9, t9.size() );
+    Py::TupleN t0;
+    test_assert( "TupleN construction", 0, t0.size() );
+    Py::TupleN t1(  Py::Long( 1 ) );
+    test_assert( "TupleN construction", 1, t1.size() );
+    Py::TupleN t2(  Py::Long( 1 ), Py::Long( 2 ) );
+    test_assert( "TupleN construction", 2, t2.size() );
+    Py::TupleN t3(  Py::Long( 1 ), Py::Long( 2 ), Py::Long( 3 ) );
+    test_assert( "TupleN construction", 3, t3.size() );
+    Py::TupleN t4(  Py::Long( 1 ), Py::Long( 2 ), Py::Long( 3 ),
+                    Py::Long( 4 ) );
+    test_assert( "TupleN construction", 4, t4.size() );
+    Py::TupleN t5(  Py::Long( 1 ), Py::Long( 2 ), Py::Long( 3 ),
+                    Py::Long( 4 ), Py::Long( 5 ) );
+    test_assert( "TupleN construction", 5, t5.size() );
+    Py::TupleN t6(  Py::Long( 1 ), Py::Long( 2 ), Py::Long( 3 ),
+                    Py::Long( 4 ), Py::Long( 5 ), Py::Long( 6 ) );
+    test_assert( "TupleN construction", 6, t6.size() );
+    Py::TupleN t7(  Py::Long( 1 ), Py::Long( 2 ), Py::Long( 3 ),
+                    Py::Long( 4 ), Py::Long( 5 ), Py::Long( 6 ),
+                    Py::Long( 7 ) );
+    test_assert( "TupleN construction", 7, t7.size() );
+    Py::TupleN t8(  Py::Long( 1 ), Py::Long( 2 ), Py::Long( 3 ),
+                    Py::Long( 4 ), Py::Long( 5 ), Py::Long( 6 ),
+                    Py::Long( 7 ), Py::Long( 8 ) );
+    test_assert( "TupleN construction", 8, t8.size() );
+    Py::TupleN t9(  Py::Long( 1 ), Py::Long( 2 ), Py::Long( 3 ),
+                    Py::Long( 4 ), Py::Long( 5 ), Py::Long( 6 ),
+                    Py::Long( 7 ), Py::Long( 8 ), Py::Long( 9 ) );
+    test_assert( "TupleN construction", 9, t9.size() );
 }
 
 void test_Dict()

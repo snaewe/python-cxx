@@ -216,19 +216,21 @@ private:
             std::cout << "    " << name << std::endl;
         }
 
-#ifdef PYCXX_DEBUG
         if( args.length() > 0 )
         {
             Py::Object x( args[0] );
-            PyObject *x_p = x.ptr();
-            std::cout << "func( self=0x" << std::hex << reinterpret_cast< unsigned int >( x_p ) << std::dec << " )" << std::endl;
-            Py::PythonClassInstance *instance_wrapper = reinterpret_cast< Py::PythonClassInstance * >( x_p );
-            new_style_class *instance = static_cast<new_style_class *>( instance_wrapper->cxx_object );
-            std::cout << "    self->cxx_object=0x" << std::hex << reinterpret_cast< unsigned int >( instance ) << std::dec << std::endl;
+            try
+            {
+                Py::PythonClassObject<new_style_class> x2( x );
+                std::cout << "C++ pointer " << x2.getCxxObject() << std::endl;
+            }
+            catch( Py::TypeError &e )
+            {
+                // must clear the error
+                e.clear();
+                std::cout << "arg 1 is not a new_style_class" << std::endl;
+            }
         }
-
-        bpt();
-#endif
 
         return Py::None();
     }

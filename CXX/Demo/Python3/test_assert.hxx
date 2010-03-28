@@ -64,6 +64,11 @@ static void test_assert( const char *description, size_t benchmark, size_t value
     test_assert_scaler( description, "size_t", benchmark, value );
 }
 
+static void test_assert( const char *description, int benchmark, size_t value )
+{
+    test_assert_scaler( description, "size_t", size_t( benchmark ), value );
+}
+
 static void test_assert( const char *description, double benchmark, double value )
 {
     test_assert_scaler( description, "float", benchmark, value );

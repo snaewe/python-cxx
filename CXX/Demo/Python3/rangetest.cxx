@@ -60,6 +60,7 @@ void test_extension_object()
 
     // calling an extension object method using getattr
     Py::Callable w( r2.getAttr( "amethod" ) );
+    {
     Py::Tuple args( 1 );
     Py::Long j( 3 );
     args[0] = j;
@@ -67,7 +68,9 @@ void test_extension_object()
 
     test_assert( "extension object amethod 1 q1", answer[0], r2 );
     test_assert( "extension object amethod 1q2", answer[1], args[0] );
+    }
 
+    {
     // calling an extension object method using callMemberFunction
     Py::Tuple args( 1 );
     Py::Long j( 3 );
@@ -76,6 +79,7 @@ void test_extension_object()
 
     test_assert( "extension object amethod 2 q1", answer[0], r2 );
     test_assert( "extension object amethod 2 q2", answer[1], args[0] );
+    }
 
     Py::Tuple nv( 3 );
     nv[0] = Py::Long( 1 );
