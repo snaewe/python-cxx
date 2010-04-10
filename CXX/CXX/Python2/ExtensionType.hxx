@@ -152,7 +152,7 @@ namespace Py
                 {
                     new_mt[ i ] = old_mt[ i ];
                 }
-                delete old_mt;
+                delete[] old_mt;
                 m_methods_table = new_mt;
             }
 
@@ -263,7 +263,7 @@ namespace Py
                 PythonClassInstance *self = reinterpret_cast<PythonClassInstance *>( _self );
 #ifdef PYCXX_DEBUG
                 std::cout << "extension_object_init( self=0x" << std::hex << reinterpret_cast< unsigned int >( self ) << std::dec << " )" << std::endl;
-                std::cout << "    self->cxx_object=0x" << std::hex << reinterpret_cast< unsigned int >( self->cxx_object ) << std::dec << std::endl;
+                std::cout << "    self->m_pycxx_object=0x" << std::hex << reinterpret_cast< unsigned int >( self->m_pycxx_object ) << std::dec << std::endl;
 #endif
 
                 if( self->m_pycxx_object == NULL )
@@ -293,9 +293,10 @@ namespace Py
             PythonClassInstance *self = reinterpret_cast< PythonClassInstance * >( _self );
 #ifdef PYCXX_DEBUG
             std::cout << "extension_object_deallocator( self=0x" << std::hex << reinterpret_cast< unsigned int >( self ) << std::dec << " )" << std::endl;
-            std::cout << "    self->cxx_object=0x" << std::hex << reinterpret_cast< unsigned int >( self->cxx_object ) << std::dec << std::endl;
+            std::cout << "    self->m_pycxx_object=0x" << std::hex << reinterpret_cast< unsigned int >( self->m_pycxx_object ) << std::dec << std::endl;
 #endif
             delete self->m_pycxx_object;
+            self->ob_type->tp_free( _self );
         }
 
     public:
