@@ -1,9 +1,10 @@
 #
 #	BUild the example on Linux for version 2.6
 #
-CCC=g++ -c
-CCCFLAGS=-fPIC -I/usr/include/python2.6 -I.
-LDSHARED=g++ -shared
+PREFIX=/usr
+CCC=g++ -g -c
+CCCFLAGS=-fPIC -I$(PREFIX)/include/python2.6 -I.
+LDSHARED=g++ -g -shared
 LDLIBS=
 PYTHON=python2.6
 
