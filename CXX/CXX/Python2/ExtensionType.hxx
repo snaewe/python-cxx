@@ -296,7 +296,7 @@ namespace Py
             std::cout << "    self->m_pycxx_object=0x" << std::hex << reinterpret_cast< unsigned int >( self->m_pycxx_object ) << std::dec << std::endl;
 #endif
             delete self->m_pycxx_object;
-            self->ob_type->tp_free( _self );
+            _self->ob_type->tp_free( _self );
         }
 
     public:
