@@ -418,8 +418,10 @@ class LinuxCompilerGCC(CompilerGCC):
 
         self._addVar( 'OBJ_DIR',       'obj' )
 
-        self._addFromEnv( 'PYTHON_VERSION' )
-        self._addVar( 'PYTHON_INCLUDE', '/usr/include/python%(PYTHON_VERSION)s' )
+        self._addVar( 'DEMO_DIR',       'Demo/Python%d' % (sys.version_info[0],) )
+
+        self._addVar( 'PYTHON_VERSION', '%d.%d' % (sys.version_info[0], sys.version_info[1]) )
+        self._addVar( 'PYTHON_INCLUDE', '%s/include/python%%(PYTHON_VERSION)s' % (sys.exec_prefix,) )
         self._addVar( 'CCCFLAGS',
                                         '-g '
                                         '-Wall -fPIC -fexceptions -frtti '
