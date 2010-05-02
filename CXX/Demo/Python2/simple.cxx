@@ -242,10 +242,16 @@ private:
     }
 };
 
+#if defined( _WIN32 )
+#define EXPORT_SYMBOL __declspec( dllexport )
+#else
+#define EXPORT_SYMBOL
+#endif
+
 #if defined( PY3 )
 static simple_module *simple;
 
-extern "C" PyObject *PyInit_simple()
+extern "C" EXPORT_SYMBOL PyObject *PyInit_simple()
 {
 #if defined(PY_WIN32_DELAYLOAD_PYTHON_DLL)
     Py::InitialisePythonIndirectPy::Interface();
@@ -256,7 +262,7 @@ extern "C" PyObject *PyInit_simple()
 }
 
 // symbol required for the debug version
-extern "C" PyObject *PyInit_simple_d()
+extern "C" EXPORT_SYMBOL PyObject *PyInit_simple_d()
 { 
     return PyInit_simple();
 }
@@ -265,7 +271,7 @@ extern "C" PyObject *PyInit_simple_d()
 
 static simple_module *simple;
 
-extern "C" void initsimple()
+extern "C" EXPORT_SYMBOL void initsimple()
 {
 #if defined(PY_WIN32_DELAYLOAD_PYTHON_DLL)
     Py::InitialisePythonIndirectPy::Interface();
@@ -275,7 +281,7 @@ extern "C" void initsimple()
 }
 
 // symbol required for the debug version
-extern "C" void initsimple_d()
+extern "C" EXPORT_SYMBOL void initsimple_d()
 { 
     initsimple();
 }

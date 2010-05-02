@@ -108,6 +108,8 @@ class Setup:
             for test in self.all_test:
                 test.generateMakefile()
 
+            self.__makefile.close()
+
             return 0
 
         except ValueError:
@@ -173,10 +175,11 @@ class Win32CompilerMSVC90(Compiler):
     def __init__( self, setup ):
         Compiler.__init__( self, setup )
 
-        self._addVar( 'PYTHONDIR',      r'c:\python26' )
+        self._addVar( 'PYTHONDIR',      sys.exec_prefix )
+        self._addVar( 'PYTHON_LIBNAME', 'python%d%d' % (sys.version_info[0], sys.version_info[1]) )
         self._addVar( 'PYTHON_INCLUDE', r'%(PYTHONDIR)s\include' )
         self._addVar( 'PYTHON_LIB',     r'%(PYTHONDIR)s\libs' )
-        self._addVar( 'PYTHON',         r'%(PYTHONDIR)s\python.exe' )
+        self._addVar( 'PYTHON',         sys.executable )
 
     def platformFilename( self, filename ):
         return filename.replace( '/', '\\' )
@@ -225,7 +228,7 @@ class Win32CompilerMSVC90(Compiler):
         rules.append( '' )
         rules.append( '%s : %s' % (pyd_filename, ' '.join( all_objects )) )
         rules.append( '\t@echo Link %s' % (pyd_filename,) )
-        rules.append( '\t$(LDSHARED)  %%(CCCFLAGS)s /Fe%s /Fd%s %s %%(PYTHON_LIB)s\python26.lib Advapi32.lib' %
+        rules.append( '\t$(LDSHARED)  %%(CCCFLAGS)s /Fe%s /Fd%s %s %%(PYTHON_LIB)s\%%(PYTHON_LIBNAME)s.lib' %
                             (pyd_filename, pdf_filename, ' '.join( all_objects )) )
 
         self.makePrint( self.expand( '\n'.join( rules ) ) )
@@ -256,8 +259,7 @@ class Win32CompilerMSVC90(Compiler):
     def setupPythonExtension( self ):
         self._addVar( 'PYTHON',         sys.executable )
 
-        self._addVar( 'EDIT_OBJ',       r'obj' )
-        self._addVar( 'EDIT_EXE',       r'exe' )
+        self._addVar( 'OBJ_DIR',        'obj' )
 
         self._addVar( 'PYTHON_VERSION', '%d.%d' % (sys.version_info[0], sys.version_info[1]) )
 
@@ -270,6 +272,14 @@ class Win32CompilerMSVC90(Compiler):
                                         r'-U_DEBUG '
                                         r'-D%(DEBUG)s' )
 
+    def ruleTest( self, python_test ):
+        rules = []
+        rules.append( 'test:: %s %s' % (python_test.getTargetFilename(), python_test.python_extension.getTargetFilename()) )
+        rules.append( '\tset PYTHONPATH=obj' )
+        rules.append( '\t%%(PYTHON)s %s' % (python_test.getTargetFilename(),) )
+        rules.append( '' )
+
+        self.makePrint( self.expand( '\n'.join( rules ) ) )
 
 class CompilerGCC(Compiler):
     def __init__( self, setup ):
@@ -376,8 +386,7 @@ class MacOsxCompilerGCC(CompilerGCC):
     def setupPythonExtension( self ):
         self._addVar( 'PYTHON',         sys.executable )
 
-        self._addVar( 'EDIT_OBJ',       'obj' )
-        self._addVar( 'EDIT_EXE',       'exe' )
+        self._addVar( 'OBJ_DIR',       'obj' )
 
         self._addVar( 'PYTHON_VERSION', '%d.%d' % (sys.version_info[0], sys.version_info[1]) )
 
@@ -407,8 +416,7 @@ class LinuxCompilerGCC(CompilerGCC):
     def setupPythonExtension( self ):
         self._addVar( 'PYTHON',         sys.executable )
 
-        self._addVar( 'EDIT_OBJ',       'obj' )
-        self._addVar( 'EDIT_EXE',       'exe' )
+        self._addVar( 'OBJ_DIR',       'obj' )
 
         self._addFromEnv( 'PYTHON_VERSION' )
         self._addVar( 'PYTHON_INCLUDE', '/usr/include/python%(PYTHON_VERSION)s' )
@@ -491,7 +499,7 @@ class PythonExtension(Target):
     def getTargetFilename( self, ext=None ):
         if ext is None:
             ext = self.compiler.getPythonExtensionFileExt()
-        return self.compiler.platformFilename( self.compiler.expand( '%%(EDIT_OBJ)s/%s%s' % (self.output, ext) ) )
+        return self.compiler.platformFilename( self.compiler.expand( '%%(OBJ_DIR)s/%s%s' % (self.output, ext) ) )
 
     def _generateMakefile( self ):
         debug( 'PythonExtension:0x%8.8x.generateMakefile() for %r' % (id(self), self.output,) )
@@ -523,13 +531,13 @@ class Source(Target):
 
         basename = os.path.basename( self.src_filename )
         if basename.endswith( '.cpp' ):
-            return self.compiler.platformFilename( self.compiler.expand( r'%%(EDIT_OBJ)s/%s.obj' % (basename[:-len('.cpp')],) ) )
+            return self.compiler.platformFilename( self.compiler.expand( r'%%(OBJ_DIR)s/%s.obj' % (basename[:-len('.cpp')],) ) )
 
         if basename.endswith( '.cxx' ):
-            return self.compiler.platformFilename( self.compiler.expand( r'%%(EDIT_OBJ)s/%s.obj' % (basename[:-len('.cxx')],) ) )
+            return self.compiler.platformFilename( self.compiler.expand( r'%%(OBJ_DIR)s/%s.obj' % (basename[:-len('.cxx')],) ) )
 
         if basename.endswith( '.c' ):
-            return self.compiler.platformFilename( self.compiler.expand( r'%%(EDIT_OBJ)s/%s.obj' % (basename[:-len('.c')],) ) )
+            return self.compiler.platformFilename( self.compiler.expand( r'%%(OBJ_DIR)s/%s.obj' % (basename[:-len('.c')],) ) )
 
         raise ValueError( 'unknown source %r' % (self.src_filename,) )
 

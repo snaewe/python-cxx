@@ -36,7 +36,13 @@ private:
     }
 };
 
-extern "C" void initpycxx_iter()
+#if defined( _WIN32 )
+#define EXPORT_SYMBOL __declspec( dllexport )
+#else
+#define EXPORT_SYMBOL
+#endif
+
+extern "C" EXPORT_SYMBOL void initpycxx_iter()
 {
     // the following constructor call registers our extension module
     // with the Python runtime system

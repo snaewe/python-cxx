@@ -655,7 +655,13 @@ private:
     }
 };
 
-extern "C" void initexample()
+#if defined( _WIN32 )
+#define EXPORT_SYMBOL __declspec( dllexport )
+#else
+#define EXPORT_SYMBOL
+#endif
+
+extern "C" EXPORT_SYMBOL void initexample()
 {
 #if defined(PY_WIN32_DELAYLOAD_PYTHON_DLL)
     Py::InitialisePythonIndirectPy::Interface();
@@ -665,5 +671,5 @@ extern "C" void initexample()
 }
 
 // symbol required for the debug version
-extern "C" void initexample_d()
+extern "C" EXPORT_SYMBOL void initexample_d()
 { initexample(); }

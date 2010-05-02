@@ -241,7 +241,13 @@ private:
     }
 };
 
-extern "C" PyObject *PyInit_simple()
+#if defined( _WIN32 )
+#define EXPORT_SYMBOL __declspec( dllexport )
+#else
+#define EXPORT_SYMBOL
+#endif
+
+extern "C" EXPORT_SYMBOL PyObject *PyInit_simple()
 {
 #if defined(PY_WIN32_DELAYLOAD_PYTHON_DLL)
     Py::InitialisePythonIndirectPy::Interface();
@@ -251,8 +257,14 @@ extern "C" PyObject *PyInit_simple()
     return simple->module().ptr();
 }
 
+#if defined( _WIN32 )
+#define EXPORT_SYMBOL __declspec( dllexport )
+#else
+#define EXPORT_SYMBOL
+#endif
+
 // symbol required for the debug version
-extern "C" PyObject *PyInit_simple_d()
+extern "C" EXPORT_SYMBOL PyObject *PyInit_simple_d()
 { 
     return PyInit_simple();
 }

@@ -104,6 +104,8 @@
 
 namespace Py
 {
+    extern PythonExtensionBase *getPythonExtensionBase( PyObject *self );
+
     struct PythonClassInstance
     {
         PyObject_HEAD
@@ -392,7 +394,6 @@ namespace Py
         //
         T *getCxxObject( void )
         {
-            extern PythonExtensionBase *getPythonExtensionBase( PyObject *self );
             return dynamic_cast< T * >( getPythonExtensionBase( ptr() ) );
         }
     };
