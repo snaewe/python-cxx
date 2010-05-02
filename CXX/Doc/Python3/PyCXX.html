@@ -1453,10 +1453,10 @@ made, but not thereafter.</p>
 
 <p>Example: create a Tuple containing( 1, 2, 4 )</p>
 
-<pre>Tuple t( 3 )
-t[0] = Long( 1 )
-t[1] = Long( 2 )
-t[2] = Long( 4 )</pre>
+<pre>Tuple t( 3 );
+t[0] = Long( 1 );
+t[1] = Long( 2 );
+t[2] = Long( 4 );</pre>
 
 <p>Example: create a Tuple from a list:</p>
 
@@ -1514,6 +1514,88 @@ tuple.</td>
 <td class="code">Tuple</td>
 <td class="code">getSlice( int i, int j ) const </td>
 <td>Equivalent to python's t[i:j]</td>
+</tr>
+</table>
+
+<h2><a name="h2_class_tuplen">Class TupleN</a></h2>
+
+<p>Class TupleN is an easy way to make a Tuple of N items.</p>
+
+<p>Example: create a Tuple containing( 1, 2, 4 )</p>
+
+<pre>TupleN t3( Long( 1 ), Long( 2 ), Long( 3 ) );
+</pre>
+
+<p>Example: create a Tuple containing( "Hello", "World" )</p>
+
+<pre>TupleN t2( String( "Hello" ), String( "Hello" ) );
+</pre>
+
+<table cellspacing="0" cellpadding="3px">
+<caption>class TupleN</caption>
+<tr>
+<th>Type</th>
+<th>Name</th>
+<th>Comment</th>
+</tr>
+<tr>
+<td class="code">&#160;</td>
+<td class="code">TupleN() </td>
+<td>Tuple of 0 elements</td>
+</tr>
+<tr>
+<td class="code">&#160;</td>
+<td class="code">TupleN( const Object &amp;ob1 ) </td>
+<td>Tuple of 1 element</td>
+</tr>
+<tr>
+<td class="code">&#160;</td>
+<td class="code">TupleN( const Object &amp;ob1, const Object &amp;ob2 ) </td>
+<td>Tuple of 2 elements</td>
+</tr>
+<tr>
+<td class="code">&#160;</td>
+<td class="code">TupleN( const Object &amp;ob1, const Object &amp;ob2, const Object &amp;ob3 ) </td>
+<td>Tuple of 3 elements</td>
+</tr>
+<tr>
+<td class="code">&#160;</td>
+<td class="code">TupleN( const Object &amp;ob1, const Object &amp;ob2, const Object &amp;ob3,<br />
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;const Object &amp;ob4 ) </td>
+<td>Tuple of 4 elements</td>
+</tr>
+<tr>
+<td class="code">&#160;</td>
+<td class="code">TupleN( const Object &amp;ob1, const Object &amp;ob2, const Object &amp;ob3,<br />
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;const Object &amp;ob4, const Object &amp;ob5 ) </td>
+<td>Tuple of 5 elements</td>
+</tr>
+<tr>
+<td class="code">&#160;</td>
+<td class="code">TupleN( const Object &amp;ob1, const Object &amp;ob2, const Object &amp;ob3,<br />
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;const Object &amp;ob4, const Object &amp;ob5, const Object &amp;ob6 ) </td>
+<td>Tuple of 6 elements</td>
+</tr>
+<tr>
+<td class="code">&#160;</td>
+<td class="code">TupleN( const Object &amp;ob1, const Object &amp;ob2, const Object &amp;ob3,<br />
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;const Object &amp;ob4, const Object &amp;ob5, const Object &amp;ob6,<br />
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;const Object &amp;ob7 ) </td>
+<td>Tuple of 7 elements</td>
+</tr>
+<tr>
+<td class="code">&#160;</td>
+<td class="code">TupleN( const Object &amp;ob1, const Object &amp;ob2, const Object &amp;ob3,<br />
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;const Object &amp;ob4, const Object &amp;ob5, const Object &amp;ob6,<br />
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;const Object &amp;ob7, const Object &amp;ob8 ) </td>
+<td>Tuple of 8 elements</td>
+</tr>
+<tr>
+<td class="code">&#160;</td>
+<td class="code">TupleN( const Object &amp;ob1, const Object &amp;ob2, const Object &amp;ob3,<br />
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;const Object &amp;ob4, const Object &amp;ob5, const Object &amp;ob6,<br />
+&#160;&#160;&#160;&#160;&#160;&#160;&#160;&#160;const Object &amp;ob7, const Object &amp;ob8, const Object &amp;ob9 ) </td>
+<td>Tuple of 9 elements</td>
 </tr>
 </table>
 

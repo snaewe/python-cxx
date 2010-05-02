@@ -32,34 +32,24 @@ p.param {background-color: #eeeeee; border-top: lightskyblue solid 4}
 
 <h3>Windows Installation and Demo</h3>
 <ol>
-<li>Fetch <a href="http://prdownloads.sourceforge.net/cxx/pycxx-6.1.1.tar.gz">
-http://prdownloads.sourceforge.net/cxx/pycxx-6.1.1.tar.gz</a></li>
-<li>Expand the archive into a directory of your choosing C:\ for example.
-Note: WinZip can expand .tar.gz files.</li>
-<li>Install the PyCXX files:
-<ol>
-<li><pre>C:> cd \pycxx-6.1.1</pre></li>
-<li><pre>C:\pycxx-6.1.1> python setup.py install</pre></li>
-</ol>
-</li>
-<li>Install the PyCXX Demo:
-<ol>
-<li><pre>C:> cd \pycxx-6.1.1\Demo</pre></li>
-<li><pre>C:\pycxx-6.1.1\Demo> python setup.py install</pre></li>
-</ol>
-</li>
-<li>Run the demo:
-<ol>
-<li><pre>C:> python</pre></li>
-<li><pre>&gt;&gt;&gt; import CXX.example</pre></li>
-<li><pre>&gt;&gt;&gt; CXX.example.test()</pre></li>
-<li><pre>&gt;&gt;&gt; r = CXX.example.range( 11, 100, 13 )</pre></li>
-<li><pre>&gt;&gt;&gt; for i in r: print i</pre></li>
-<li><pre>...</pre></li>
-</ol>
-</li>
-</ul>
-</li>
+    <li>Fetch <a href="http://prdownloads.sourceforge.net/cxx/pycxx-6.2.0.tar.gz">
+    http://prdownloads.sourceforge.net/cxx/pycxx-6.2.0.tar.gz</a></li>
+    <li>Expand the archive into a directory of your choosing C:\ for example.
+    Note: WinZip can expand .tar.gz files.</li>
+
+    <li>Install the PyCXX files:
+        <ol>
+        <li><pre>C:> cd \pycxx-6.2.0</pre></li>
+        <li><pre>C:\pycxx-6.2.0> python setup.py install</pre></li>
+        </ol>
+    </li>
+    <li>Build and run the demo extensions:
+        <ol>
+        <li><pre>C:> cd \pycxx-6.2.0</pre></li>
+        <li><pre>C:\pycxx-6.2.0> python setup_makefile.py win32 win32.mak </pre></li>
+        <li><pre>C:\pycxx-6.2.0> nmake -f win32.mak clean test</pre></li>
+        </ol>
+    </li>
 </ol>
 
 
@@ -67,88 +57,31 @@ Note: WinZip can expand .tar.gz files.</li>
 <p>Note: distutils is not available for Python 1.5.2</p>
 
 <ol>
-<li>Fetch <a href="http://prdownloads.sourceforge.net/cxx/pycxx-6.1.1.tar.gz">
-http://prdownloads.sourceforge.net/cxx/pycxx-6.1.1.tar.gz</a>
-<li>Login as root. root access is typically needed on Unix systems to install the PyCXX files into the Python directories.
-<li>Expand the archive into a directory of your choosing ~\ for example.
-<li>Install the PyCXX files:
-<ol>
-<li><pre># cd ~\pycxx-6.1.1</pre>
-<li><pre># python setup.py install</pre>
+    <li>Fetch <a href="http://prdownloads.sourceforge.net/cxx/pycxx-6.2.0.tar.gz">
+    http://prdownloads.sourceforge.net/cxx/pycxx-6.2.0.tar.gz</a>
+    <li>Login as root. root access is typically needed on Unix systems to install the PyCXX files into the Python directories.
+    <li>Expand the archive into a directory of your choosing ~\ for example.
+    <li>Install the PyCXX files:
+        <ol>
+        <li><pre># cd ~\pycxx-6.2.0</pre>
+        <li><pre># python setup.py install</pre>
+        </ol>
+    <li>Build and run the demo extensions:
+        <ol>
+        <li><pre># cd ~\pycxx-6.2.0\Demo\Python2</pre></li>
+        <li><pre># python setup_makefile.py linux linux.mak</pre></li>
+        <li><pre># make -f linux.mak clean test</pre></li>
+        </ol>
+    </li>
 </ol>
-<li>Install the PyCXX Demo for Python2:
-<ol>
-<li><pre># cd ~\pycxx-6.1.1\Demo\Python2</pre>
-<li><pre># python setup.py install</pre>
-</ol>
-<li>Install the PyCXX Demo for Python3:
-<ol>
-<li><pre># cd ~\pycxx-6.1.1\Demo\Python3</pre>
-<li><pre># python setup.py install</pre>
-</ol>
-<li>Run the demos:
-<ol>
-<li><pre>$ python</pre>
-<li><pre>&gt;&gt;&gt; import CXX.example</pre>
-<li><pre>&gt;&gt;&gt; CXX.example.test()</pre>
-<li><pre>&gt;&gt;&gt; r = CXX.example.range( 11, 100, 13 )</pre>
-<li><pre>&gt;&gt;&gt; for i in r: print i</pre>
-<li><pre>...</pre>
-</ol>
-</ul>
-</ol>
-
-<h2>Installation using Project and Makefile</h2>
-
-<p>If you cannot or do not wish to use the distutils methods to work with PyCXX a set
-of Makefiles and Project files are provided.</p>
-
-<h3>Windows Installation and Demo</h3>
-<p>
-<ol>
-<li>Fetch <a href="http://prdownloads.sourceforge.net/cxx/pycxx-6.1.1.tar.gz">
-http://prdownloads.sourceforge.net/cxx/pycxx-6.1.1.tar.gz</a>
-<li>Expand the archive into a directory of your choosing C:\ for example. WinZip can expand .tar.gz files.
-<li>Build the example. Using Microsoft Visual C++ 2008 for python version 3.0 or later load the workspace
-corresponsing to the version of Python you wish the work with.
-<ul>
-<li>example_py30.sln - Python 3.0 and its maintanence release
-</ul>
-<li>Run the example. (I'll assume you are testing Python 3.0)
-<ul>
-<li>cd c:\pycxx-6.1.1\pyds30
-<li>c:\python30\python -c "import example;example.test()"
-</ul>
-</ol>
-</p>
-<h3>Unix and Mac OS X Installation and Demo</h3>
-<p>
-<ol>
-<li>Fetch <a href="http://prdownloads.sourceforge.net/cxx/pycxx-6.1.1.tar.gz">
-http://prdownloads.sourceforge.net/cxx/pycxx-6.1.1.tar.gz</a>
-<li>Expand the archive into a directory of your choosing ~/ for example.
-<li>Select to makefile for your system and python version.
-<ul>
-<li>example_linux_py30.mak - Linux Python 3.0
-<li>example_mac_py30.mak - Mac OS X Python 2.5
-</ul>
-<li>Build the example. Use GNU make<br>
-$ make -f <var>example-makefile</var> example.so
-<li>Run the examples.<br>
-$ make -f <var>example-makefile</var> test
-</ol>
-</p>
-
-<p>To create a makefile for another vendors Unix follow these steps:</p>
-<ol>
-<li>copy one of the example make files above.
-<li>edit the variables to match your Python installation and C++ compile needs
-<li>Proceed to build and test as above.
-</ol>
-<p>Note: most of the makefile rules to build PyCXX and its example are contained in example_python3_common.mak.
-</p>
 
 <h2>Revision History</h2>
+
+<h3>Version 6.2.0 (3-May-2010)</h3>
+<p>Fix problems with new style classes</p>
+<p>Replace all example makefile and project files with setup_makefile.py script.</p>
+<p>Add APIs to make calling python functions easier. See TupleN, qqq</p>
+
 
 <h3>Version 6.1.1 (26-Sep-2009)</h3>
 <p>Supports Python 3 starting at Python 3.1 and Python 2</p>
