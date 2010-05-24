@@ -2012,12 +2012,6 @@ namespace Py
             validate();
         }
 
-        Bytes( const std::string& v, std::string::size_type vsize )
-        : SeqBase<Char>(PyString_FromStringAndSize( const_cast<char*>(v.data()), static_cast<int>( vsize ) ), true)
-        {
-            validate();
-        }
-
         Bytes( const char *v, int vsize )
         : SeqBase<Char>(PyString_FromStringAndSize( const_cast<char*>(v), vsize ), true )
         {
@@ -2159,13 +2153,6 @@ namespace Py
 
         String( const std::string &s, const char *encoding, const char *error="strict" )
             : SeqBase<Char>( PyUnicode_Decode( s.c_str(), s.length(), encoding, error ), true )
-        {
-            validate();
-        }
-
-        String( const std::string& v, std::string::size_type vsize )
-            : SeqBase<Char>(PyString_FromStringAndSize( const_cast<char*>(v.data()),
-                    static_cast<int>( vsize ) ), true)
         {
             validate();
         }
