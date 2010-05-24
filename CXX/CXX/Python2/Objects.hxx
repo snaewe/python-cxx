@@ -1889,13 +1889,6 @@ namespace Py
             validate();
         }
 
-        String( const std::string &v, std::string::size_type vsize )
-        : SeqBase<Char>(PyString_FromStringAndSize( const_cast<char*>(v.data()),
-                    static_cast<int>( vsize ) ), true)
-        {
-            validate();
-        }
-
         String( const char *v, int vsize )
         : SeqBase<Char>(PyString_FromStringAndSize( const_cast<char*>(v), vsize ), true )
         {
