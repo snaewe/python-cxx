@@ -163,13 +163,13 @@ namespace Py
         }
     };
     
-    class NotImlementedError: public StandardError
+    class NotImplementedError: public StandardError
     {
     public:
-        NotImlementedError (const std::string& reason)
+        NotImplementedError (const std::string& reason)
             : StandardError()
         {
-            PyErr_SetString (Py::_Exc_NotImlementedError(), reason.c_str());
+            PyErr_SetString (Py::_Exc_NotImplementedError(), reason.c_str());
         }
     };
     
