@@ -15,7 +15,7 @@ How to release PyCXX
     6. Right Click On CXX folder Choose Uploads Here
     7. Upload the source kit and its PyCXX-Release-Notes.txt
     8. Click on PyCXX-Release-Notes.txt and check Release Note and Save
-    9. Click on source kit and choose Select All playforms and Choose the Release Notes for this file
+    9. Click on source kit and choose Select All platforms and Choose the Release Notes for this file
 4.  Add news about release
     1. Click Develop
     2. From Develop Menu choose News
