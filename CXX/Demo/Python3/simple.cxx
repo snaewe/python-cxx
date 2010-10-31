@@ -192,6 +192,7 @@ public:
 
         add_varargs_method("old_style_class", &simple_module::factory_old_style_class, "documentation for old_style_class()");
         add_keyword_method("func", &simple_module::func, "documentation for func()");
+        add_keyword_method("make_instance", &simple_module::make_instance, "documentation for make_instance()");
 
         // after initialize the moduleDictionary will exist
         initialize( "documentation for the simple module" );
@@ -232,6 +233,24 @@ private:
 #endif
 
         return Py::None();
+    }
+
+    Py::Object make_instance( const Py::Tuple &args, const Py::Dict &kwds )
+    {
+        std::cout << "make_instance Called with " << args.length() << " normal arguments." << std::endl;
+        Py::List names( kwds.keys() );
+        std::cout << "and with " << names.length() << " keyword arguments:" << std::endl;
+        for( Py::List::size_type i=0; i< names.length(); i++ )
+        {
+            Py::String name( names[i] );
+            std::cout << "    " << name << std::endl;
+        }
+
+        Py::Callable class_type( new_style_class::type() );
+
+        Py::PythonClassObject<new_style_class> new_style_obj( class_type.apply( args, kwds ) );
+
+        return new_style_obj;
     }
 
     Py::Object factory_old_style_class( const Py::Tuple &rargs )
