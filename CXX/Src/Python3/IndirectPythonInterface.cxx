@@ -80,7 +80,6 @@ static PyObject *ptr__Exc_KeyboardInterrupt = NULL;
 static PyObject *ptr__Exc_KeyError = NULL;
 static PyObject *ptr__Exc_LookupError = NULL;
 static PyObject *ptr__Exc_MemoryError = NULL;
-static PyObject *ptr__Exc_MemoryErrorInst = NULL;
 static PyObject *ptr__Exc_NameError = NULL;
 static PyObject *ptr__Exc_NotImplementedError = NULL;
 static PyObject *ptr__Exc_OSError = NULL;
@@ -245,7 +244,6 @@ bool InitialisePythonIndirectInterface()
     ptr__Exc_KeyError           = GetPyObjectPointer_As_PyObjectPointer( "PyExc_KeyError" );
     ptr__Exc_LookupError        = GetPyObjectPointer_As_PyObjectPointer( "PyExc_LookupError" );
     ptr__Exc_MemoryError        = GetPyObjectPointer_As_PyObjectPointer( "PyExc_MemoryError" );
-    ptr__Exc_MemoryErrorInst    = GetPyObjectPointer_As_PyObjectPointer( "PyExc_MemoryErrorInst" );
     ptr__Exc_NameError          = GetPyObjectPointer_As_PyObjectPointer( "PyExc_NameError" );
     ptr__Exc_NotImplementedError= GetPyObjectPointer_As_PyObjectPointer( "PyExc_NotImplementedError" );
     ptr__Exc_OSError            = GetPyObjectPointer_As_PyObjectPointer( "PyExc_OSError" );
@@ -318,7 +316,6 @@ PyObject *_Exc_KeyboardInterrupt()      { return ptr__Exc_KeyboardInterrupt; }
 PyObject *_Exc_KeyError()               { return ptr__Exc_KeyError; }
 PyObject *_Exc_LookupError()            { return ptr__Exc_LookupError; }
 PyObject *_Exc_MemoryError()            { return ptr__Exc_MemoryError; }
-PyObject *_Exc_MemoryErrorInst()        { return ptr__Exc_MemoryErrorInst; }
 PyObject *_Exc_NameError()              { return ptr__Exc_NameError; }
 PyObject *_Exc_NotImplementedError()    { return ptr__Exc_NotImplementedError; }
 PyObject *_Exc_OSError()                { return ptr__Exc_OSError; }
@@ -449,7 +446,6 @@ PyObject *_Exc_KeyboardInterrupt()      { return ::PyExc_KeyboardInterrupt; }
 PyObject *_Exc_KeyError()               { return ::PyExc_KeyError; }
 PyObject *_Exc_LookupError()            { return ::PyExc_LookupError; }
 PyObject *_Exc_MemoryError()            { return ::PyExc_MemoryError; }
-PyObject *_Exc_MemoryErrorInst()        { return ::PyExc_MemoryErrorInst; }
 PyObject *_Exc_NameError()              { return ::PyExc_NameError; }
 PyObject *_Exc_NotImplementedError()    { return ::PyExc_NotImplementedError; }
 PyObject *_Exc_OSError()                { return ::PyExc_OSError; }
