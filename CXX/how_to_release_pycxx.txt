@@ -8,14 +8,11 @@ How to release PyCXX
 2.  Create the source kit using make_src_kit.py
 3.  Add new File release on sourceforge.
     1. http://sourceforge.net/projects/cxx/
-    2. Click Develop
-    3. Select Menu Project Admin... File Manager
-    4. Right Click On CXX folder Choose New Folder
+    3. Select File
+    4. Create New Folder
     5. Name the Folder PyCXX V<maj>.<min>.<patch> e.g. PyCXX V6.1.1
-    6. Right Click On CXX folder Choose Uploads Here
-    7. Upload the source kit and its PyCXX-Release-Notes.txt
-    8. Click on PyCXX-Release-Notes.txt and check Release Note and Save
-    9. Click on source kit and choose Select All platforms and Choose the Release Notes for this file
+    7. Upload the source kit and its PyCXX-Release-Notes-readme.txt
+    9. Click on the source kit (i) icon and choose Select All platforms
 4.  Add news about release
     1. Click Develop
     2. From Develop Menu choose News
