@@ -194,6 +194,9 @@ public:
         add_keyword_method("func", &simple_module::func, "documentation for func()");
         add_keyword_method("make_instance", &simple_module::make_instance, "documentation for make_instance()");
 
+        add_keyword_method("decode_test", &simple_module::decode_test, "documentation for decode_test()");
+        add_keyword_method("encode_test", &simple_module::encode_test, "documentation for encode_test()");
+
         // after initialize the moduleDictionary will exist
         initialize( "documentation for the simple module" );
 
@@ -207,6 +210,18 @@ public:
     {}
 
 private:
+    Py::Object decode_test( const Py::Tuple &args, const Py::Dict &kwds )
+    {
+        Py::Bytes s( args[0] );
+        return s.decode("utf-8");
+    }
+
+    Py::Object encode_test( const Py::Tuple &args, const Py::Dict &kwds )
+    {
+        Py::String s( args[0] );
+        return s.encode("utf-8");
+    }
+
     Py::Object func( const Py::Tuple &args, const Py::Dict &kwds )
     {
         std::cout << "func Called with " << args.length() << " normal arguments." << std::endl;
