@@ -56,7 +56,13 @@ bool _TraceBack_Check( PyObject *op )   { return op->ob_type == _TraceBack_Type(
 bool _Tuple_Check( PyObject *op )       { return op->ob_type == _Tuple_Type(); }
 bool _Type_Check( PyObject *op )        { return op->ob_type == _Type_Type(); }
 bool _Unicode_Check( PyObject *op )     { return op->ob_type == _Unicode_Type(); }
+#if PY_MAJOR_VERSION == 2
+bool _String_Check( PyObject *op )      { return op->ob_type == _String_Type(); }
+bool _Int_Check( PyObject *op )         { return op->ob_type == _Int_Type(); }
+#endif
+#if PY_MAJOR_VERSION >= 3
 bool _Bytes_Check( PyObject *op )       { return op->ob_type == _Bytes_Type(); }
+#endif
 
 #if defined(PY_WIN32_DELAYLOAD_PYTHON_DLL)
 
@@ -120,6 +126,14 @@ static PyTypeObject *ptr__Slice_Type = NULL;
 static PyTypeObject *ptr__TraceBack_Type = NULL;
 static PyTypeObject *ptr__Tuple_Type = NULL;
 static PyTypeObject *ptr__Type_Type = NULL;
+#if PY_MAJOR_VERSION == 2
+static PyTypeObject *ptr__Int_Type = NULL;
+static PyTypeObject *ptr__String_Type = NULL;
+#endif
+#if PY_MAJOR_VERSION >= 3
+static PyTypeObject *ptr__Bytes_Type = NULL;
+#endif
+
 
 static int *ptr_Py_DebugFlag = NULL;
 static int *ptr_Py_InteractiveFlag = NULL;
@@ -286,7 +300,13 @@ bool InitialisePythonIndirectInterface()
     ptr__Tuple_Type             = GetPyTypeObject_As_PyTypeObjectPointer( "PyTuple_Type" );
     ptr__Type_Type              = GetPyTypeObject_As_PyTypeObjectPointer( "PyType_Type" );
     ptr__Unicode_Type           = GetPyTypeObject_As_PyTypeObjectPointer( "PyUnicode_Type" );
+#if PY_MAJOR_VERSION == 2
+    ptr__String_Type            = GetPyTypeObject_As_PyTypeObjectPointer( "PyString_Type" );
+    ptr__Int_Type               = GetPyTypeObject_As_PyTypeObjectPointer( "PyInt_Type" );
+#endif
+#if PY_MAJOR_VERSION >= 3
     ptr__Bytes_Type             = GetPyTypeObject_As_PyTypeObjectPointer( "PyBytes_Type" );
+#endif
     }
     catch( GetAddressException &e )
     {
@@ -363,7 +383,13 @@ PyTypeObject *_TraceBack_Type()         { return ptr__TraceBack_Type; }
 PyTypeObject *_Tuple_Type()             { return ptr__Tuple_Type; }
 PyTypeObject *_Type_Type()              { return ptr__Type_Type; }
 PyTypeObject *_Unicode_Type()           { return ptr__Unicode_Type; }
+#if PY_MAJOR_VERSION == 2
+PyTypeObject *_String_Type()            { return ptr__String_Type; }
+PyTypeObject *_Int_Type()               { return ptr__Int_Type; }
+#endif
+#if PY_MAJOR_VERSION >= 3
 PyTypeObject *_Bytes_Type()             { return ptr__Bytes_Type; }
+#endif
 
 char *__Py_PackageContext()             { return *ptr__Py_PackageContext; }
 
@@ -496,7 +522,13 @@ PyTypeObject *_TraceBack_Type()         { return &PyTraceBack_Type; }
 PyTypeObject *_Tuple_Type()             { return &PyTuple_Type; }
 PyTypeObject *_Type_Type()              { return &PyType_Type; }
 PyTypeObject *_Unicode_Type()           { return &PyUnicode_Type; }
+#if PY_MAJOR_VERSION == 2
+PyTypeObject *_String_Type()            { return &PyString_Type; }
+PyTypeObject *_Int_Type()               { return &PyInt_Type; }
+#endif
+#if PY_MAJOR_VERSION >= 3
 PyTypeObject *_Bytes_Type()             { return &PyBytes_Type; }
+#endif
 
 //
 //    wrap flags
