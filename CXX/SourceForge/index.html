@@ -44,51 +44,60 @@ and method calls that define your modules and extension objects.
 </li>
 </ul>
 
-<hr>
+<hr />
 
 <p>PyCXX documentation is split into <a href="PyCXX-Python3.html">Python 3</a>
 and <a href="PyCXX-Python2.html">Python 2</a> versions. The Python 3 documentation is the most accurate.</p>
 
 <p>Latest PyCXX <a href="README.html">README</a> file.</p>
 
-<hr>
+<hr />
+<h2>Version 6.2.3 (6-Feb-2011)</h2>
+<p>Fix memory leak in string encode and decode functions</p>
+<p>Fix indirect python loading on windows - Bool_type was missing</p>
+
+<hr />
+<h2>Version 6.2.2 (26-Dec-2010)</h2>
+<p>Fix problem compiling against Python 3.1.3</p>
+
+<hr />
 <h2>Version 6.2.1 (15-Aug-2010)</h2>
 <p>Add support for NotImplementedError</p>
 <p>Remove String() and Byte() c'tors that are not allowed by ISO C++ and where ambigous</p>
 
-<hr>
+<hr />
 <h2>Version 6.2.0 (9-May-2010)</h2>
 
 <p>Fix problems with new style classes.</p>
 <p>Replace all example makefile and project files with setup_makefile.py script.</p>
 <p>Add APIs to make calling python functions easier. See TupleN(), callOnSelf(), self()</p>
 
-<hr>
+<hr />
 <h2>Version 6.1.1 (26-Sep-2009)</h2>
 <p>Supports Python 3 starting at Python 3.1 and Python 2</p>
 <p>Code clean up to fix compiler warnings reported by gcc 4.2.1 on Mac OS X when building for Python 3.</p>
 
-<hr>
+<hr />
 <h2>Version 6.1.0 (19-Jul-2009)</h2>
 <p>Supports Python 3 and Python 2</p>
 <p>This release replaces 5.5.0 and 6.0.0</p>
 <p>Speed of method calling has been improved.</p>
 
-<hr>
+<hr />
 <h2>Version 6.0.0 (31-Jan-2009)</h2>
 <p>Supports Python 3 only</p>
 
-<hr>
+<hr />
 <h2>Version 5.5.0 (31-Jan-2009)</h2>
 <p>Supports Python 2 only</p>
  
-<hr>
+<hr />
 <h2>Version 5.4.2 (11-Oct-2008)</h2>
 <p>Add support for rich compare.</p>
 <p>Add the simplest code for a module with a single function and a single class (Demo/simple.cxx)</p>
 <p>Fix long standing bugs with Dict::iterator</p>
 
-<hr>
+<hr />
 <h2>Version 5.4.1 (28-Jun-2008)</h2>
 <p>Add Boolean type from Vivian De Smedt.</p>
 <p>Patch from Dmitry Kostjuchenko to which improves PyCXX method's calling
@@ -97,7 +106,7 @@ speed/performance by almost 2 times.</p>
 <p>No longer allow creation of Py::Int from PY_LONG_LONG as long long cannot fit. Use Py::Long.</p>
 <p>Py:Dict can now be constructed from a Py::Object.</p>
 
-<hr>
+<hr />
 <h2>Version 5.4.0 (20-Jan-2007)</h2>
 <p>PyCXX has a new <a href="https://svn.sourceforge.net/svnroot/cxx/trunk/CXX/COPYRIGHT">BSD license</a>
 to make it open source compatible.
@@ -136,7 +145,7 @@ to Paul Dubios for working with the LLNL people to get the license changed.</p>
 
 <p>Download PyCXX 5.3.0 from <a href="http://prdownloads.sourceforge.net/cxx/pycxx_5_3_0.tar.gz?download">SourceForge</a>.</p>
 <p>-- BArry Scott, October 2004</p>
-<hr>
+<hr />
 <h2> PyCXX V5.2.0 </h2>
 <p>After a long gap I have updated PyCXX (the name I prefer for CXX) to
 fix a number of bugs and add a small number of features.</p>
