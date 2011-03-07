@@ -1,5 +1,5 @@
 #
-#   Copyright (c) 2010 Barry A. Scott
+#   Copyright (c) 2010-2011 Barry A. Scott
 #
 import os
 import sys
@@ -394,7 +394,7 @@ class MacOsxCompilerGCC(CompilerGCC):
         self._addVar( 'PYTHON_FRAMEWORK', '%(PYTHONDIR)s/Python' )
 
         self._addVar( 'PYTHON',         sys.executable )
-        self._addVar( 'PYTHON_INCLUDE', '%(PYTHONDIR)s/include/python%(PYTHON_VERSION)s' )
+        self._addVar( 'PYTHON_INCLUDE', '%(PYTHONDIR)s/Headers' )
 
         self._addVar( 'DEMO_DIR',       'Demo/Python%d' % (sys.version_info[0],) )
 
